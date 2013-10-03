@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Application.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="PCH.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderWindow.h">
+      <Filter>source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="source">
+      <UniqueIdentifier>{28fff477-9955-454e-bfe1-bfaf3234915c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{8247614a-7221-4683-9e05-bbee2e8c3b4c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\screenTri.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\background.frag">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Application.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="PCH.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderWindow.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
