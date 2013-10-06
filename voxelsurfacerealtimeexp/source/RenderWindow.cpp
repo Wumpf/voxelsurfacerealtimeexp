@@ -13,11 +13,16 @@ RenderWindowGL::RenderWindowGL() :
   m_CreationDescription.m_ClientAreaSize.width = 1280;
   m_CreationDescription.m_ClientAreaSize.height = 900;
   m_CreationDescription.m_bFullscreenWindow = false;
+
+  Initialize();
+  CreateGraphicsContext();
 }
 
 
 RenderWindowGL::~RenderWindowGL()
 {
+  DestroyGraphicsContext();
+  Destroy();
 }
 
 void RenderWindowGL::OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
@@ -43,6 +48,7 @@ void RenderWindowGL::DestroyGraphicsContext()
 
 void RenderWindowGL::CreateGraphicsContext()
 {
+  // init opengl device
   int iColorBits = 24;
   int iDepthBits = 24;
   int iBPC = 8;
@@ -83,6 +89,15 @@ void RenderWindowGL::CreateGraphicsContext()
 
   m_hDC = hDC;
   m_hRC = hRC;
+
+
+  // load using glew
+  glewExperimental = TRUE;
+  GLenum err = glewInit();
+  if(err != GLEW_OK)
+  {
+    ezLog::FatalError("glewInit failed!");
+  }
 }
 
 void RenderWindowGL::SwapBuffers()

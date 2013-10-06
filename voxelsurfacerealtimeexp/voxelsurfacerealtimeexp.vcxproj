@@ -73,7 +73,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\dependencies\include;..\..\ezEngine\Trunk\Code\Engine;$(IncludePath)</IncludePath>
+    <IncludePath>source\;..\dependencies\include;..\..\ezEngine\Trunk\Code\Engine;$(IncludePath)</IncludePath>
     <LibraryPath>..\dependencies\lib;..\..\ezEngine\Trunk\Output\Lib\Debug64\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,7 +83,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\dependencies\include;..\..\ezEngine\Trunk\Code\Engine\;$(IncludePath)</IncludePath>
+    <IncludePath>source\;..\dependencies\include;..\..\ezEngine\Trunk\Code\Engine\;$(IncludePath)</IncludePath>
     <LibraryPath>..\dependencies\lib;..\..\ezEngine\Trunk\Output\Lib\Release64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -116,8 +116,7 @@
       <AdditionalDependencies>ezSystem.lib;ezFoundation.lib;ezCore.lib;ezInputWindows.lib;ezInputXBox360.lib;ezThirdParty.lib;OpenGL32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Debug64 $(TargetDir)
-  /D /Y</Command>
+      <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Debug64 $(TargetDir) /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -162,22 +161,27 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Application.h" />
-    <ClInclude Include="PCH.h" />
-    <ClInclude Include="RenderWindow.h" />
+    <ClInclude Include="source\Application.h" />
+    <ClInclude Include="source\gl\GLUtils.h" />
+    <ClInclude Include="source\gl\ScreenAlignedTriangle.h" />
+    <ClInclude Include="source\gl\ShaderObject.h" />
+    <ClInclude Include="source\PCH.h" />
+    <ClInclude Include="source\RenderWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\background.frag" />
     <None Include="shader\screenTri.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Input.cpp" />
-    <ClCompile Include="PCH.cpp">
+    <ClCompile Include="source\Application.cpp" />
+    <ClCompile Include="source\gl\GLUtils.cpp" />
+    <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp" />
+    <ClCompile Include="source\gl\ShaderObject.cpp" />
+    <ClCompile Include="source\Input.cpp" />
+    <ClCompile Include="source\PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PCH.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="RenderWindow.cpp" />
+    <ClCompile Include="source\RenderWindow.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
