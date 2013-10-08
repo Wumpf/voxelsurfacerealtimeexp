@@ -2,7 +2,7 @@
 
 #include "Application.h"
 #include "RenderWindow.h"
-#include "gl/ShaderObject.h"
+#include "Scene.h"
 
 #include <Foundation/Configuration/Startup.h>
 
@@ -14,8 +14,8 @@
 Application::Application() :
    m_pHTMLLogWriter(nullptr),
    m_bRunning(true),
-   m_pTestShader(NULL),
-   m_pWindow(NULL)
+   m_pWindow(NULL),
+   m_pScene(NULL)
 {
 }
 
@@ -44,27 +44,17 @@ void Application::AfterEngineInit()
   SetupInput();
 
   // load graphics stuff
-  LoadGraphicsResources();
+  m_pScene = EZ_DEFAULT_NEW(Scene);
 
   // reset time
   m_LastFrameTime = ezSystemTime::Now();
 }
 
-void Application::LoadGraphicsResources()
-{
-  // 
-  m_pTestShader = EZ_DEFAULT_NEW(ShaderObject);
-  m_pTestShader->AddShaderFromFile(ShaderObject::ShaderType::VERTEX, "screenTri.vert");
-  m_pTestShader->AddShaderFromFile(ShaderObject::ShaderType::FRAGMENT, "background.frag");
-  m_pTestShader->CreateProgram();
-}
-
-
 void Application::BeforeEngineShutdown()
 {
   ezStartup::ShutdownEngine();
 
-  EZ_DEFAULT_DELETE(m_pTestShader);
+  EZ_DEFAULT_DELETE(m_pScene);
   EZ_DEFAULT_DELETE(m_pWindow);
     
   ezLog::RemoveLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
@@ -79,16 +69,25 @@ ezApplication::ApplicationExecution Application::Run()
   ezTime lastFrameDuration = now - m_LastFrameTime;
   m_LastFrameTime = now;
 
+  // update
   UpdateInput(m_LastFrameTime);
-
+  m_pScene->Update(m_LastFrameTime);
   if(m_pWindow->ProcessWindowMessages() != ezWindow::Continue)
     m_bRunning = false;
+
+  // rendering
+  RenderFrame();
+
 
   return m_bRunning ? ezApplication::Continue : ezApplication::Quit;
 }
 
 void Application::RenderFrame()
 {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  m_pScene->Render(m_LastFrameTime);
+
   m_pWindow->SwapBuffers();
 }
 
@@ -98,7 +97,6 @@ void Application::SetupFileSystem()
 
   ezOSFile::CreateDirectoryStructure(applicationDir.GetData());
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
 
   ezFileSystem::AddDataDirectory(applicationDir.GetData(), ezFileSystem::AllowWrites, "general", "");
   

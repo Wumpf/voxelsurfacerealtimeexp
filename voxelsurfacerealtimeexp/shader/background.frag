@@ -164,7 +164,10 @@ vec3 getTerrainColor(in vec3 normal, in vec3 pos)
 // ------------------------------------------------
 uniform int terrainOnOff;
 void main()
-{	
+{
+	fragColor = vec4(1,0,1,1);
+	return;
+
 	// "picking" - compute raydirection
 	vec2 deviceCor = 2.0 * vs_out_texcoord - 1.0;
 	vec4 rayOrigin = InverseViewProjection * vec4(deviceCor, -1, 1);

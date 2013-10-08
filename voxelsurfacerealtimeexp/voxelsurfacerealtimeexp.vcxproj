@@ -167,6 +167,7 @@
     <ClInclude Include="source\gl\ShaderObject.h" />
     <ClInclude Include="source\PCH.h" />
     <ClInclude Include="source\RenderWindow.h" />
+    <ClInclude Include="Source\Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\background.frag" />
@@ -182,6 +183,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="source\RenderWindow.cpp" />
+    <ClCompile Include="Source\Scene.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

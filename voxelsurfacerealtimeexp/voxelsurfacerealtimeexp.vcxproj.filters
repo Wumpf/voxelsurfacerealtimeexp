@@ -19,6 +19,9 @@
     <ClInclude Include="source\gl\GLUtils.h">
       <Filter>source\gl</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Scene.h">
+      <Filter>source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source">
@@ -60,6 +63,9 @@
     </ClCompile>
     <ClCompile Include="source\gl\GLUtils.cpp">
       <Filter>source\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Scene.cpp">
+      <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

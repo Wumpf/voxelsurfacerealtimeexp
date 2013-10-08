@@ -40,17 +40,16 @@ ezResult ShaderObject::AddShaderFromFile(ShaderType type, const ezString& sFilen
   }
 
   // read file
-  ezStringBuilder builder;
-  char aBuffer[2048];
-  ezUInt64 numBytes = 0;
-  while(numBytes = file.ReadBytes(aBuffer, 2047))
-  {
-    aBuffer[numBytes] = '\0';
-    builder.Append(aBuffer);
-  }
+  ezUInt64 uiFileSize = file.GetFileSize();
+  ezDynamicArray<char> pData;
+  pData.SetCount(static_cast<ezUInt32>(uiFileSize)+1);
+  ezUInt64 uiReadBytes = file.ReadBytes(static_cast<ezArrayPtr<char>>(pData).GetPtr(), uiFileSize);
+  EZ_ASSERT(uiReadBytes == uiFileSize, "FileSize does not matches number of bytes read.");
+  pData[uiFileSize] = '\0';
   file.Close();
 
-  return AddShaderFromSource(type, builder.GetData(), sFilename);
+
+  return AddShaderFromSource(type, static_cast<ezArrayPtr<char>>(pData).GetPtr(), sFilename);
 }
 
 ezResult ShaderObject::AddShaderFromSource(ShaderType type, const ezString& pSourceCode, const ezString& sOriginName)

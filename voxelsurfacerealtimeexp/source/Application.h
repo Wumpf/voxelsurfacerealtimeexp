@@ -18,8 +18,6 @@ public:
   virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE;
 
 private:
-  void LoadGraphicsResources();
-
   void SetupFileSystem();
   void SetupInput();
   
@@ -27,8 +25,7 @@ private:
   void RenderFrame();
 
   class RenderWindowGL* m_pWindow;
-  class ShaderObject* m_pTestShader;
-
+  class Scene* m_pScene;
 
   ezTime m_LastFrameTime;
   bool m_bRunning;
