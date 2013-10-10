@@ -86,11 +86,19 @@ namespace GLUtils
     EZ_ASSERT(eventType != ezLog::EventType::FatalErrorMsg, "Fatal GL error occurred: %s: %s(%s) %d: %s", debSource, debType, debSev, id, message);
   }
 
-  void ActivateDebugOutput()
+  void ActivateDebugOutput(DebugMessageSeverity minMessageSeverity)
   {
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+    switch (minMessageSeverity)
+    {
+    case GLUtils::DebugMessageSeverity::LOW:
+      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, NULL, GL_TRUE);
+    case GLUtils::DebugMessageSeverity::MEDIUM:
+      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, NULL, GL_TRUE);
+    case GLUtils::DebugMessageSeverity::HIGH:
+      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, NULL, GL_TRUE);
+    }
     glDebugMessageCallback(&DebugOutput, NULL);
   }
 
