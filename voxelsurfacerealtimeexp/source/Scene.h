@@ -10,6 +10,10 @@ public:
 
 private:
   ezUniquePtr<class ShaderObject> m_pPostEffectShader;
+  ezUniquePtr<class ShaderObject> m_pComputeShaderTest;
+
   ezUniquePtr<class ScreenAlignedTriangle> m_pScreenAlignedTriangle;
+ 
+  GLuint m_TestBuffer;
 };
 

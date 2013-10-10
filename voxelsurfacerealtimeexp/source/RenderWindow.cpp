@@ -1,5 +1,6 @@
 #include "PCH.h"
 #include "RenderWindow.h"
+#include "gl/GLUtils.h"
 
 #include <Core/Input/InputManager.h>
 #include <InputWindows/InputDeviceWindows.h>
@@ -98,6 +99,9 @@ void RenderWindowGL::CreateGraphicsContext()
   {
     ezLog::FatalError("glewInit failed!");
   }
+
+  // enable debug output
+  GLUtils::ActivateDebugOutput();
 }
 
 void RenderWindowGL::SwapBuffers()

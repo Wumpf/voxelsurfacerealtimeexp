@@ -3,7 +3,7 @@
 
 namespace GLUtils
 {
-  static void APIENTRY debugOutput(
+  static void APIENTRY DebugOutput(
     GLenum source,
     GLenum type,
     GLuint id,
@@ -83,7 +83,7 @@ namespace GLUtils
       break;
     }
 
-    EZ_ASSERT(eventType == ezLog::EventType::FatalErrorMsg, "Fatal GL error occurred: %s: %s(%s) %d: %s", debSource, debType, debSev, id, message);
+    EZ_ASSERT(eventType != ezLog::EventType::FatalErrorMsg, "Fatal GL error occurred: %s: %s(%s) %d: %s", debSource, debType, debSev, id, message);
   }
 
   void ActivateDebugOutput()
@@ -91,7 +91,7 @@ namespace GLUtils
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-    glDebugMessageCallback(&debugOutput, NULL);
+    glDebugMessageCallback(&DebugOutput, NULL);
   }
 
   ezResult CheckError(const ezString& sTitle)

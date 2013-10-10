@@ -171,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\background.frag" />
+    <None Include="shader\comptest.comp" />
     <None Include="shader\screenTri.vert" />
   </ItemGroup>
   <ItemGroup>

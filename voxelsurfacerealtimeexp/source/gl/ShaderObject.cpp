@@ -45,7 +45,7 @@ ezResult ShaderObject::AddShaderFromFile(ShaderType type, const ezString& sFilen
   pData.SetCount(static_cast<ezUInt32>(uiFileSize)+1);
   ezUInt64 uiReadBytes = file.ReadBytes(static_cast<ezArrayPtr<char>>(pData).GetPtr(), uiFileSize);
   EZ_ASSERT(uiReadBytes == uiFileSize, "FileSize does not matches number of bytes read.");
-  pData[uiFileSize] = '\0';
+  pData[static_cast<ezUInt32>(uiFileSize)] = '\0';
   file.Close();
 
 
@@ -127,9 +127,25 @@ ezResult ShaderObject::CreateProgram()
   // debug output
   PrintProgramInfoLog(m_Program);
 
+  // check
+  if(GLUtils::CheckError("CreateProgram") == EZ_FAILURE)
+    return EZ_FAILURE;
   m_ContainsAssembledProgram = true;
 
-  return GLUtils::CheckError("CreateProgram");
+  // get uniform information
+  // todo: store anything you can get
+  // -> debugging
+  // -> automatic attaching of stuff
+  // http://www.opengl.org/wiki/Program_Introspection#Uniforms_and_blocks
+
+
+ /* int iMaxUniformIndex;
+  glGetProgramiv(m_Program, GL_ACTIVE_UNIFORMS?, &iMaxUniformIndex);
+  ezDynamicArray<
+  glGetUniformIndices?(m_Program?, iMaxUniformIndex, const char ** uniformNames?, GLuint *uniformIndices?);
+  */
+
+  return EZ_SUCCESS;
 }
 
 GLuint ShaderObject::GetProgram() const
@@ -154,7 +170,13 @@ void ShaderObject::PrintShaderInfoLog(GLuint shader, const ezString& sShaderName
 	ezArrayPtr<char> pInfoLog = EZ_DEFAULT_NEW_ARRAY(char, infologLength);
 	glGetShaderInfoLog(shader, infologLength, &charsWritten, pInfoLog.GetPtr());
   pInfoLog[charsWritten] = '\0';
-  ezLog::Dev("Shader %s compiled. Output:\n%s", sShaderName.GetData(), pInfoLog.GetPtr());
+  if(strlen(pInfoLog.GetPtr()) > 0)
+  {
+    ezLog::Error("Shader %s compiled. Output:", sShaderName.GetData());
+    ezLog::Error(pInfoLog.GetPtr());
+  }
+  else
+    ezLog::Dev("Shader %s compiled successfully", sShaderName.GetData());
   
 	EZ_DEFAULT_DELETE_ARRAY(pInfoLog);
 #endif
@@ -172,7 +194,14 @@ void ShaderObject::PrintProgramInfoLog(GLuint program) const
   glGetProgramInfoLog(program, infologLength, &charsWritten, pInfoLog.GetPtr());
   pInfoLog[charsWritten] = '\0';
 
-  ezLog::Dev("Compiling program:\n%s", pInfoLog.GetPtr());
+  if(strlen(pInfoLog.GetPtr()) > 0)
+  {
+    ezLog::Error("Compiling program. Output:");
+    ezLog::Error(pInfoLog.GetPtr());
+  }
+  else
+    ezLog::Dev("Compiled program successfully");
+
   EZ_DEFAULT_DELETE_ARRAY(pInfoLog);
 #endif
 }
