@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Application.h" />
+    <ClInclude Include="source\ezExtensions\UniquePtr.h" />
     <ClInclude Include="source\gl\GLUtils.h" />
     <ClInclude Include="source\gl\ScreenAlignedTriangle.h" />
     <ClInclude Include="source\gl\ShaderObject.h" />

@@ -8,7 +8,7 @@ namespace GLUtils
     HIGH
   };
 
-  /// Activates the Opengl 4.3 debug output
+  /// Activates the OpenGL 4.3 debug output
   void ActivateDebugOutput(DebugMessageSeverity minMessageSeverity = DebugMessageSeverity::MEDIUM);
 
   /// checks if there is any OpenGL error

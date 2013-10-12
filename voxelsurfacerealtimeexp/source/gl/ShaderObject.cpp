@@ -154,7 +154,7 @@ GLuint ShaderObject::GetProgram() const
   return m_Program;
 }
 
-void ShaderObject::UseProgram() const 	
+void ShaderObject::Activate() const 	
 {
   EZ_ASSERT(m_ContainsAssembledProgram, "No shader program ready yet. Call CreateProgram first!");
   glUseProgram(m_Program);

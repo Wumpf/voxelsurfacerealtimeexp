@@ -39,11 +39,11 @@ ezResult Scene::Update(ezTime lastFrameTime)
 ezResult Scene::Render(ezTime lastFrameTime)
 {
   // render test
-  m_pPostEffectShader->UseProgram();
+  m_pPostEffectShader->Activate();
   m_pScreenAlignedTriangle->display();
 
   // compute test
-  m_pComputeShaderTest->UseProgram();
+  m_pComputeShaderTest->Activate();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_TestBuffer);
   glDispatchCompute(1, 1, 1);
 

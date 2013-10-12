@@ -22,6 +22,9 @@
     <ClInclude Include="Source\Scene.h">
       <Filter>source</Filter>
     </ClInclude>
+    <ClInclude Include="source\ezExtensions\UniquePtr.h">
+      <Filter>source\ezExtensions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source">
@@ -32,6 +35,9 @@
     </Filter>
     <Filter Include="source\gl">
       <UniqueIdentifier>{f7eaace0-013f-4551-af10-b5f8d631dd5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\ezExtensions">
+      <UniqueIdentifier>{27a536cf-c919-4d46-94f7-41e3c9eb4549}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

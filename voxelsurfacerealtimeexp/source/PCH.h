@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Basics/Types/UniquePtr.h>
+#include "ezExtensions/UniquePtr.h"
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Time.h>
