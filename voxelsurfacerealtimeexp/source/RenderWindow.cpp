@@ -1,18 +1,33 @@
 #include "PCH.h"
 #include "RenderWindow.h"
+#include "GlobalCVar.h"
 #include "gl/GLUtils.h"
 
 #include <Core/Input/InputManager.h>
 #include <InputWindows/InputDeviceWindows.h>
 
+namespace GeneralConfig
+{
+  ezCVarInt g_ResolutionWidth("ResolutionWidth", 1280, ezCVarFlags::Save | ezCVarFlags::RequiresRestart, "Backbuffer resolution in x direction");
+  ezCVarInt g_ResolutionHeight("ResolutionHeight", 900, ezCVarFlags::Save | ezCVarFlags::RequiresRestart, "Backbuffer resolution in y direction");
+
+  ezSizeU32 GetScreenResolution()
+  {
+    return ezSizeU32(g_ResolutionWidth.GetValue(), g_ResolutionHeight.GetValue());
+  }
+  ezVec2 GetScreenResolutionF()
+  {
+    return ezVec2(g_ResolutionWidth.GetValue(), g_ResolutionHeight.GetValue());
+  }
+}
 
 RenderWindowGL::RenderWindowGL() :
   ezWindow(),
-  m_hDC(NULL), m_hRC(NULL)
+  m_hDeviceContext(NULL), m_hRC(NULL)
 {
-  m_CreationDescription.m_Title = "avoxelsurfacerealtimeexp";
-  m_CreationDescription.m_ClientAreaSize.width = 1280;
-  m_CreationDescription.m_ClientAreaSize.height = 900;
+  m_CreationDescription.m_Title = "voxelsurfacerealtimeexp";
+  m_CreationDescription.m_ClientAreaSize.width = GeneralConfig::g_ResolutionWidth.GetValue();
+  m_CreationDescription.m_ClientAreaSize.height = GeneralConfig::g_ResolutionHeight.GetValue();
   m_CreationDescription.m_bFullscreenWindow = false;
 
   Initialize();
@@ -40,10 +55,10 @@ void RenderWindowGL::DestroyGraphicsContext()
     m_hRC = NULL;
   }
 
-  if (m_hDC)
+  if (m_hDeviceContext)
   {
-    ReleaseDC(GetNativeWindowHandle(), m_hDC);
-    m_hDC = NULL;
+    ReleaseDC(GetNativeWindowHandle(), m_hDeviceContext);
+    m_hDeviceContext = NULL;
   }
 }
 
@@ -74,21 +89,21 @@ void RenderWindowGL::CreateGraphicsContext()
   if (hDC == NULL)
     return;
 
-  int iPixelformat = ChoosePixelFormat (hDC, &pfd);
+  int iPixelformat = ChoosePixelFormat(hDC, &pfd);
   if (iPixelformat == 0)
     return;
 
-  if (!SetPixelFormat (hDC, iPixelformat, &pfd))
+  if (!SetPixelFormat(hDC, iPixelformat, &pfd))
     return;
 
-  HGLRC hRC = wglCreateContext (hDC);
+  HGLRC hRC = wglCreateContext(hDC);
   if (hRC == NULL)
     return;
 
-  if (!wglMakeCurrent (hDC, hRC))
+  if (!wglMakeCurrent(hDC, hRC))
     return;
 
-  m_hDC = hDC;
+  m_hDeviceContext = hDC;
   m_hRC = hRC;
 
 
@@ -101,10 +116,10 @@ void RenderWindowGL::CreateGraphicsContext()
   }
 
   // enable debug output
-  GLUtils::ActivateDebugOutput();
+  gl::Utils::ActivateDebugOutput();
 }
 
 void RenderWindowGL::SwapBuffers()
 {
-  ::SwapBuffers(m_hDC);
+  ::SwapBuffers(m_hDeviceContext);
 }

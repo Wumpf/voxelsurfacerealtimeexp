@@ -1,15 +1,18 @@
 #pragma once
 
-// class for rendering a screen aligned triangle
-class ScreenAlignedTriangle
+namespace gl
 {
-public:
-	ScreenAlignedTriangle();
-	~ScreenAlignedTriangle();
+  // class for rendering a screen aligned triangle
+  class ScreenAlignedTriangle
+  {
+  public:
+    ScreenAlignedTriangle();
+    ~ScreenAlignedTriangle();
 
-	void display();
+    void display();
 
-private:
-	GLuint vbo;
-	GLuint vao;
-};
+  private:
+    GLuint vbo;
+    GLuint vao;
+  };
+}

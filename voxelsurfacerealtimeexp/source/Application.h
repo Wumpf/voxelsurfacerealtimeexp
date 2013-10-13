@@ -7,6 +7,7 @@ namespace ezLogWriter
   class HTML;
 }
 
+/// Basic application framework
 class Application : public ezApplication
 {
 public:
@@ -22,7 +23,7 @@ private:
   void SetupInput();
   
   void UpdateInput(ezTime lastFrameDuration);
-  void RenderFrame();
+  void RenderFrame(ezTime lastFrameDuration);
 
   class RenderWindowGL* m_pWindow;
   class Scene* m_pScene;

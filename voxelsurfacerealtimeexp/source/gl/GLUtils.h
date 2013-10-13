@@ -1,16 +1,21 @@
-namespace GLUtils
+#pragma once
+
+namespace gl
 {
-  /// classes of Debug message severity
-  enum class DebugMessageSeverity
+  namespace Utils
   {
-    LOW,
-    MEDIUM,
-    HIGH
-  };
+    /// classes of Debug message severity
+    enum class DebugMessageSeverity
+    {
+      LOW,
+      MEDIUM,
+      HIGH
+    };
 
-  /// Activates the OpenGL 4.3 debug output
-  void ActivateDebugOutput(DebugMessageSeverity minMessageSeverity = DebugMessageSeverity::MEDIUM);
+    /// Activates the OpenGL 4.3 debug output
+    void ActivateDebugOutput(DebugMessageSeverity minMessageSeverity = DebugMessageSeverity::MEDIUM);
 
-  /// checks if there is any OpenGL error
-  ezResult CheckError(const ezString& sTitle);
+    /// checks if there is any OpenGL error
+    ezResult CheckError(const ezString& sTitle);
+  }
 }

@@ -31,6 +31,10 @@ void Application::AfterEngineInit()
   // setups file system stuff
   SetupFileSystem();
 
+  // load global config variables
+  ezCVar::SetStorageFolder("CVars");
+  ezCVar::LoadCVars();
+
   // setup log
   ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   m_pHTMLLogWriter = EZ_DEFAULT_NEW(ezLogWriter::HTML);
@@ -44,7 +48,7 @@ void Application::AfterEngineInit()
   SetupInput();
 
   // load graphics stuff
-  m_pScene = EZ_DEFAULT_NEW(Scene);
+  m_pScene = EZ_DEFAULT_NEW(Scene)(*m_pWindow);
 
   // reset time
   m_LastFrameTime = ezSystemTime::Now();
@@ -70,23 +74,23 @@ ezApplication::ApplicationExecution Application::Run()
   m_LastFrameTime = now;
 
   // update
-  UpdateInput(m_LastFrameTime);
-  m_pScene->Update(m_LastFrameTime);
+  UpdateInput(lastFrameDuration);
+  m_pScene->Update(lastFrameDuration);
   if(m_pWindow->ProcessWindowMessages() != ezWindow::Continue)
     m_bRunning = false;
 
   // rendering
-  RenderFrame();
+  RenderFrame(lastFrameDuration);
 
 
   return m_bRunning ? ezApplication::Continue : ezApplication::Quit;
 }
 
-void Application::RenderFrame()
+void Application::RenderFrame(ezTime lastFrameDuration)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  m_pScene->Render(m_LastFrameTime);
+  m_pScene->Render(lastFrameDuration);
 
   m_pWindow->SwapBuffers();
 }

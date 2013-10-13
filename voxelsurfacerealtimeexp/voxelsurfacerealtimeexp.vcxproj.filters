@@ -25,6 +25,24 @@
     <ClInclude Include="source\ezExtensions\UniquePtr.h">
       <Filter>source\ezExtensions</Filter>
     </ClInclude>
+    <ClInclude Include="source\gl\UniformBuffer.h">
+      <Filter>source\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\camera\FreeCamera.h">
+      <Filter>source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\camera\Camera.h">
+      <Filter>source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="source\InputConfig.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gl\Font.h">
+      <Filter>source\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\GlobalCVar.h">
+      <Filter>source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source">
@@ -38,6 +56,9 @@
     </Filter>
     <Filter Include="source\ezExtensions">
       <UniqueIdentifier>{27a536cf-c919-4d46-94f7-41e3c9eb4549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\Camera">
+      <UniqueIdentifier>{fe332968-eb97-4d40-9ca3-f57cd673ad0d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +96,18 @@
     </ClCompile>
     <ClCompile Include="Source\Scene.cpp">
       <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\UniformBuffer.cpp">
+      <Filter>source\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\camera\FreeCamera.cpp">
+      <Filter>source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\camera\Camera.cpp">
+      <Filter>source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\Font.cpp">
+      <Filter>source\gl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

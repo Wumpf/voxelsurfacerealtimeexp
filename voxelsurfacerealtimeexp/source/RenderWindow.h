@@ -14,9 +14,10 @@ public:
   void SwapBuffers();
   virtual void OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam) EZ_OVERRIDE;
   
+  HDC GetDeviceContext() const { return m_hDeviceContext; }
 
 private:
-  HDC m_hDC;
+  HDC m_hDeviceContext;
   HGLRC m_hRC;
 };
 

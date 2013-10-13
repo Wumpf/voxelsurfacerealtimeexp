@@ -1,21 +1,31 @@
 #include "PCH.h"
 #include "Scene.h"
+#include "GlobalCVar.h"
+
+#include "RenderWindow.h"
+
 #include "gl\ScreenAlignedTriangle.h"
 #include "gl\ShaderObject.h"
+#include "gl\Font.h"
+
+#include "Camera\FreeCamera.h"
 
 
-Scene::Scene() :
-  m_pPostEffectShader(EZ_DEFAULT_NEW_UNIQUE(ShaderObject)),
-  m_pComputeShaderTest(EZ_DEFAULT_NEW_UNIQUE(ShaderObject)),
-  m_pScreenAlignedTriangle(EZ_DEFAULT_NEW_UNIQUE(ScreenAlignedTriangle))
+Scene::Scene(const RenderWindowGL& renderWindow) :
+  m_pPostEffectShader(EZ_DEFAULT_NEW_UNIQUE(gl::ShaderObject)),
+  m_pComputeShaderTest(EZ_DEFAULT_NEW_UNIQUE(gl::ShaderObject)),
+  m_pScreenAlignedTriangle(EZ_DEFAULT_NEW_UNIQUE(gl::ScreenAlignedTriangle)),
+  
+  m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, ezMath::DegToRad(90.0f), static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
+  m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial", 20, renderWindow.GetDeviceContext())) // cvar for resolution?
 {
   ezLogBlock("Scene shader init");
 
-  m_pPostEffectShader->AddShaderFromFile(ShaderObject::ShaderType::VERTEX, "screenTri.vert");
-  m_pPostEffectShader->AddShaderFromFile(ShaderObject::ShaderType::FRAGMENT, "background.frag");
+  m_pPostEffectShader->AddShaderFromFile(gl::ShaderObject::ShaderType::VERTEX, "screenTri.vert");
+  m_pPostEffectShader->AddShaderFromFile(gl::ShaderObject::ShaderType::FRAGMENT, "background.frag");
   m_pPostEffectShader->CreateProgram();
 
-  m_pComputeShaderTest->AddShaderFromFile(ShaderObject::ShaderType::COMPUTE, "comptest.comp");
+  m_pComputeShaderTest->AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "comptest.comp");
   m_pComputeShaderTest->CreateProgram();
 
   glGenBuffers(1, &m_TestBuffer);
@@ -31,16 +41,18 @@ Scene::~Scene(void)
 }
 
 
-ezResult Scene::Update(ezTime lastFrameTime)
+ezResult Scene::Update(ezTime lastFrameDuration)
 {
+  m_pCamera->Update(lastFrameDuration);
+
   return EZ_SUCCESS;
 }
 
-ezResult Scene::Render(ezTime lastFrameTime)
+ezResult Scene::Render(ezTime lastFrameDuration)
 {
   // render test
-  m_pPostEffectShader->Activate();
-  m_pScreenAlignedTriangle->display();
+ // m_pPostEffectShader->Activate();
+ // m_pScreenAlignedTriangle->display();
 
   // compute test
   m_pComputeShaderTest->Activate();
@@ -54,6 +66,15 @@ ezResult Scene::Render(ezTime lastFrameTime)
   EZ_ASSERT(f == 42, "Compute shader doesn't work as expected!");
   glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
   
+  // render some info text
+    // performance
+  ezStringBuilder fpsString;
+  fpsString.AppendFormat("fps: %.2f (%.2f ms)", 1.0 / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
+  m_pFont->DrawString(fpsString.GetData(), ezVec2(10.0f, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
+    // camera
+  ezStringBuilder cameraString;
+  cameraString.AppendFormat("CameraPos (%.1f, %.1f, %.1f)", m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z);
+  m_pFont->DrawString(cameraString.GetData(), ezVec2(10.0f, 60.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
 
   return EZ_SUCCESS;
 }
