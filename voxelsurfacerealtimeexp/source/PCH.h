@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include "ezExtensions/UniquePtr.h"
+#include "ezExtensions/Color.h"
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Time.h>

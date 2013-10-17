@@ -6,6 +6,7 @@ namespace ezLogWriter
 {
   class HTML;
 }
+class OnScreenLogWriter;
 
 /// Basic application framework
 class Application : public ezApplication
@@ -32,4 +33,5 @@ private:
   bool m_bRunning;
 
   ezLogWriter::HTML* m_pHTMLLogWriter;
+  OnScreenLogWriter* m_pOnScreenLogWriter;
 };

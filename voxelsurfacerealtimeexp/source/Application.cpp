@@ -3,6 +3,7 @@
 #include "Application.h"
 #include "RenderWindow.h"
 #include "Scene.h"
+#include "OnScreenLogWriter.h"
 
 #include <Foundation/Configuration/Startup.h>
 
@@ -36,13 +37,18 @@ void Application::AfterEngineInit()
   ezCVar::LoadCVars();
 
   // setup log
-  ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   m_pHTMLLogWriter = EZ_DEFAULT_NEW(ezLogWriter::HTML);
   m_pHTMLLogWriter->BeginLog("log.html", "voxelsurfacerealtimeexp");
-  ezLog::AddLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
+  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
   
+
   // start window
   m_pWindow = EZ_DEFAULT_NEW(RenderWindowGL);
+
+  // onscreen log
+  m_pOnScreenLogWriter = EZ_DEFAULT_NEW(OnScreenLogWriter)(*m_pWindow);
+  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&OnScreenLogWriter::LogMessageHandler, m_pOnScreenLogWriter));
 
   // setup input
   SetupInput();
@@ -59,9 +65,13 @@ void Application::BeforeEngineShutdown()
   ezStartup::ShutdownEngine();
 
   EZ_DEFAULT_DELETE(m_pScene);
+
+  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&OnScreenLogWriter::LogMessageHandler, m_pOnScreenLogWriter));
+  EZ_DEFAULT_DELETE(m_pOnScreenLogWriter);
+
   EZ_DEFAULT_DELETE(m_pWindow);
     
-  ezLog::RemoveLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
+  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
   m_pHTMLLogWriter->EndLog();
   EZ_DEFAULT_DELETE(m_pHTMLLogWriter);
 }
@@ -78,6 +88,7 @@ ezApplication::ApplicationExecution Application::Run()
   m_pScene->Update(lastFrameDuration);
   if(m_pWindow->ProcessWindowMessages() != ezWindow::Continue)
     m_bRunning = false;
+  m_pOnScreenLogWriter->Update(lastFrameDuration);
 
   // rendering
   RenderFrame(lastFrameDuration);
@@ -91,6 +102,7 @@ void Application::RenderFrame(ezTime lastFrameDuration)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   m_pScene->Render(lastFrameDuration);
+  m_pOnScreenLogWriter->Render();
 
   m_pWindow->SwapBuffers();
 }

@@ -23,7 +23,7 @@ namespace gl
     /// \param text				text to be rendered
     /// \param screenPosition	relative screen position (starting in upper left corner, 0-1)
     /// \param color			text's color
-    void DrawString(const ezString& text, const ezVec2& screenPosition, const ezVec4& color = ezVec4(1.0f));
+    void DrawString(const ezString& text, const ezVec2& screenPosition, const ezColor& color = ezColor::White);
 
   private:
     GLuint m_DisplayList;

@@ -164,14 +164,17 @@
     <ClInclude Include="source\Application.h" />
     <ClInclude Include="source\camera\Camera.h" />
     <ClInclude Include="source\camera\FreeCamera.h" />
+    <ClInclude Include="source\ezExtensions\Color.h" />
     <ClInclude Include="source\ezExtensions\UniquePtr.h" />
     <ClInclude Include="source\GlobalCVar.h" />
     <ClInclude Include="source\gl\Font.h" />
     <ClInclude Include="source\gl\GLUtils.h" />
     <ClInclude Include="source\gl\ScreenAlignedTriangle.h" />
+    <ClInclude Include="source\gl\ShaderDataMetaInfo.h" />
     <ClInclude Include="source\gl\ShaderObject.h" />
     <ClInclude Include="source\gl\UniformBuffer.h" />
     <ClInclude Include="source\InputConfig.h" />
+    <ClInclude Include="source\OnScreenLogWriter.h" />
     <ClInclude Include="source\PCH.h" />
     <ClInclude Include="source\RenderWindow.h" />
     <ClInclude Include="Source\Scene.h" />
@@ -185,12 +188,14 @@
     <ClCompile Include="source\Application.cpp" />
     <ClCompile Include="source\camera\Camera.cpp" />
     <ClCompile Include="source\camera\FreeCamera.cpp" />
+    <ClCompile Include="source\ezExtensions\Color.cpp" />
     <ClCompile Include="source\gl\Font.cpp" />
     <ClCompile Include="source\gl\GLUtils.cpp" />
     <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp" />
     <ClCompile Include="source\gl\ShaderObject.cpp" />
     <ClCompile Include="source\gl\UniformBuffer.cpp" />
     <ClCompile Include="source\Input.cpp" />
+    <ClCompile Include="source\OnScreenLogWriter.cpp" />
     <ClCompile Include="source\PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>

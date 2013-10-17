@@ -15,7 +15,7 @@ namespace gl
       GLvoid* userParam
       )
     {
-      ezLog::EventType::Enum eventType = ezLog::EventType::InfoMsg;
+      ezLogMsgType::Enum eventType = ezLogMsgType::Enum::InfoMsg;
       char debSource[32], debType[32], debSev[32];
 
       if(source == GL_DEBUG_SOURCE_API_ARB)
@@ -33,59 +33,54 @@ namespace gl
 
       if(type == GL_DEBUG_TYPE_ERROR_ARB)
       {
-        eventType = ezLog::EventType::ErrorMsg;
+        eventType = ezLogMsgType::Enum::ErrorMsg;
         strcpy(debType, "error");
       }
       else if(type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB)
       {
-        eventType = ezLog::EventType::WarningMsg;;
+        eventType = ezLogMsgType::Enum::WarningMsg;
         strcpy(debType, "deprecated behavior");
       }
       else if(type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB)
       {
-        eventType = ezLog::EventType::SeriousWarningMsg;
+        eventType = ezLogMsgType::Enum::SeriousWarningMsg;
         strcpy(debType, "undefined behavior");
       }
       else if(type == GL_DEBUG_TYPE_PORTABILITY_ARB)
       {
-        eventType = ezLog::EventType::WarningMsg;
+        eventType = ezLogMsgType::Enum::WarningMsg;
         strcpy(debType, "portability");
       }
       else if(type == GL_DEBUG_TYPE_PERFORMANCE_ARB)
       {
-        eventType = ezLog::EventType::WarningMsg;
+        eventType = ezLogMsgType::Enum::WarningMsg;
         strcpy(debType, "performance");
       }
       else if(type == GL_DEBUG_TYPE_OTHER_ARB)
         strcpy(debType, "message");
 
-      if(severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-      {
-        eventType = ezLog::EventType::FatalErrorMsg;
-        strcpy(debSev, "high");
-      }
-      else if(severity == GL_DEBUG_SEVERITY_MEDIUM_ARB)
+     
+      EZ_ASSERT_ALWAYS(severity != GL_DEBUG_SEVERITY_HIGH_ARB, "Fatal GL error occurred: %s: %s(high) %d: %s", debSource, debType, debSev, id, message);
+
+      if(severity == GL_DEBUG_SEVERITY_MEDIUM_ARB)
         strcpy(debSev, "medium");
       else if(severity == GL_DEBUG_SEVERITY_LOW_ARB)
         strcpy(debSev, "low");
 
       switch(eventType)
       {
-      case ezLog::EventType::FatalErrorMsg:
-        ezLog::FatalError("%s: %s(%s) %d: %s\n", debSource, debType, debSev, id, message);
-        break;
-      case ezLog::EventType::WarningMsg:
+      case ezLogMsgType::Enum::WarningMsg:
         ezLog::Warning("%s: %s(%s) %d: %s\n", debSource, debType, debSev, id, message);
         break;
-      case ezLog::EventType::SeriousWarningMsg:
+      case ezLogMsgType::Enum::SeriousWarningMsg:
         ezLog::SeriousWarning("%s: %s(%s) %d: %s\n", debSource, debType, debSev, id, message);
         break;
-      case ezLog::EventType::InfoMsg:
+      case ezLogMsgType::Enum::InfoMsg:
         ezLog::Info("%s: %s(%s) %d: %s\n", debSource, debType, debSev, id, message);
         break;
       }
 
-      EZ_ASSERT(eventType != ezLog::EventType::FatalErrorMsg, "Fatal GL error occurred: %s: %s(%s) %d: %s", debSource, debType, debSev, id, message);
+      
     }
 
     void ActivateDebugOutput(DebugMessageSeverity minMessageSeverity)

@@ -17,7 +17,7 @@ namespace GeneralConfig
   }
   ezVec2 GetScreenResolutionF()
   {
-    return ezVec2(g_ResolutionWidth.GetValue(), g_ResolutionHeight.GetValue());
+    return ezVec2(static_cast<float>(g_ResolutionWidth.GetValue()), static_cast<float>(g_ResolutionHeight.GetValue()));
   }
 }
 
@@ -110,10 +110,7 @@ void RenderWindowGL::CreateGraphicsContext()
   // load using glew
   glewExperimental = TRUE;
   GLenum err = glewInit();
-  if(err != GLEW_OK)
-  {
-    ezLog::FatalError("glewInit failed!");
-  }
+  EZ_ASSERT_ALWAYS(err == GLEW_OK, "glewInit failed!");
 
   // enable debug output
   gl::Utils::ActivateDebugOutput();

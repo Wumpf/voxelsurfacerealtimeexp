@@ -10,7 +10,6 @@
 
 namespace gl
 {
-
   ShaderObject::ShaderObject() :
     m_Program(0),
     m_ContainsAssembledProgram(false)
@@ -167,7 +166,7 @@ namespace gl
     {
       // general data
       glGetProgramResourceiv(m_Program, GL_UNIFORM, iBlock, iNumQueriedUniformProps, pQueriedUniformProps, iNumQueriedUniformProps, NULL, pRawUniformBlockInfoData);
-      UniformInfo uniformInfo;
+      UniformVariableInfo uniformInfo;
       uniformInfo.Type = static_cast<gl::ShaderVariableType>(pRawUniformBlockInfoData[1]);
       uniformInfo.iArrayElementCount = static_cast<ezInt32>(pRawUniformBlockInfoData[2]);
       uniformInfo.iBlockOffset = static_cast<ezInt32>(pRawUniformBlockInfoData[3]);
@@ -183,13 +182,22 @@ namespace gl
       RawName.SetCount(pRawUniformBlockInfoData[0] + 1);
       glGetProgramResourceName(m_Program, GL_UNIFORM, iBlock, RawName.GetCount(), &iActualNameLength, static_cast<ezArrayPtr<char>>(RawName).GetPtr());
       RawName[iActualNameLength] = '\0';
-      uniformInfo.sName = static_cast<ezArrayPtr<char>>(RawName).GetPtr();
+      ezString sName(static_cast<ezArrayPtr<char>>(RawName).GetPtr());
 
       // where to store:
       if(pRawUniformBlockInfoData[4] < 0)
-        m_GlobalUniformInfo.PushBack(uniformInfo);
+        m_GlobalUniformInfo.Insert(sName, uniformInfo);
       else
-        m_UniformBlockInfos[pRawUniformBlockInfoData[4]].Variables.PushBack(uniformInfo);
+      {
+        for(auto it=m_UniformBlockInfos.GetIterator(); it.IsValid(); ++it)
+        {
+          if(it.Value().iInternalBufferIndex == pRawUniformBlockInfoData[4])
+          {
+            it.Value().Variables.Insert(sName, uniformInfo);
+            break;
+          }
+        }
+      }
     }
 
     // informations about shader storage variables 
@@ -218,10 +226,17 @@ namespace gl
       RawName.SetCount(pRawStorageBlockInfoData[0] + 1);
       glGetProgramResourceName(m_Program, GL_BUFFER_VARIABLE, iBlock, RawName.GetCount(), &iActualNameLength, static_cast<ezArrayPtr<char>>(RawName).GetPtr());
       RawName[iActualNameLength] = '\0';
-      storageInfo.sName = static_cast<ezArrayPtr<char>>(RawName).GetPtr();
+      ezString sName = static_cast<ezArrayPtr<char>>(RawName).GetPtr();
 
-      // where to store:
-       m_ShaderStorageInfos[pRawStorageBlockInfoData[4]].Variables.PushBack(storageInfo);
+      // where to store
+      for(auto it=m_ShaderStorageInfos.GetIterator(); it.IsValid(); ++it)
+      {
+        if(it.Value().iInternalBufferIndex == pRawStorageBlockInfoData[4])
+        {
+          it.Value().Variables.Insert(sName, storageInfo);
+          break;
+        }
+      }
     }
 
     // other informations
@@ -230,13 +245,12 @@ namespace gl
   }
 
   template<typename BufferVariableType>
-  void ShaderObject::QueryBlockInformations(ezDynamicArray<BufferInfo<BufferVariableType>>& BufferToFill, GLenum InterfaceName)
+  void ShaderObject::QueryBlockInformations(ezMap<ezString, BufferInfo<BufferVariableType>>& BufferToFill, GLenum InterfaceName)
   {
     BufferToFill.Clear();
 
     GLint iTotalNumBlocks = 0;
     glGetProgramInterfaceiv(m_Program, InterfaceName, GL_ACTIVE_RESOURCES, &iTotalNumBlocks);
-    BufferToFill.SetCount(iTotalNumBlocks);
 
     // gather infos about uniform blocks
     const GLuint iNumQueriedBlockProps = 4;
@@ -246,9 +260,11 @@ namespace gl
     {
       // general data
       glGetProgramResourceiv(m_Program, InterfaceName, iBlock, iNumQueriedBlockProps, pQueriedBlockProps, iNumQueriedBlockProps, NULL, pRawUniformBlockInfoData);
-      BufferToFill[iBlock].iBufferBinding = pRawUniformBlockInfoData[1];
-      BufferToFill[iBlock].iBufferDataSizeByte = pRawUniformBlockInfoData[2] * sizeof(float);
-      BufferToFill[iBlock].Variables.Reserve(pRawUniformBlockInfoData[3]);
+      BufferInfo<BufferVariableType> BlockInfo;
+      BlockInfo.iInternalBufferIndex = iBlock;
+      BlockInfo.iBufferBinding = pRawUniformBlockInfoData[1];
+      BlockInfo.iBufferDataSizeByte = pRawUniformBlockInfoData[2] * sizeof(float);
+      //BlockInfo.Variables.Reserve(pRawUniformBlockInfoData[3]);
 
       // name
       GLint iActualNameLength = 0;
@@ -256,7 +272,7 @@ namespace gl
       RawName.SetCount(pRawUniformBlockInfoData[0] + 1);
       glGetProgramResourceName(m_Program, InterfaceName, iBlock, RawName.GetCount(), &iActualNameLength, static_cast<ezArrayPtr<char>>(RawName).GetPtr());
       RawName[iActualNameLength] = '\0';
-      BufferToFill[iBlock].sName = static_cast<ezArrayPtr<char>>(RawName).GetPtr();
+      BufferToFill.Insert(static_cast<ezArrayPtr<char>>(RawName).GetPtr(), BlockInfo);
     }
   }
 

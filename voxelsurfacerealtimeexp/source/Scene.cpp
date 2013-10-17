@@ -19,7 +19,7 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, ezMath::DegToRad(90.0f), static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
   m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial", 20, renderWindow.GetDeviceContext())) // cvar for resolution?
 {
-  ezLogBlock("Scene shader init");
+  EZ_LOG_BLOCK("Scene shader init");
 
   m_pPostEffectShader->AddShaderFromFile(gl::ShaderObject::ShaderType::VERTEX, "screenTri.vert");
   m_pPostEffectShader->AddShaderFromFile(gl::ShaderObject::ShaderType::FRAGMENT, "background.frag");
@@ -70,11 +70,11 @@ ezResult Scene::Render(ezTime lastFrameDuration)
     // performance
   ezStringBuilder fpsString;
   fpsString.AppendFormat("fps: %.2f (%.2f ms)", 1.0 / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
-  m_pFont->DrawString(fpsString.GetData(), ezVec2(10.0f, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
+  m_pFont->DrawString(fpsString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 100, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
     // camera
-  ezStringBuilder cameraString;
+ /* ezStringBuilder cameraString;
   cameraString.AppendFormat("CameraPos (%.1f, %.1f, %.1f)", m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z);
   m_pFont->DrawString(cameraString.GetData(), ezVec2(10.0f, 60.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
-
+  */
   return EZ_SUCCESS;
 }

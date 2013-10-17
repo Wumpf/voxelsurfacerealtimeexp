@@ -175,3 +175,4 @@ pip-log.txt
 /x64
 /ipch
 /voxelsurfacerealtimeexp/x64
+/voxelsurfacerealtimeexp/*.db

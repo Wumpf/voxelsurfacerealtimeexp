@@ -37,8 +37,11 @@ namespace gl
 	  glDeleteLists(m_DisplayList, 96);
   }
 
-  void Font::DrawString(const ezString& sText, const ezVec2& screenPosition, const ezVec4& color)
+  void Font::DrawString(const ezString& sText, const ezVec2& screenPosition, const ezColor& color)
   {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	  glUseProgram(0);
 	  glColor4fv(&color.x);
 
@@ -51,5 +54,7 @@ namespace gl
 	  glListBase(m_DisplayList - 32);
 	  glCallLists(static_cast<GLsizei>(sText.GetElementCount()), GL_UNSIGNED_BYTE, sText.GetData());
 	  glPopAttrib();
+
+    glDisable(GL_BLEND);
   }
 }
