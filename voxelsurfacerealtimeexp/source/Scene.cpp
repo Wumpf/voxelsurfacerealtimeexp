@@ -5,15 +5,12 @@
 #include "RenderWindow.h"
 
 #include "gl\ScreenAlignedTriangle.h"
-#include "gl\ShaderObject.h"
 #include "gl\Font.h"
 
 #include "Camera\FreeCamera.h"
 
 
 Scene::Scene(const RenderWindowGL& renderWindow) :
-  m_pPostEffectShader(EZ_DEFAULT_NEW_UNIQUE(gl::ShaderObject)),
-  m_pComputeShaderTest(EZ_DEFAULT_NEW_UNIQUE(gl::ShaderObject)),
   m_pScreenAlignedTriangle(EZ_DEFAULT_NEW_UNIQUE(gl::ScreenAlignedTriangle)),
   
   m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, ezMath::DegToRad(90.0f), static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
@@ -21,12 +18,15 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
 {
   EZ_LOG_BLOCK("Scene shader init");
 
-  m_pPostEffectShader->AddShaderFromFile(gl::ShaderObject::ShaderType::VERTEX, "screenTri.vert");
-  m_pPostEffectShader->AddShaderFromFile(gl::ShaderObject::ShaderType::FRAGMENT, "background.frag");
-  m_pPostEffectShader->CreateProgram();
+  m_PostEffectShader.AddShaderFromFile(gl::ShaderObject::ShaderType::VERTEX, "screenTri.vert");
+  m_PostEffectShader.AddShaderFromFile(gl::ShaderObject::ShaderType::FRAGMENT, "background.frag");
+  m_PostEffectShader.CreateProgram();
 
-  m_pComputeShaderTest->AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "comptest.comp");
-  m_pComputeShaderTest->CreateProgram();
+  m_ComputeShaderTest.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "comptest.comp");
+  m_ComputeShaderTest.CreateProgram();
+
+  m_TestUBO.Init(m_ComputeShaderTest.GetUniformBufferInfo()["TestUBO"], "TestUBO");
+  m_TestUBO["Result"].Set(-123456.0f);
 
   glGenBuffers(1, &m_TestBuffer);
   float fInitalData;
@@ -55,7 +55,8 @@ ezResult Scene::Render(ezTime lastFrameDuration)
  // m_pScreenAlignedTriangle->display();
 
   // compute test
-  m_pComputeShaderTest->Activate();
+  m_ComputeShaderTest.BindUBO(m_TestUBO, "TestUBO");
+  m_ComputeShaderTest.Activate();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_TestBuffer);
   glDispatchCompute(1, 1, 1);
 
@@ -63,14 +64,14 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   glFlush();
   float* data = (float*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
   float f = *data;
-  EZ_ASSERT(f == 42, "Compute shader doesn't work as expected!");
+  EZ_ASSERT(f == -123456.0f, "Compute shader doesn't work as expected!");
   glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
   
   // render some info text
     // performance
   ezStringBuilder fpsString;
   fpsString.AppendFormat("fps: %.2f (%.2f ms)", 1.0 / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
-  m_pFont->DrawString(fpsString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 100, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
+  m_pFont->DrawString(fpsString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 100.0f, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
     // camera
  /* ezStringBuilder cameraString;
   cameraString.AppendFormat("CameraPos (%.1f, %.1f, %.1f)", m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z);

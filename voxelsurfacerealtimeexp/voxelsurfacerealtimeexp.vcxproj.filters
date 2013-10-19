@@ -80,6 +80,12 @@
     <None Include="shader\comptest.comp">
       <Filter>shader</Filter>
     </None>
+    <None Include="source\gl\UniformBuffer.inl">
+      <Filter>source\gl</Filter>
+    </None>
+    <None Include="source\gl\ShaderDataMetaInfo.inl">
+      <Filter>source\gl</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp">

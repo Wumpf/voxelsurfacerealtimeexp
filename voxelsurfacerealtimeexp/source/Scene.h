@@ -1,10 +1,14 @@
 #pragma once
 
+#include "gl\UniformBuffer.h"
+#include "gl\ShaderObject.h"
+
 // declarations
 namespace gl
 {
   class Font;
   class ShaderObject;
+  class UniformBuffer;
   class ScreenAlignedTriangle;
 };
 class FreeCamera;
@@ -20,8 +24,10 @@ public:
   ezResult Render(ezTime lastFrameDuration);
 
 private:
-  ezUniquePtr<gl::ShaderObject> m_pPostEffectShader;
-  ezUniquePtr<gl::ShaderObject> m_pComputeShaderTest;
+  gl::ShaderObject m_PostEffectShader;
+  gl::ShaderObject m_ComputeShaderTest;
+
+  gl::UniformBuffer m_TestUBO;
 
   ezUniquePtr<gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
   ezUniquePtr<FreeCamera> m_pCamera;

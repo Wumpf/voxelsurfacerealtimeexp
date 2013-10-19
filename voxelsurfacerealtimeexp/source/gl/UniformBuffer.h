@@ -10,62 +10,56 @@ namespace gl
     UniformBuffer();
     ~UniformBuffer();
 
-    ezResult Init(ezUInt32 iBufferSizeBytes, const ezString& sBufferName);
+    ezResult Init(ezUInt32 uiBufferSizeBytes, const ezString& sBufferName);
     ezResult Init(const gl::UniformBufferMetaInfo& MetaInfo, const ezString& sBufferName);
 
-    class Variable
+    class Variable : public gl::ShaderVariable
     {
     public:
-      Variable() : m_pUniformBuffer(NULL) {}
+      Variable() : ShaderVariable(NULL), m_pUniformBuffer(NULL) { }
+      Variable(const ShaderVariableInfoBase* pMetaInfo, UniformBuffer* pUniformBuffer) :
+        ShaderVariable(pMetaInfo), m_pUniformBuffer(pUniformBuffer) {}
 
-      ezResult Set(const void* pData, ezUInt32 iSizeInBytes);
+      void Set(const void* pData, ezUInt32 uiSizeInBytes) EZ_OVERRIDE;
 
-      ezResult Set(float f)           { m_MetaInfo.Type == ShaderVariableType::FLOAT ? Set(&f, sizeof(float)) : EZ_FAILURE; }
-      ezResult Set(const ezVec2& v)   { m_MetaInfo.Type == ShaderVariableType::FLOAT_VEC2 ? Set(&v, sizeof(ezVec2)) : EZ_FAILURE; }
-      ezResult Set(const ezVec3& v)   { m_MetaInfo.Type == ShaderVariableType::FLOAT_VEC3 ? Set(&v, sizeof(ezVec3)) : EZ_FAILURE; }
-      ezResult Set(const ezVec4& v)   { m_MetaInfo.Type == ShaderVariableType::FLOAT_VEC4 ? Set(&v, sizeof(ezVec4)) : EZ_FAILURE; }
-      ezResult Set(const ezMat3& m)   { m_MetaInfo.Type == ShaderVariableType::FLOAT_MAT3 ? Set(&m, sizeof(ezMat3)) : EZ_FAILURE; }
-      ezResult Set(const ezMat4& m)   { m_MetaInfo.Type == ShaderVariableType::FLOAT_MAT4 ? Set(&m, sizeof(ezMat4)) : EZ_FAILURE; }
-
-      ezResult Set(double f)          { m_MetaInfo.Type == ShaderVariableType::DOUBLE ? Set(&f, sizeof(double)) : EZ_FAILURE; }
-      ezResult Set(const ezVec2d& v);
-      ezResult Set(const ezVec3d& v);
-      ezResult Set(const ezVec4d& v);
-      ezResult Set(const ezMat3d& m);
-      ezResult Set(const ezMat4d& m);
-
-      ezResult Set(ezUInt32 f);
-      ezResult Set(const ezVec2U32& v);
-
-      // add more type implementations here if necessary
-      
-      const gl::UniformVariableInfo& GetMetaInfo() const { return m_MetaInfo; }
-
+      using gl::ShaderVariable::Set;
     private:
-      friend UniformBuffer;
-
-      Variable(UniformBuffer* pUniformBuffer, const gl::UniformVariableInfo& MetaInfo) : 
-        m_pUniformBuffer(pUniformBuffer), m_MetaInfo(MetaInfo) {}
-
       UniformBuffer* m_pUniformBuffer;
-      gl::UniformVariableInfo m_MetaInfo;
     };
 
+
     bool ContainsVariable(const ezString& sVariableName) const       { return m_Variables.Find(sVariableName).IsValid(); }
-    Variable& operator[] (const ezString& sVariableName);
+    UniformBuffer::Variable& operator[] (const ezString& sVariableName);
+
+    /// \brief Sets data in buffer directly.
+    /// Given data block will be set dirty and copied with the next BindBuffer/UpdateGPUData call
+    void SetData(const void* pData, ezUInt32 uiDataSize, ezUInt32 uiOffset);
+
+    /// Updates gpu data if necessary and binds buffer
+    ezResult BindBuffer(GLuint locationIndex);
 
   private:
-    friend Variable;
+    /// \brief Updates gpu UBO with dirty marked data
+    /// Buffer should be already binded. Will be performed by BindBuffer by default.
+    ezResult UpdateGPUData();
 
-    GLuint      m_iBufferObject;
-    ezUInt32    m_iBufferSizeBytes;
+
+    GLuint      m_BufferObject;
+    ezUInt32    m_uiBufferSizeBytes;
     ezString    m_sBufferName;
 
-    bool m_bDirty;
+    /// where the currently dirty range of the buffer starts (bytes)
+    ezUInt32 m_uiBufferDirtyRangeStart;
+    /// where the currently dirty range of the buffer ends (bytes)
+    ezUInt32 m_uiBufferDirtyRangeEnd;
+    /// local copy of the buffer data
+    ezInt8* m_pBufferData;
 
     /// meta information
-    ezMap<ezString, Variable> m_Variables;  // \todo no ezHashTable possible?
+    ezMap<ezString, Variable> m_Variables;  /// \todo no ezHashTable possible?
+
   };
 
+  #include "UniformBuffer.inl"
 }
 

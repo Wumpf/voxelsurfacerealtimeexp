@@ -6,29 +6,32 @@ namespace gl
 {
 
   UniformBuffer::UniformBuffer() :
-    m_iBufferObject(9999),
-    m_iBufferSizeBytes(0),
+    m_BufferObject(9999),
+    m_uiBufferSizeBytes(0),
     m_Variables(),
     m_sBufferName(""),
-    m_bDirty(false)
+    m_pBufferData(NULL)
   {
   }
-
 
   UniformBuffer::~UniformBuffer(void)
   {
-    glDeleteBuffers(1, &m_iBufferObject);
+    EZ_DEFAULT_DELETE(m_pBufferData);
+    glDeleteBuffers(1, &m_BufferObject);
   }
 
-
-  ezResult UniformBuffer::Init(ezUInt32 iBufferSizeBytes, const ezString& sBufferName)
+  ezResult UniformBuffer::Init(ezUInt32 uiBufferSizeBytes, const ezString& sBufferName)
   {
     m_sBufferName = sBufferName;
-    m_iBufferSizeBytes = iBufferSizeBytes;
+    m_uiBufferSizeBytes = uiBufferSizeBytes;
 
-    glGenBuffers(1, &m_iBufferObject);
-    glBindBuffer(GL_UNIFORM_BUFFER, m_iBufferObject);
-    glBufferData(GL_UNIFORM_BUFFER, m_iBufferSizeBytes, NULL, GL_DYNAMIC_DRAW);
+    EZ_DEFAULT_DELETE(m_pBufferData);
+    m_pBufferData = EZ_DEFAULT_NEW_RAW_BUFFER(ezInt8, uiBufferSizeBytes);
+    m_uiBufferDirtyRangeEnd = m_uiBufferDirtyRangeStart = 0;
+
+    glGenBuffers(1, &m_BufferObject);
+    glBindBuffer(GL_UNIFORM_BUFFER, m_BufferObject);
+    glBufferData(GL_UNIFORM_BUFFER, m_uiBufferSizeBytes, NULL, GL_DYNAMIC_DRAW);
 
     return gl::Utils::CheckError("glBufferData");
   }
@@ -36,26 +39,33 @@ namespace gl
   ezResult UniformBuffer::Init(const gl::UniformBufferMetaInfo& MetaInfo, const ezString& sBufferName)
   {
     for(auto it = MetaInfo.Variables.GetIterator(); it.IsValid(); ++it)
-      m_Variables.Insert(it.Key(), Variable(this, it.Value()));
+      m_Variables.Insert(it.Key(), Variable(&it.Value(), this));
 
     return Init(MetaInfo.iBufferDataSizeByte, sBufferName);
   }
 
-  ezResult UniformBuffer::Variable::Set(const void* pData, ezUInt32 iSizeInBytes)
+  ezResult UniformBuffer::UpdateGPUData()
   {
-    EZ_ASSERT(m_pUniformBuffer != NULL, "Uniform variable is not associated with a uniform buffer.");
-    EZ_ASSERT(iSizeInBytes != 0, "Given size to set for uniform variable is 0.");
-    EZ_ASSERT(pData != NULL, "Data to set for uniform variable is NULL.");
+    if(m_uiBufferDirtyRangeEnd <= m_uiBufferDirtyRangeStart)
+      return EZ_SUCCESS;
 
-    /// ... TODO
+    glBindBuffer(GL_UNIFORM_BUFFER, m_BufferObject);
+    glBufferSubData(GL_UNIFORM_BUFFER, m_uiBufferDirtyRangeStart, m_uiBufferDirtyRangeEnd - m_uiBufferDirtyRangeStart, m_pBufferData);
 
-    return EZ_SUCCESS;
+    m_uiBufferDirtyRangeEnd = std::numeric_limits<ezUInt32>::min();
+    m_uiBufferDirtyRangeStart = std::numeric_limits<ezUInt32>::max();
+
+    return gl::Utils::CheckError("glBufferSubData");
   }
 
-  UniformBuffer::Variable& UniformBuffer::operator[] (const ezString& sVariableName)             
+  ezResult UniformBuffer::BindBuffer(GLuint locationIndex)
   {
-    EZ_ASSERT(m_Variables.Find(sVariableName).IsValid(), "There is no variable named %s in the uniform buffer \"%s\"", sVariableName, m_sBufferName);
-    return m_Variables[sVariableName];
+    if(UpdateGPUData() == EZ_FAILURE)
+      return EZ_FAILURE;
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, locationIndex, m_BufferObject);
+
+    return gl::Utils::CheckError("glBindBufferBase");
   }
 
 }

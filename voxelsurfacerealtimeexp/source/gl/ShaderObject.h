@@ -41,6 +41,10 @@ namespace gl
     ///         -> then you also can acitvate multiple programs at a time because they only overwrite the stages they use
     void Activate() const;
 
+    /// Binds a ubo by name
+    ezResult BindUBO(class UniformBuffer& ubo, const ezString sUBOName);
+
+
     /// The set of active user-defined inputs to the first shader stage in this program. 
     /// 
     /// If the first stage is a Vertex Shader, then this is the list of active attributes.
@@ -53,11 +57,17 @@ namespace gl
     /// If the program only contains a Compute Shader, then there are no outputs.
     GLint GetTotalProgramOutputCount() const  { return m_iTotalProgramOutputCount; }
 
+
+
     /// Returns infos about global uniforms
-    const GlobalUniformInfos& GetGlobalUniformInfo() const    { return m_GlobalUniformInfo; }
+    /// \remarks Deliberatly not const so user can use operator[] on the map
+    GlobalUniformInfos& GetGlobalUniformInfo()    { return m_GlobalUniformInfo; }
+    const GlobalUniformInfos& GetGlobalUniformInfo() const { return m_GlobalUniformInfo; }
 
     /// Returns infos about used uniform buffer definitions
-    const UniformBlockInfos& GetUniformBufferInfo() const    { return m_UniformBlockInfos; }
+    /// \remarks Deliberatly not const so user can use operator[] on the map
+    UniformBlockInfos& GetUniformBufferInfo()    { return m_UniformBlockInfos; }
+    const UniformBlockInfos& GetUniformBufferInfo() const { return m_UniformBlockInfos; }
 
     /// Returns infos about used shader storage buffer definitions
     const ShaderStorageInfos& GetShaderStorageBufferInfo() const    { return m_ShaderStorageInfos; }

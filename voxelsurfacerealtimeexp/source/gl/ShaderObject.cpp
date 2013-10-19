@@ -1,6 +1,7 @@
 ﻿#include "PCH.h"
 #include "ShaderObject.h"
 #include "GLUtils.h"
+#include "UniformBuffer.h"
 
 #include <GL/glew.h>
 
@@ -263,7 +264,7 @@ namespace gl
       BufferInfo<BufferVariableType> BlockInfo;
       BlockInfo.iInternalBufferIndex = iBlock;
       BlockInfo.iBufferBinding = pRawUniformBlockInfoData[1];
-      BlockInfo.iBufferDataSizeByte = pRawUniformBlockInfoData[2] * sizeof(float);
+      BlockInfo.iBufferDataSizeByte = pRawUniformBlockInfoData[2];// * sizeof(float);
       //BlockInfo.Variables.Reserve(pRawUniformBlockInfoData[3]);
 
       // name
@@ -286,6 +287,15 @@ namespace gl
   {
     EZ_ASSERT(m_ContainsAssembledProgram, "No shader program ready yet. Call CreateProgram first!");
     glUseProgram(m_Program);
+  }
+
+  ezResult ShaderObject::BindUBO(UniformBuffer& ubo, const ezString sUBOName)
+  {
+    auto it = m_UniformBlockInfos.Find(sUBOName);
+    if(!it.IsValid())
+      return EZ_FAILURE;
+
+    return ubo.BindBuffer(it.Value().iBufferBinding);
   }
 
   void ShaderObject::PrintShaderInfoLog(GLuint Shader, const ezString& sShaderName)

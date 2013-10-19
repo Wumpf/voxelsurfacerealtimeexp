@@ -183,6 +183,8 @@
     <None Include="shader\background.frag" />
     <None Include="shader\comptest.comp" />
     <None Include="shader\screenTri.vert" />
+    <None Include="source\gl\ShaderDataMetaInfo.inl" />
+    <None Include="source\gl\UniformBuffer.inl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Application.cpp" />

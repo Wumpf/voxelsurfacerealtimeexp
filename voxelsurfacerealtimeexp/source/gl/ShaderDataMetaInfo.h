@@ -18,7 +18,7 @@ namespace gl
     INT_VEC​2 = GL_INT_VEC2,
     INT_VEC3 = GL_INT_VEC3,
     INT_VEC4 = GL_INT_VEC4,
-    UNSIGNED_INT​ = GL_UNSIGNED_INT,
+    UNSIGNED_INT = GL_UNSIGNED_INT,
     UNSIGNED_INT_VEC2 = GL_UNSIGNED_INT_VEC2,
     UNSIGNED_INT_VEC3 = GL_UNSIGNED_INT_VEC3,
     UNSIGNED_INT_VEC4 = GL_UNSIGNED_INT_VEC4,
@@ -82,6 +82,7 @@ namespace gl
     UNSIGNED_INT_SAMPLER_2D_RECT = GL_UNSIGNED_INT_SAMPLER_2D_RECT
   };
 
+  /// Basic information block for Buffer information
   template<typename VariableType>
   struct BufferInfo
   {
@@ -101,9 +102,10 @@ namespace gl
     ezInt32   iInternalBufferIndex;
   };
 
+  /// Basic information block for all possible shader variables
   struct ShaderVariableInfoBase
   {
-    ShaderVariableType  Type;         ///< Type
+    ShaderVariableType  Type;         ///< Data type
     ezInt32             iBlockOffset; ///< Offset in corresponding buffer, -1 if there's no buffer
 
     ezInt32 iArrayElementCount;   ///< Number of array elements
@@ -117,7 +119,7 @@ namespace gl
 
     EZ_DECLARE_POD_TYPE();
   };
-
+  /// Information block for uniform variables
   struct UniformVariableInfo : ShaderVariableInfoBase
   {
     GLint iLocation;      ///< OpenGL location, -1 if used in a buffer
@@ -125,7 +127,7 @@ namespace gl
 
     EZ_DECLARE_POD_TYPE();
   };
-
+  /// Info block for buffer variables
   struct BufferVariableInfo : ShaderVariableInfoBase
   {
     ezInt32 iTopLevelArraySize;
@@ -136,4 +138,39 @@ namespace gl
 
   typedef BufferInfo<BufferVariableInfo> ShaderStorageBufferMetaInfo;
   typedef BufferInfo<UniformVariableInfo> UniformBufferMetaInfo;
+
+  /// \brief Base class for setable variable - basically a wrapper for
+  class ShaderVariable
+  {
+  public:
+    void Set(float f);
+    void Set(const ezVec2& v);
+    void Set(const ezVec3& v);
+    void Set(const ezVec4& v);
+    void Set(const ezMat3& m);
+    void Set(const ezMat4& m);
+
+    void Set(double f);
+    void Set(const ezVec2d& v);
+    void Set(const ezVec3d& v);
+    void Set(const ezVec4d& v);
+    void Set(const ezMat3d& m);
+    void Set(const ezMat4d& m);
+
+    void Set(ezUInt32 f);
+    void Set(const ezVec2U32& v);
+
+    virtual void Set(const void* pData, ezUInt32 uiSizeInBytes) = 0;
+
+    // add more type implementations here if necessary
+
+    const ShaderVariableInfoBase& GetMetaInfo() const        { return *m_pMetaInfo; }
+
+  protected:
+    ShaderVariable(const ShaderVariableInfoBase* pMetaInfo) : m_pMetaInfo(pMetaInfo) {}
+
+    const ShaderVariableInfoBase* m_pMetaInfo;
+  };
+
+  #include "ShaderDataMetaInfo.inl"
 }
