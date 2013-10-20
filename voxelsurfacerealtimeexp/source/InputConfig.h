@@ -12,8 +12,10 @@ namespace InputConfig
   extern const char* g_szAction_CameraBackward;
   extern const char* g_szAction_CameraLeft;
   extern const char* g_szAction_CameraRight;
-  extern const char* g_szAction_CameraRotateAxisX;
-  extern const char* g_szAction_CameraRotateAxisY;
+  extern const char* g_szAction_CameraRotateAxisXPos;
+  extern const char* g_szAction_CameraRotateAxisYPos;
+  extern const char* g_szAction_CameraRotateAxisXNeg;
+  extern const char* g_szAction_CameraRotateAxisYNeg;
 
   extern const float g_fCameraMoveScale;
   extern const float g_fCameraRotationScale;

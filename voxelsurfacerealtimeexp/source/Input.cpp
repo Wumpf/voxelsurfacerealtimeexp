@@ -13,8 +13,10 @@ namespace InputConfig
   const char* g_szAction_CameraBackward = "Backward";
   const char* g_szAction_CameraLeft = "Left";
   const char* g_szAction_CameraRight = "Right";
-  const char* g_szAction_CameraRotateAxisX = "X";
-  const char* g_szAction_CameraRotateAxisY = "Y";
+  const char* g_szAction_CameraRotateAxisXPos = "X+";
+  const char* g_szAction_CameraRotateAxisYPos = "Y+";
+  const char* g_szAction_CameraRotateAxisXNeg = "X-";
+  const char* g_szAction_CameraRotateAxisYNeg = "Y-";
 
   const float g_fCameraMoveScale = 8.0f;
   const float g_fCameraRotationScale = 0.01f;
@@ -42,9 +44,13 @@ void Application::SetupInput()
 
   inputConfig.m_fInputSlotScale[0]= InputConfig::g_fCameraRotationScale;
   inputConfig.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegX;
-  ezInputManager::SetInputActionConfig(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisX, inputConfig, false);
+  ezInputManager::SetInputActionConfig(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXNeg, inputConfig, false);
   inputConfig.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegY;
-  ezInputManager::SetInputActionConfig(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisY, inputConfig, false);
+  ezInputManager::SetInputActionConfig(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYNeg, inputConfig, false);
+  inputConfig.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosX;
+  ezInputManager::SetInputActionConfig(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXPos, inputConfig, false);
+  inputConfig.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosY;
+  ezInputManager::SetInputActionConfig(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYPos, inputConfig, false);
 }
 
 void Application::UpdateInput(ezTime lastFrameDuration)

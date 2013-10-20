@@ -8,13 +8,15 @@ public:
 
   virtual void Update(ezTime lastFrameDuration)=0;
 
-  const ezMat4& GetProjectionMatrix() const;
-  const ezMat4& GetViewMatrix() const;
-  const ezMat4& GetViewProjectionMatrix() const;
+  const ezMat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
+  const ezMat4& GetViewMatrix() const { return m_ViewMatrix; }
+  const ezMat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
 
   const ezVec3& GetPosition() const { return m_vPosition; }
   const ezVec3& GetUp() const { return m_vUp; }
   const ezVec3& GetViewDir() const { return m_ViewDir; }
+
+  void SetPosition(const ezVec3 vPosition) { m_vPosition = vPosition; }
 
 protected:
   void UpdateMatrices();

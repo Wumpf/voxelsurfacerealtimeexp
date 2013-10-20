@@ -75,11 +75,14 @@ void OnScreenLogWriter::LogMessageHandler(const ezLoggingEventData& eventData)
 
 ezResult OnScreenLogWriter::Update( ezTime lastFrameDuration )
 {
-  m_fOldestItemFade -= static_cast<float>(lastFrameDuration.GetSeconds() * m_fFadeSpeed);
-  if(m_fOldestItemFade < 0)
+  if(!m_MessageBuffer.IsEmpty())
   {
-    m_fOldestItemFade = 1.0f;
-    m_MessageBuffer.PopFront();
+    m_fOldestItemFade -= static_cast<float>(lastFrameDuration.GetSeconds() * m_fFadeSpeed);
+    if(m_fOldestItemFade < 0)
+    {
+      m_fOldestItemFade = 1.0f;
+      m_MessageBuffer.PopFront();
+    }
   }
 
   return EZ_SUCCESS;

@@ -8,6 +8,7 @@ namespace gl
 {
   class Font;
   class ShaderObject;
+  class Texture;
   class UniformBuffer;
   class ScreenAlignedTriangle;
 };
@@ -24,10 +25,22 @@ public:
   ezResult Render(ezTime lastFrameDuration);
 
 private:
-  gl::ShaderObject m_PostEffectShader;
+  void CreateVolumeTexture();
+
+
+  gl::ShaderObject m_BackgroundShader;
+  gl::ShaderObject m_DirectVolVisShader;
   gl::ShaderObject m_ComputeShaderTest;
 
+  gl::UniformBuffer m_CameraUBO;
   gl::UniformBuffer m_TestUBO;
+
+  static const ezUInt32 m_vVolumeWidth;
+  static const ezUInt32 m_vVolumeHeight;
+  static const ezUInt32 m_vVolumeDepth;
+  gl::Texture* m_pVolumeTexture;
+  
+
 
   ezUniquePtr<gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
   ezUniquePtr<FreeCamera> m_pCamera;

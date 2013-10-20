@@ -60,7 +60,7 @@ namespace gl
         strcpy(debType, "message");
 
      
-      EZ_ASSERT_ALWAYS(severity != GL_DEBUG_SEVERITY_HIGH_ARB, "Fatal GL error occurred: %s: %s(high) %d: %s", debSource, debType, debSev, id, message);
+      EZ_ASSERT_ALWAYS(severity != GL_DEBUG_SEVERITY_HIGH_ARB, "Fatal GL error occurred: %s: %s(high) %d: %s", debSource, debType, id, message);
 
       if(severity == GL_DEBUG_SEVERITY_MEDIUM_ARB)
         strcpy(debSev, "medium");

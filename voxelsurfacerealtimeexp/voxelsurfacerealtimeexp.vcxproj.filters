@@ -52,6 +52,16 @@
     <ClInclude Include="source\ezExtensions\Color.h">
       <Filter>source\ezExtensions</Filter>
     </ClInclude>
+    <ClInclude Include="source\Random.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gl\Texture3D.h">
+      <Filter>source\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\NoiseGenerator.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gl\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source">
@@ -85,6 +95,9 @@
     </None>
     <None Include="source\gl\ShaderDataMetaInfo.inl">
       <Filter>source\gl</Filter>
+    </None>
+    <None Include="shader\directvis.frag">
+      <Filter>shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -130,5 +143,15 @@
     <ClCompile Include="source\ezExtensions\Color.cpp">
       <Filter>source\ezExtensions</Filter>
     </ClCompile>
+    <ClCompile Include="source\Random.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\Texture3D.cpp">
+      <Filter>source\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\NoiseGenerator.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\Texture.cpp" />
   </ItemGroup>
 </Project>

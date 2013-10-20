@@ -6,6 +6,7 @@ namespace gl
 {
 
   /// Easy to use wrapper for OpenGL shader.
+  /// \todo Automatic Shader reload on file change -> state restore needed
   class ShaderObject
   {
   public:
@@ -41,8 +42,20 @@ namespace gl
     ///         -> then you also can acitvate multiple programs at a time because they only overwrite the stages they use
     void Activate() const;
 
+
+    // Manipulation of global uniforms
+    // Make sure that the ShaderObject is already activated
+    // (Setting of ordinary global uniform variables is explicitly not supported! You can still handle this yourself using the available Meta-Info)
+
     /// Binds a ubo by name
     ezResult BindUBO(class UniformBuffer& ubo, const ezString sUBOName);
+
+    /// Binds a texture
+    ezResult BindTexture(class Texture& texture, const ezString sTextureName);
+
+
+    
+
 
 
     /// The set of active user-defined inputs to the first shader stage in this program. 
@@ -89,6 +102,10 @@ namespace gl
     // the program itself
     GLuint m_Program;
     bool m_ContainsAssembledProgram;
+
+    /// currently active shader object
+    /// As long as no user bypasses the Activate mechanism by calling glUseProgram, this pointer will always point the currently bound program.
+    static const ShaderObject* g_pCurrentlyActiveShaderObject;
 
     // underlying shaders
     struct Shader

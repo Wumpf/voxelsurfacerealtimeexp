@@ -1,5 +1,9 @@
 ﻿#version 430
 
+uniform TestUBO
+{
+  float Result;
+};
 
 // output buffer
 layout(binding = 0) writeonly buffer oBuffer
@@ -7,10 +11,9 @@ layout(binding = 0) writeonly buffer oBuffer
   float Result;
 } Out;
 
-
 // compute shader size
 layout (local_size_x = 1) in;
 void main()
 {	
-  Out.Result = 42.0f;
+  Out.Result = Result;
 }

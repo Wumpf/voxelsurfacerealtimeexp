@@ -50,7 +50,7 @@ namespace gl
       return EZ_SUCCESS;
 
     glBindBuffer(GL_UNIFORM_BUFFER, m_BufferObject);
-    glBufferSubData(GL_UNIFORM_BUFFER, m_uiBufferDirtyRangeStart, m_uiBufferDirtyRangeEnd - m_uiBufferDirtyRangeStart, m_pBufferData);
+    glBufferSubData(GL_UNIFORM_BUFFER, m_uiBufferDirtyRangeStart, m_uiBufferDirtyRangeEnd - m_uiBufferDirtyRangeStart, m_pBufferData + m_uiBufferDirtyRangeStart);
 
     m_uiBufferDirtyRangeEnd = std::numeric_limits<ezUInt32>::min();
     m_uiBufferDirtyRangeStart = std::numeric_limits<ezUInt32>::max();

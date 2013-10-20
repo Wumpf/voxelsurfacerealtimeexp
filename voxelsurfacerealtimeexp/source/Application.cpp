@@ -4,6 +4,7 @@
 #include "RenderWindow.h"
 #include "Scene.h"
 #include "OnScreenLogWriter.h"
+#include "Random.h"
 
 #include <Foundation/Configuration/Startup.h>
 
@@ -42,6 +43,8 @@ void Application::AfterEngineInit()
   m_pHTMLLogWriter->BeginLog("log.html", "voxelsurfacerealtimeexp");
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
   
+  // setup random
+  Random::Init(231656523);
 
   // start window
   m_pWindow = EZ_DEFAULT_NEW(RenderWindowGL);

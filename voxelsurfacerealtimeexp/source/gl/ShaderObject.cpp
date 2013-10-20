@@ -2,6 +2,8 @@
 #include "ShaderObject.h"
 #include "GLUtils.h"
 #include "UniformBuffer.h"
+#include "Texture.h"
+#include "Texture3D.h"
 
 #include <GL/glew.h>
 
@@ -11,6 +13,8 @@
 
 namespace gl
 {
+  const ShaderObject* ShaderObject::g_pCurrentlyActiveShaderObject = NULL;
+
   ShaderObject::ShaderObject() :
     m_Program(0),
     m_ContainsAssembledProgram(false)
@@ -25,6 +29,12 @@ namespace gl
 
   ShaderObject::~ShaderObject()
   {
+    if(g_pCurrentlyActiveShaderObject == this)
+    {
+      glUseProgram(0);
+      g_pCurrentlyActiveShaderObject = NULL;
+    }
+
     for(Shader& shader : m_aShader)
     {
       if(shader.bLoaded)
@@ -287,15 +297,46 @@ namespace gl
   {
     EZ_ASSERT(m_ContainsAssembledProgram, "No shader program ready yet. Call CreateProgram first!");
     glUseProgram(m_Program);
+    g_pCurrentlyActiveShaderObject = this;
   }
 
   ezResult ShaderObject::BindUBO(UniformBuffer& ubo, const ezString sUBOName)
   {
+    // does not change any uniform - not necessary!
+    //EZ_ASSERT(g_pCurrentlyActiveShaderObject == this, "You need to activate the ShaderObject before calling BindUBO!");
+
     auto it = m_UniformBlockInfos.Find(sUBOName);
     if(!it.IsValid())
       return EZ_FAILURE;
 
     return ubo.BindBuffer(it.Value().iBufferBinding);
+  }
+
+  ezResult ShaderObject::BindTexture(Texture& texture, const ezString sTextureName)
+  {
+    // does not change any uniform - not necessary!
+    //EZ_ASSERT(g_pCurrentlyActiveShaderObject == this, "You need to activate the ShaderObject before calling BindTexture!");
+
+    auto it = m_GlobalUniformInfo.Find(sTextureName);
+    if(!it.IsValid())
+      return EZ_FAILURE;
+
+    // optional typechecking
+    switch(it.Value().Type)
+    {
+    case ShaderVariableType::SAMPLER_3D:
+      EZ_ASSERT(dynamic_cast<Texture3D*>(&texture) != NULL, "3D Texture expected!");
+      break;
+    default:
+      EZ_ASSERT(false, "Handling for this type of uniform not implemented!");
+      break;
+    }
+
+    EZ_ASSERT(it.Value().iLocation >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
+
+    texture.Bind(it.Value().iLocation);
+
+    return EZ_SUCCESS;
   }
 
   void ShaderObject::PrintShaderInfoLog(GLuint Shader, const ezString& sShaderName)

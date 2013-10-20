@@ -14,15 +14,24 @@ FreeCamera::~FreeCamera()
 
 void FreeCamera::Update(ezTime lastFrameDuration)
 {
-  float fMouseXDelta, fMouseYDelta;
-  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisX, &fMouseXDelta);
-  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisY, &fMouseYDelta);
-  m_fMouseX += fMouseXDelta;
-  m_fMouseY += fMouseYDelta;
+  float fMouseXDeltaPos, fMouseYDeltaPos;
+  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXPos, &fMouseXDeltaPos);
+  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYPos, &fMouseYDeltaPos);
+  float fMouseXDeltaNeg, fMouseYDeltaNeg;
+  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXNeg, &fMouseXDeltaNeg);
+  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYNeg, &fMouseYDeltaNeg);
+  m_fMouseX += fMouseXDeltaPos - fMouseXDeltaNeg;
+  m_fMouseY += fMouseYDeltaPos - fMouseYDeltaNeg;
 
-  m_ViewDir.x = sinf(m_fMouseX) * cosf(m_fMouseY);
-  m_ViewDir.y = sinf(m_fMouseY);
-  m_ViewDir.z = cosf(m_fMouseX) * cosf(m_fMouseY);
+  m_ViewDir.x = cosf(m_fMouseX) * sinf(m_fMouseY);
+  m_ViewDir.y = cosf(m_fMouseY);
+  m_ViewDir.z = sinf(m_fMouseX) * sinf(m_fMouseY);
+
+  float theta2 = m_fMouseY + ezMath::BasicType<float>::Pi() / 2.0f;
+  m_vUp.x = cosf(m_fMouseX) * sinf(theta2);
+  m_vUp.y = cosf(theta2);
+  m_vUp.z = sinf(m_fMouseX) * sinf(theta2);
+
   
   float fForward, fBackward, fLeft, fRight;
   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraForward, &fForward);
@@ -31,7 +40,7 @@ void FreeCamera::Update(ezTime lastFrameDuration)
   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRight, &fRight);
 
   m_vPosition += (fForward - fBackward) * m_ViewDir;
-  m_vPosition += (fRight - fLeft) * m_ViewDir.Cross(m_vUp);
+  m_vPosition += (fLeft - fRight) * m_ViewDir.Cross(m_vUp);
 
   UpdateMatrices();
 }

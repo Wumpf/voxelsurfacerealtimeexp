@@ -109,6 +109,7 @@
       <PreprocessorDefinitions>GLEW_STATIC;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>PCH.h</PrecompiledHeaderFile>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,6 +149,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>GLEW_STATIC ;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -172,16 +174,21 @@
     <ClInclude Include="source\gl\ScreenAlignedTriangle.h" />
     <ClInclude Include="source\gl\ShaderDataMetaInfo.h" />
     <ClInclude Include="source\gl\ShaderObject.h" />
+    <ClInclude Include="source\gl\Texture.h" />
+    <ClInclude Include="source\gl\Texture3D.h" />
     <ClInclude Include="source\gl\UniformBuffer.h" />
     <ClInclude Include="source\InputConfig.h" />
+    <ClInclude Include="source\NoiseGenerator.h" />
     <ClInclude Include="source\OnScreenLogWriter.h" />
     <ClInclude Include="source\PCH.h" />
+    <ClInclude Include="source\Random.h" />
     <ClInclude Include="source\RenderWindow.h" />
     <ClInclude Include="Source\Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\background.frag" />
     <None Include="shader\comptest.comp" />
+    <None Include="shader\directvis.frag" />
     <None Include="shader\screenTri.vert" />
     <None Include="source\gl\ShaderDataMetaInfo.inl" />
     <None Include="source\gl\UniformBuffer.inl" />
@@ -195,12 +202,16 @@
     <ClCompile Include="source\gl\GLUtils.cpp" />
     <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp" />
     <ClCompile Include="source\gl\ShaderObject.cpp" />
+    <ClCompile Include="source\gl\Texture.cpp" />
+    <ClCompile Include="source\gl\Texture3D.cpp" />
     <ClCompile Include="source\gl\UniformBuffer.cpp" />
     <ClCompile Include="source\Input.cpp" />
+    <ClCompile Include="source\NoiseGenerator.cpp" />
     <ClCompile Include="source\OnScreenLogWriter.cpp" />
     <ClCompile Include="source\PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="source\Random.cpp" />
     <ClCompile Include="source\RenderWindow.cpp" />
     <ClCompile Include="Source\Scene.cpp" />
   </ItemGroup>
