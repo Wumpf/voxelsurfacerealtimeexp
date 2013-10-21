@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "ShaderDataMetaInfo.h"
+#include <Foundation/Containers/Set.h>
 
 namespace gl
 {
@@ -54,8 +55,6 @@ namespace gl
     ezResult BindTexture(class Texture& texture, const ezString sTextureName);
 
 
-    
-
 
 
     /// The set of active user-defined inputs to the first shader stage in this program. 
@@ -91,6 +90,9 @@ namespace gl
     static void PrintShaderInfoLog(GLuint shader, const ezString& sShaderName);
     /// Print information about the linking step
     static void PrintProgramInfoLog(GLuint program);
+
+    /// Reads shader source code from file and performs parsing of #include directives
+    static ezStringBuilder ReadShaderFromFile(const ezString& filename, ezSet<ezString>& includingFiles = ezSet<ezString>());
 
     /// queries uniform informations from the program
     void QueryProgramInformations();

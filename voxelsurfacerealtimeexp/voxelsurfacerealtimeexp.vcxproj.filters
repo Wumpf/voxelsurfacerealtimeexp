@@ -61,7 +61,9 @@
     <ClInclude Include="source\NoiseGenerator.h">
       <Filter>source</Filter>
     </ClInclude>
-    <ClInclude Include="source\gl\Texture.h" />
+    <ClInclude Include="source\gl\Texture.h">
+      <Filter>source\gl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source">
@@ -97,6 +99,12 @@
       <Filter>source\gl</Filter>
     </None>
     <None Include="shader\directvis.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\constantbuffers.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\helper.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>
@@ -152,6 +160,8 @@
     <ClCompile Include="source\NoiseGenerator.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\gl\Texture.cpp" />
+    <ClCompile Include="source\gl\Texture.cpp">
+      <Filter>source\gl</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

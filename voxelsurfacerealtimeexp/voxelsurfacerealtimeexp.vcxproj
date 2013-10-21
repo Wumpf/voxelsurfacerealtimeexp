@@ -147,7 +147,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>GLEW_STATIC ;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
@@ -188,7 +188,9 @@
   <ItemGroup>
     <None Include="shader\background.frag" />
     <None Include="shader\comptest.comp" />
+    <None Include="shader\constantbuffers.glsl" />
     <None Include="shader\directvis.frag" />
+    <None Include="shader\helper.glsl" />
     <None Include="shader\screenTri.vert" />
     <None Include="source\gl\ShaderDataMetaInfo.inl" />
     <None Include="source\gl\UniformBuffer.inl" />

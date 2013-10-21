@@ -47,25 +47,90 @@ namespace gl
 
   ezResult ShaderObject::AddShaderFromFile(ShaderType Type, const ezString& sFilename)
   {
+    ezSet<ezString> includingFiles;
+    ezStringBuilder sourceCode = ReadShaderFromFile(sFilename, includingFiles);
+
+    // todo: setup filewatching
+
+    return AddShaderFromSource(Type, sourceCode.GetData(), sFilename);
+  }
+
+  ezStringBuilder ShaderObject::ReadShaderFromFile(const ezString& sFilename, ezSet<ezString>& includingFiles)
+  {
     // open file
     ezFileReader file;
     if(file.Open(sFilename.GetData(), ezFileMode::Read) != EZ_SUCCESS)
     {
       ezLog::Error("Unable to open shader file %s", sFilename.GetData());
-      return EZ_FAILURE;
+      return "";
     }
 
-    // read file
-    ezUInt64 uiFileSize = file.GetFileSize();
+    // reserve
+    ezStringBuilder sourceCode;
+    ezUInt32 uiFileSize = static_cast<ezUInt32>(file.GetFileSize());
+    sourceCode.Reserve(uiFileSize+1);
     ezDynamicArray<char> pData;
-    pData.SetCount(static_cast<ezUInt32>(uiFileSize)+1);
+    pData.SetCount(uiFileSize+1);
+
+    // read
     ezUInt64 uiReadBytes = file.ReadBytes(static_cast<ezArrayPtr<char>>(pData).GetPtr(), uiFileSize);
     EZ_ASSERT(uiReadBytes == uiFileSize, "FileSize does not matches number of bytes read.");
     pData[static_cast<ezUInt32>(uiFileSize)] = '\0';
     file.Close();
+    sourceCode.Append(static_cast<ezArrayPtr<char>>(pData).GetPtr());
 
+    // push into file list to prevent circular includes
+    includingFiles.Insert(sFilename);
 
-    return AddShaderFromSource(Type, static_cast<ezArrayPtr<char>>(pData).GetPtr(), sFilename);
+    // parse all includes and load files if they don't lead 
+    ezString relativePath = ezPathUtils::GetFileDirectory(sFilename.GetData());
+    const char* pIncludePosition = NULL;
+    while((pIncludePosition = sourceCode.FindSubString("#include")) != NULL)
+    {
+      // parse filepath
+      const char* pQuotMarksFirst = ezStringIterator(pIncludePosition).FindSubString("\"");
+      if(pQuotMarksFirst == NULL)
+      {
+        ezLog::Error("Invalid #include directive in shader file %s. Expected \"", sFilename.GetData());
+        break;
+      }
+      const char* pQuotMarksSecond = ezStringIterator(pQuotMarksFirst+1).FindSubString("\"");
+      if(pQuotMarksSecond == NULL)
+      {
+        ezLog::Error("Invalid #include directive in shader file %s. Expected \"", sFilename.GetData());
+        break;
+      }
+
+      ezUInt32 uiStringLength = pQuotMarksSecond - pQuotMarksFirst;
+      if(uiStringLength == 0)
+      {
+        ezLog::Error("Invalid #include directive in shader file %s. Quotation marks empty!", sFilename.GetData());
+        break;
+      }
+      char* includeCommand = EZ_DEFAULT_NEW_RAW_BUFFER(char, uiStringLength);
+      ezMemoryUtils::Copy(includeCommand, pQuotMarksFirst+1, uiStringLength - 1);
+      includeCommand[uiStringLength - 1] = '\0';
+
+      ezStringBuilder includeFile(relativePath.GetData());
+      includeFile.AppendPath(includeCommand);
+
+      EZ_DEFAULT_DELETE_RAW_BUFFER(includeCommand);
+     
+
+      // check if already included
+      ezString includeFileString(includeFile.GetData());
+      if(includingFiles.Find(includeFileString).IsValid())
+      {
+        sourceCode.ReplaceSubString(pQuotMarksFirst, pQuotMarksSecond+1, "");
+        ezLog::Warning("Shader include file \"%s\" was already included! File will be ignored.", includeFileString.GetData());
+      }
+      else
+      {
+        sourceCode.ReplaceSubString(pIncludePosition, pQuotMarksSecond+1, ReadShaderFromFile(includeFileString, includingFiles).GetData());
+      }
+    }
+
+    return sourceCode;
   }
 
   ezResult ShaderObject::AddShaderFromSource(ShaderType type, const ezString& pSourceCode, const ezString& sOriginName)

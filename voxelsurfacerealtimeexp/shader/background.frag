@@ -1,13 +1,7 @@
 #version 330
 
-// uniforms
-layout(shared) uniform Camera
-{
-	mat4 ViewMatrix;
-	mat4 ViewProjection;
-	mat4 InverseViewProjection;
-	vec3 CameraPosition;
-};
+#include "constantbuffers.glsl"
+#include "helper.glsl"
 
 //uniform vec3 LightDirection;
 const vec3 LightDirection = vec3(0, -0.333, 0.333);
@@ -54,15 +48,9 @@ vec3 computeSkyColor(in vec3 ray)
 // ------------------------------------------------
 void main()
 {
-	// "picking" - compute raydirection
-	vec2 deviceCor = 2.0 * vs_out_texcoord - 1.0;
-	vec4 rayOrigin = vec4(deviceCor, -1, 1) * InverseViewProjection;
-	rayOrigin.xyz /= rayOrigin.w;
-	vec4 rayTarget = vec4(deviceCor, 0, 1) * InverseViewProjection;
-	rayTarget.xyz /= rayTarget.w;
-	vec3 rayDirection = normalize(rayTarget.xyz - rayOrigin.xyz);
+	vec3 rayDirection = ComputeRayDirection(vs_out_texcoord, InverseViewProjection);
 
 	// Color
-	fragColor.a = 0.0;
+	fragColor.a = 0.0f;
 	fragColor.rgb = computeSkyColor(rayDirection);
 }

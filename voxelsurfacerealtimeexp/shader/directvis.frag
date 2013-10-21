@@ -1,13 +1,7 @@
 #version 330
 
-// uniforms
-layout(shared) uniform Camera
-{
-	mat4 ViewMatrix;
-	mat4 ViewProjection;
-	mat4 InverseViewProjection;
-	vec3 CameraPosition;
-};
+#include "constantbuffers.glsl"
+#include "helper.glsl"
 
 uniform sampler3D VolumeTexture;
 const float IsoValue = 0.5;
@@ -23,13 +17,7 @@ out vec4 ps_out_fragColor;
 
 void main()
 {
-	// "picking" - compute raydirection
-	vec2 deviceCor = 2.0 * vs_out_texcoord - 1.0;
-	vec4 rayOrigin = vec4(deviceCor, -1, 1) * InverseViewProjection;
-	rayOrigin.xyz /= rayOrigin.w;
-	vec4 rayTarget = vec4(deviceCor, 0, 1) * InverseViewProjection;
-	rayTarget.xyz /= rayTarget.w;
-	vec3 rayDirection = normalize(rayTarget.xyz - rayOrigin.xyz);
+	vec3 rayDirection = ComputeRayDirection(vs_out_texcoord, InverseViewProjection);
 
 	// extremly primitive raymarching
 	
@@ -46,7 +34,8 @@ void main()
 				normal = normalize(normal);
 				float lighting = clamp(dot(normal, -LightDirection), 0, 1) + 0.3;
 				ps_out_fragColor = vec4(lighting);
-			//	ps_out_fragColor.xyz = abs(normal);
+
+		//		ps_out_fragColor.xyz = abs(rayDirection);//abs(normal);
 				return;
 			}
 		}

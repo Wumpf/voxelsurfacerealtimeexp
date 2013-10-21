@@ -64,7 +64,7 @@ void Scene::CreateVolumeTexture()
   NoiseGenerator noiseGen;
   ezUInt32 slicePitch = m_vVolumeWidth * m_vVolumeHeight;
 
-  // todo optimize
+  // todo optimize?
   #pragma omp parallel for // OpenMP parallel for loop
   for(ezInt32 z=0; z<m_vVolumeDepth; ++z) // needs to be signed for openmp
   {
@@ -74,7 +74,7 @@ void Scene::CreateVolumeTexture()
       {
         ezVec3 gradient;
         ezColor& current = volumeData[x + y * m_vVolumeWidth + z * slicePitch];
-        current.w = noiseGen.GetValueNoise(ezVec3(static_cast<float>(x) / m_vVolumeWidth ,static_cast<float>(y) / m_vVolumeHeight,static_cast<float>(z) / m_vVolumeDepth), 
+        current.w = noiseGen.GetValueNoise(ezVec3(static_cast<float>(x) / m_vVolumeWidth,static_cast<float>(y) / m_vVolumeHeight,static_cast<float>(z) / m_vVolumeDepth), 
                                                   0, 4, 0.5f, false, &gradient) * 0.5f + 0.5f;
         gradient.Normalize();
         gradient = gradient * 0.5f;
@@ -136,9 +136,9 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   fpsString.AppendFormat("fps: %.2f (%.2f ms)", 1.0 / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
   m_pFont->DrawString(fpsString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 200.0f, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
     // camera
-  ezStringBuilder cameraString;
+ /* ezStringBuilder cameraString;
   cameraString.AppendFormat("CameraPos (%.1f, %.1f, %.1f)", m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z);
   m_pFont->DrawString(cameraString.GetData(), ezVec2(10.0f, 60.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
-  
+  */
   return EZ_SUCCESS;
 }
