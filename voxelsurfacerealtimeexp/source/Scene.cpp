@@ -34,10 +34,13 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   m_ComputeShaderTest.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "comptest.comp");
   m_ComputeShaderTest.CreateProgram();
 
-  m_TestUBO.Init(m_ComputeShaderTest.GetUniformBufferInfo()["TestUBO"], "TestUBO");
+  m_TestUBO.Init(m_ComputeShaderTest, "TestUBO");
   m_TestUBO["Result"].Set(-123456.0f);
 
-  m_CameraUBO.Init(m_DirectVolVisShader.GetUniformBufferInfo()["Camera"], "Camera");
+  ezDynamicArray<const gl::ShaderObject*> cameraUBOusingShader;
+  cameraUBOusingShader.PushBack(&m_DirectVolVisShader);
+  cameraUBOusingShader.PushBack(&m_BackgroundShader);
+  m_CameraUBO.Init(cameraUBOusingShader, "Camera");
 
   glGenBuffers(1, &m_TestBuffer);
   float fInitalData;

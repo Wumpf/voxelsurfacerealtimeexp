@@ -101,7 +101,7 @@ namespace gl
         break;
       }
 
-      ezUInt32 uiStringLength = pQuotMarksSecond - pQuotMarksFirst;
+      ezUInt32 uiStringLength = static_cast<ezUInt32>(pQuotMarksSecond - pQuotMarksFirst);
       if(uiStringLength == 0)
       {
         ezLog::Error("Invalid #include directive in shader file %s. Quotation marks empty!", sFilename.GetData());

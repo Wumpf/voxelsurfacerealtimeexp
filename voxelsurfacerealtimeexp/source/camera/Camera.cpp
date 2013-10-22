@@ -6,7 +6,7 @@ Camera::Camera(float fov, float aspectRatio) :
   m_vUp(0.0f, 1.0f, 0.0f),
   m_ViewDir(1.0f, 0.0f, 0.0f)
 {
-  m_ProjectionMatrix.SetPerspectiveProjectionMatrixFromFovY(fov, aspectRatio, 0.1f, 5000.0f, ezProjectionDepthRange::MinusOneToOne);
+  m_ProjectionMatrix.SetPerspectiveProjectionMatrixFromFovY(fov, aspectRatio, 1.0f, 1000.0f, ezProjectionDepthRange::MinusOneToOne);
   UpdateMatrices();
 }
 
