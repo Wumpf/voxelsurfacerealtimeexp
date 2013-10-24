@@ -2,6 +2,7 @@
 
 #include "ShaderDataMetaInfo.h"
 #include <Foundation/Containers/Set.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 namespace gl
 {
@@ -91,8 +92,13 @@ namespace gl
     /// Print information about the linking step
     static void PrintProgramInfoLog(GLuint program);
 
+    /// file handler event for hot reloading
+    void FileEventHandler(const ezString& changedShaderFile);
+
     /// Reads shader source code from file and performs parsing of #include directives
     static ezStringBuilder ReadShaderFromFile(const ezString& filename, ezSet<ezString>& includingFiles = ezSet<ezString>());
+
+
 
     /// queries uniform informations from the program
     void QueryProgramInformations();
@@ -103,11 +109,14 @@ namespace gl
 
     // the program itself
     GLuint m_Program;
-    bool m_ContainsAssembledProgram;
+    bool m_bContainsAssembledProgram;
 
     /// currently active shader object
     /// As long as no user bypasses the Activate mechanism by calling glUseProgram, this pointer will always point the currently bound program.
     static const ShaderObject* g_pCurrentlyActiveShaderObject;
+
+    /// list of relevant files - if any of these changes a reload will be triggered
+    ezMap<ezString, ShaderType> m_filesPerShaderType;
 
     // underlying shaders
     struct Shader

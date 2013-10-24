@@ -18,7 +18,7 @@ const ezUInt32 Scene::m_vVolumeDepth = 256;
 Scene::Scene(const RenderWindowGL& renderWindow) :
   m_pScreenAlignedTriangle(EZ_DEFAULT_NEW_UNIQUE(gl::ScreenAlignedTriangle)),
   
-  m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, 120.0f, static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
+  m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, 90.0f, static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
   m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial Bold", 20, renderWindow.GetDeviceContext())) // cvar for resolution?
 {
   EZ_LOG_BLOCK("Scene shader init");
@@ -102,6 +102,7 @@ ezResult Scene::Update(ezTime lastFrameDuration)
   //m_CameraUBO["ViewProjection"].Set(m_pCamera->GetViewProjectionMatrix());
   ezMat4 inverseViewProjection = m_pCamera->GetViewProjectionMatrix();
   inverseViewProjection.Invert();
+
   m_CameraUBO["InverseViewProjection"].Set(inverseViewProjection);
   m_CameraUBO["CameraPosition"].Set(m_pCamera->GetPosition());
 

@@ -23,11 +23,17 @@ private:
   void SetupFileSystem();
   void SetupInput();
   
-  void UpdateInput(ezTime lastFrameDuration);
+
+  void Update(ezTime lastFrameDuration);
   void RenderFrame(ezTime lastFrameDuration);
+
+  void UpdateInput(ezTime lastFrameDuration);
+
 
   class RenderWindowGL* m_pWindow;
   class Scene* m_pScene;
+
+  class FolderChangeWatcher* m_pShaderChangesWatcher;
 
   ezTime m_LastFrameTime;
   bool m_bRunning;

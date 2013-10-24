@@ -11,20 +11,24 @@
 #include <Foundation/io/OSFile.h>
 #include <Foundation/Basics/Types/ArrayPtr.h>
 
+#include "..\GlobalEvents.h"
+
 namespace gl
 {
   const ShaderObject* ShaderObject::g_pCurrentlyActiveShaderObject = NULL;
 
   ShaderObject::ShaderObject() :
     m_Program(0),
-    m_ContainsAssembledProgram(false)
+    m_bContainsAssembledProgram(false)
   {
     for(Shader& shader : m_aShader)
     {
       shader.iGLShaderObject = 0;
-      shader.sOrigin = "none";
+      shader.sOrigin = "";
       shader.bLoaded = false;
     }
+
+    GlobalEvents::g_pShaderFileChanged->AddEventHandler(ezEvent<const ezString&>::Handler(&ShaderObject::FileEventHandler, this));
   }
 
   ShaderObject::~ShaderObject()
@@ -41,18 +45,28 @@ namespace gl
         glDeleteShader(shader.iGLShaderObject);
     }
 
-    if(m_ContainsAssembledProgram)
+    if(m_bContainsAssembledProgram)
       glDeleteProgram(m_Program);
+
+    GlobalEvents::g_pShaderFileChanged->RemoveEventHandler(ezEvent<const ezString&>::Handler(&ShaderObject::FileEventHandler, this));
   }
 
   ezResult ShaderObject::AddShaderFromFile(ShaderType Type, const ezString& sFilename)
   {
+    // load new code
     ezSet<ezString> includingFiles;
     ezStringBuilder sourceCode = ReadShaderFromFile(sFilename, includingFiles);
 
-    // todo: setup filewatching
+    ezResult result = AddShaderFromSource(Type, sourceCode.GetData(), sFilename);
 
-    return AddShaderFromSource(Type, sourceCode.GetData(), sFilename);
+    if(result != EZ_FAILURE)
+    {
+      // memorize files
+      for(auto it=includingFiles.GetIterator(); it.IsValid(); ++it)
+        m_filesPerShaderType.Insert(it.Key(), Type);
+    }
+
+    return result;
   }
 
   ezStringBuilder ShaderObject::ReadShaderFromFile(const ezString& sFilename, ezSet<ezString>& includingFiles)
@@ -135,29 +149,29 @@ namespace gl
 
   ezResult ShaderObject::AddShaderFromSource(ShaderType type, const ezString& pSourceCode, const ezString& sOriginName)
   {
-    // create shader
     Shader& shader = m_aShader[static_cast<ezUInt32>(type)];
-    EZ_ASSERT(!shader.bLoaded, "Shader already loaded!");
-    shader.sOrigin = sOriginName;
+
+    // create shader
+    GLuint shaderObjectTemp = 0;
     switch (type)
     {
     case ShaderObject::ShaderType::VERTEX:
-      shader.iGLShaderObject = glCreateShader(GL_VERTEX_SHADER);
+      shaderObjectTemp = glCreateShader(GL_VERTEX_SHADER);
       break;
     case ShaderObject::ShaderType::FRAGMENT:
-      shader.iGLShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
+      shaderObjectTemp = glCreateShader(GL_FRAGMENT_SHADER);
       break;
     case ShaderObject::ShaderType::EVALUATION:
-      shader.iGLShaderObject = glCreateShader(GL_TESS_EVALUATION_SHADER);
+      shaderObjectTemp = glCreateShader(GL_TESS_EVALUATION_SHADER);
       break;
     case ShaderObject::ShaderType::CONTROL:
-      shader.iGLShaderObject = glCreateShader(GL_TESS_CONTROL_SHADER);
+      shaderObjectTemp = glCreateShader(GL_TESS_CONTROL_SHADER);
       break;
     case ShaderObject::ShaderType::GEOMETRY:
-      shader.iGLShaderObject = glCreateShader(GL_GEOMETRY_SHADER);
+      shaderObjectTemp = glCreateShader(GL_GEOMETRY_SHADER);
       break;
     case ShaderObject::ShaderType::COMPUTE:
-      shader.iGLShaderObject = glCreateShader(GL_COMPUTE_SHADER);
+      shaderObjectTemp = glCreateShader(GL_COMPUTE_SHADER);
       break;
 
     default:
@@ -165,19 +179,61 @@ namespace gl
       break;
     }
 
-
     // compile shader
     const char* pSourceRaw = pSourceCode.GetData();
-    glShaderSource(shader.iGLShaderObject, 1, &pSourceRaw, NULL);	// attach shader code
-    glCompileShader(shader.iGLShaderObject);								    // compile
 
-    // check result
-    ezResult result = gl::Utils::CheckError("glCompileShader");
+    glShaderSource(shaderObjectTemp, 1, &pSourceRaw, NULL);	// attach shader code
+
+    ezResult result = gl::Utils::CheckError("glShaderSource");
     if(result == EZ_SUCCESS)
-      shader.bLoaded = true;
+    {
+      glCompileShader(shaderObjectTemp);								    // compile
+
+      result = gl::Utils::CheckError("glCompileShader");
+    }
+
+    // gl get error seems to be unreliable - another check!
+    if(result == EZ_SUCCESS)
+    {
+      GLint shaderCompiled;
+      glGetShaderiv(shaderObjectTemp, GL_COMPILE_STATUS, &shaderCompiled);
+
+      if(shaderCompiled == GL_FALSE)
+        result = EZ_FAILURE;
+    }
 
     // log output
-   // PrintShaderInfoLog(m_aShader[static_cast<ezUInt32>(type)].m_ShaderObject, sOriginName);					
+    PrintShaderInfoLog(shaderObjectTemp, sOriginName);			
+
+    // check result
+    if(result == EZ_SUCCESS)
+    {
+      // destroy old shader
+      if(shader.bLoaded)
+      {
+        glDeleteShader(shader.iGLShaderObject);
+        shader.sOrigin = "";
+      }
+
+      // memorize new data only if loading successful - this way a failed reload won't affect anything
+      shader.iGLShaderObject = shaderObjectTemp;
+      shader.sOrigin = sOriginName;
+
+      // remove old associated files
+      for(auto it=m_filesPerShaderType.GetIterator(); it.IsValid(); ++it)
+      {
+        if(it.Value() == type)
+        {
+          it = m_filesPerShaderType.Erase(it);
+          if(!it.IsValid())
+            break;
+        }
+      }
+
+      shader.bLoaded = true;
+    }
+    else
+      glDeleteShader(shaderObjectTemp);		
 
     return result;
   }
@@ -185,17 +241,8 @@ namespace gl
 
   ezResult ShaderObject::CreateProgram()
   {
-    EZ_ASSERT(!m_ContainsAssembledProgram, "ShaderObject contains already an assembled program.");
-
-    // clear meta information
-    m_iTotalProgramInputCount = 0;
-    m_iTotalProgramOutputCount = 0;
-    m_GlobalUniformInfo.Clear();
-    m_UniformBlockInfos.Clear();
-    m_ShaderStorageInfos.Clear();
-
     // Create shader program
-    m_Program = glCreateProgram();	
+    GLuint tempProgram = glCreateProgram();	
 
     // attach programs
     int numAttachedShader = 0;
@@ -203,27 +250,60 @@ namespace gl
     {
       if(shader.bLoaded)
       {
-        glAttachShader(m_Program, shader.iGLShaderObject);
+        glAttachShader(tempProgram, shader.iGLShaderObject);
         ++numAttachedShader;
       }
     }
     EZ_ASSERT(numAttachedShader > 0, "Need at least one shader to link a gl program!");
 
     // Link program
-    glLinkProgram(m_Program);
+    glLinkProgram(tempProgram);
+    ezResult result = gl::Utils::CheckError("glLinkProgram");
+
+    // gl get error seems to be unreliable - another check!
+    if(result == EZ_SUCCESS)
+    {
+      GLint programLinked;
+      glGetProgramiv(tempProgram, GL_LINK_STATUS, &programLinked);
+
+      if(programLinked == GL_FALSE)
+        result = EZ_FAILURE;
+    }
+    
+    // debug output
+    PrintProgramInfoLog(tempProgram);
 
     // check
-    if(gl::Utils::CheckError("CreateProgram") == EZ_FAILURE)
-      return EZ_FAILURE;
-    m_ContainsAssembledProgram = true;
+    if(result == EZ_SUCCESS)
+    {
+      // already a program there? destroy old one!
+      if(m_bContainsAssembledProgram)
+      {
+        glUseProgram(0);
+        glDeleteProgram(m_Program);
 
-    // debug output
-    PrintProgramInfoLog(m_Program);
+        // clear meta information
+        m_iTotalProgramInputCount = 0;
+        m_iTotalProgramOutputCount = 0;
+        m_GlobalUniformInfo.Clear();
+        m_UniformBlockInfos.Clear();
+        m_ShaderStorageInfos.Clear();
+      }
 
-    // get informations about the program
-    QueryProgramInformations();
+      // memorize new data only if loading successful - this way a failed reload won't affect anything
+      m_Program = tempProgram;
+      m_bContainsAssembledProgram = true;
 
-    return EZ_SUCCESS;
+      // get informations about the program
+      QueryProgramInformations();
+
+      return EZ_SUCCESS;
+    }
+    else
+      glDeleteProgram(tempProgram);
+
+
+    return result;
   }
 
   void ShaderObject::QueryProgramInformations()
@@ -354,13 +434,13 @@ namespace gl
 
   GLuint ShaderObject::GetProgram() const
   {
-    EZ_ASSERT(m_ContainsAssembledProgram, "No shader program ready yet. Call CreateProgram first!");
+    EZ_ASSERT(m_bContainsAssembledProgram, "No shader program ready yet. Call CreateProgram first!");
     return m_Program;
   }
 
   void ShaderObject::Activate() const 	
   {
-    EZ_ASSERT(m_ContainsAssembledProgram, "No shader program ready yet. Call CreateProgram first!");
+    EZ_ASSERT(m_bContainsAssembledProgram, "No shader program ready yet. Call CreateProgram first!");
     glUseProgram(m_Program);
     g_pCurrentlyActiveShaderObject = this;
   }
@@ -420,7 +500,7 @@ namespace gl
       ezLog::Error(pInfoLog.GetPtr());
     }
     else
-      ezLog::Dev("Shader %s compiled successfully", sShaderName.GetData());
+      ezLog::Success("Shader %s compiled successfully", sShaderName.GetData());
 
     EZ_DEFAULT_DELETE_ARRAY(pInfoLog);
 #endif
@@ -440,14 +520,27 @@ namespace gl
 
     if(strlen(pInfoLog.GetPtr()) > 0)
     {
-      ezLog::Error("Compiling program. Output:");
+      ezLog::Error("Linked program. Output:");
       ezLog::Error(pInfoLog.GetPtr());
     }
     else
-      ezLog::Dev("Compiled program successfully");
+      ezLog::Success("Linked program successfully");
 
     EZ_DEFAULT_DELETE_ARRAY(pInfoLog);
 #endif
   }
 
+  /// file handler event for hot reloading
+  void ShaderObject::FileEventHandler(const ezString& changedShaderFile)
+  {
+    auto it = m_filesPerShaderType.Find(changedShaderFile);
+    if(it.IsValid())
+    {
+      if(m_aShader[static_cast<ezUInt32>(it.Value())].bLoaded)
+      {
+        if(AddShaderFromFile(it.Value(), changedShaderFile) != EZ_FAILURE && m_bContainsAssembledProgram)
+          CreateProgram();
+      }
+    }
+  }
 }

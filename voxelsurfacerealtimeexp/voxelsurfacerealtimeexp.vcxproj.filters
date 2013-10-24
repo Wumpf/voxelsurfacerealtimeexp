@@ -2,10 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="source\gl\ScreenAlignedTriangle.h">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\ShaderObject.h">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\PCH.h">
       <Filter>source</Filter>
@@ -17,13 +17,13 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\GLUtils.h">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClInclude>
     <ClInclude Include="Source\Scene.h">
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="source\ezExtensions\UniquePtr.h">
-      <Filter>source\ezExtensions</Filter>
+      <Filter>source\framework</Filter>
     </ClInclude>
     <ClInclude Include="source\camera\FreeCamera.h">
       <Filter>source\Camera</Filter>
@@ -35,34 +35,40 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\Font.h">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\GlobalCVar.h">
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\UniformBuffer.h">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\ShaderDataMetaInfo.h">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\OnScreenLogWriter.h">
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="source\ezExtensions\Color.h">
-      <Filter>source\ezExtensions</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Random.h">
-      <Filter>source</Filter>
+      <Filter>source\framework</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\Texture3D.h">
-      <Filter>source\gl</Filter>
-    </ClInclude>
-    <ClInclude Include="source\NoiseGenerator.h">
-      <Filter>source</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\Texture.h">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\NoiseGenerator.h">
+      <Filter>source\framework\math</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Random.h">
+      <Filter>source\framework\math</Filter>
+    </ClInclude>
+    <ClInclude Include="source\FolderChangeWatcher.h">
+      <Filter>source\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="source\GlobalEvents.h">
+      <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -72,14 +78,17 @@
     <Filter Include="shader">
       <UniqueIdentifier>{8247614a-7221-4683-9e05-bbee2e8c3b4c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="source\gl">
-      <UniqueIdentifier>{f7eaace0-013f-4551-af10-b5f8d631dd5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="source\ezExtensions">
-      <UniqueIdentifier>{27a536cf-c919-4d46-94f7-41e3c9eb4549}</UniqueIdentifier>
-    </Filter>
     <Filter Include="source\Camera">
       <UniqueIdentifier>{fe332968-eb97-4d40-9ca3-f57cd673ad0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\framework">
+      <UniqueIdentifier>{27a536cf-c919-4d46-94f7-41e3c9eb4549}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\framework\gl">
+      <UniqueIdentifier>{f7eaace0-013f-4551-af10-b5f8d631dd5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\framework\math">
+      <UniqueIdentifier>{d49acb20-3704-4628-b4f9-aef0009cb326}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,10 +102,10 @@
       <Filter>shader</Filter>
     </None>
     <None Include="source\gl\UniformBuffer.inl">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </None>
     <None Include="source\gl\ShaderDataMetaInfo.inl">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </None>
     <None Include="shader\directvis.frag">
       <Filter>shader</Filter>
@@ -110,10 +119,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\ShaderObject.cpp">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\Input.cpp">
       <Filter>source</Filter>
@@ -128,13 +137,13 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\GLUtils.cpp">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClCompile>
     <ClCompile Include="Source\Scene.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\UniformBuffer.cpp">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\camera\FreeCamera.cpp">
       <Filter>source\Camera</Filter>
@@ -143,25 +152,31 @@
       <Filter>source\Camera</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\Font.cpp">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\OnScreenLogWriter.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\ezExtensions\Color.cpp">
-      <Filter>source\ezExtensions</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Random.cpp">
-      <Filter>source</Filter>
+      <Filter>source\framework</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\Texture3D.cpp">
-      <Filter>source\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="source\NoiseGenerator.cpp">
-      <Filter>source</Filter>
+      <Filter>source\framework\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\Texture.cpp">
-      <Filter>source\gl</Filter>
+      <Filter>source\framework\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\NoiseGenerator.cpp">
+      <Filter>source\framework\math</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Random.cpp">
+      <Filter>source\framework\math</Filter>
+    </ClCompile>
+    <ClCompile Include="source\FolderChangeWatcher.cpp">
+      <Filter>source\framework</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GlobalEvents.cpp">
+      <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

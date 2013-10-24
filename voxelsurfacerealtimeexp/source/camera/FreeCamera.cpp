@@ -20,18 +20,21 @@ void FreeCamera::Update(ezTime lastFrameDuration)
   float fMouseXDeltaNeg, fMouseYDeltaNeg;
   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXNeg, &fMouseXDeltaNeg);
   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYNeg, &fMouseYDeltaNeg);
-  m_fMouseX += fMouseXDeltaPos - fMouseXDeltaNeg;
+  m_fMouseX -= fMouseXDeltaPos - fMouseXDeltaNeg;
   m_fMouseY += fMouseYDeltaPos - fMouseYDeltaNeg;
 
   m_ViewDir.x = cosf(m_fMouseX) * sinf(m_fMouseY);
   m_ViewDir.y = cosf(m_fMouseY);
   m_ViewDir.z = sinf(m_fMouseX) * sinf(m_fMouseY);
 
+  /*
   float theta2 = m_fMouseY + ezMath::BasicType<float>::Pi() / 2.0f;
   m_vUp.x = cosf(m_fMouseX) * sinf(theta2);
   m_vUp.y = cosf(theta2);
   m_vUp.z = sinf(m_fMouseX) * sinf(theta2);
+  */
 
+  m_vUp = ezVec3(0, 1, 0);
   
   float fForward, fBackward, fLeft, fRight;
   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraForward, &fForward);
@@ -40,7 +43,7 @@ void FreeCamera::Update(ezTime lastFrameDuration)
   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRight, &fRight);
 
   m_vPosition += (fForward - fBackward) * m_ViewDir;
-  m_vPosition += (fLeft - fRight) * m_ViewDir.Cross(m_vUp);
+  m_vPosition += (fRight - fLeft) * m_vUp.Cross(m_ViewDir);
 
   UpdateMatrices();
 }

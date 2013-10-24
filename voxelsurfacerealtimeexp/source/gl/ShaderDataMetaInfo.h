@@ -140,6 +140,7 @@ namespace gl
   typedef BufferInfo<UniformVariableInfo> UniformBufferMetaInfo;
 
   /// \brief Base class for setable variable - basically a wrapper for
+  template<typename VariableType>
   class ShaderVariable
   {
   public:
@@ -164,12 +165,13 @@ namespace gl
 
     // add more type implementations here if necessary
 
-    const ShaderVariableInfoBase& GetMetaInfo() const        { return *m_pMetaInfo; }
+    const ShaderVariableInfoBase& GetMetaInfo() const        { return m_MetaInfo; }
 
   protected:
-    ShaderVariable(const ShaderVariableInfoBase* pMetaInfo) : m_pMetaInfo(pMetaInfo) {}
+    ShaderVariable() {}
+    ShaderVariable(const VariableType& metaInfo) : m_MetaInfo(metaInfo) {}
 
-    const ShaderVariableInfoBase* m_pMetaInfo;
+    ShaderVariableInfoBase m_MetaInfo;
   };
 
   #include "ShaderDataMetaInfo.inl"

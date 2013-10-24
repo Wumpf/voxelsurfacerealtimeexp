@@ -15,16 +15,16 @@ namespace gl
     /// will try to create a uniform buffer that matches all the given meta infos. Performs sanity checks if there's something contradictory
     ezResult Init(const ezDynamicArray<const gl::ShaderObject*>& shaders, const ezString& sBufferName);
 
-    class Variable : public gl::ShaderVariable
+    class Variable : public gl::ShaderVariable<UniformVariableInfo>
     {
     public:
-      Variable() : ShaderVariable(NULL), m_pUniformBuffer(NULL) { }
-      Variable(const ShaderVariableInfoBase* pMetaInfo, UniformBuffer* pUniformBuffer) :
-        ShaderVariable(pMetaInfo), m_pUniformBuffer(pUniformBuffer) {}
+      Variable() : ShaderVariable(), m_pUniformBuffer(NULL) { }
+      Variable(const UniformVariableInfo& metaInfo, UniformBuffer* pUniformBuffer) :
+        ShaderVariable(metaInfo), m_pUniformBuffer(pUniformBuffer) {}
 
       void Set(const void* pData, ezUInt32 uiSizeInBytes) EZ_OVERRIDE;
 
-      using gl::ShaderVariable::Set;
+      using gl::ShaderVariable<UniformVariableInfo>::Set;
     private:
       UniformBuffer* m_pUniformBuffer;
     };

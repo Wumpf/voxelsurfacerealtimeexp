@@ -9,7 +9,7 @@ const ezVec2 OnScreenLogWriter::m_vScreenPos(10.0f, 20.0f);
 const float OnScreenLogWriter::m_fFadeSpeed = 0.25f;
 
 OnScreenLogWriter::OnScreenLogWriter(const RenderWindowGL& renderWindow) :
-  m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Courier New", 16, renderWindow.GetDeviceContext()))
+  m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Courier New Bold", 18, renderWindow.GetDeviceContext()))
 {
 }
 
@@ -96,8 +96,9 @@ ezResult OnScreenLogWriter::Render()
     ezColor color = m_MessageBuffer[i].color;
     if(i == 0)
       color.A() = m_fOldestItemFade;
+
     m_pFont->DrawString(m_MessageBuffer[i].text, vCurScreenPos.CompDiv(GeneralConfig::GetScreenResolutionF()), color);
-    vCurScreenPos.y += 15.0f;
+    vCurScreenPos.y += 17.0f;
   }
 
   return EZ_SUCCESS;

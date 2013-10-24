@@ -55,7 +55,7 @@ void Application::SetupInput()
 
 void Application::UpdateInput(ezTime lastFrameDuration)
 {
-  ezInputManager::Update(lastFrameDuration.GetSeconds());
+  ezInputManager::Update(lastFrameDuration);
 
   if (ezInputManager::GetInputActionState("Default", "CloseApp") == ezKeyState::Pressed)
     m_bRunning = false;

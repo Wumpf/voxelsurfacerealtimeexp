@@ -168,7 +168,9 @@
     <ClInclude Include="source\camera\FreeCamera.h" />
     <ClInclude Include="source\ezExtensions\Color.h" />
     <ClInclude Include="source\ezExtensions\UniquePtr.h" />
+    <ClInclude Include="source\FolderChangeWatcher.h" />
     <ClInclude Include="source\GlobalCVar.h" />
+    <ClInclude Include="source\GlobalEvents.h" />
     <ClInclude Include="source\gl\Font.h" />
     <ClInclude Include="source\gl\GLUtils.h" />
     <ClInclude Include="source\gl\ScreenAlignedTriangle.h" />
@@ -200,6 +202,8 @@
     <ClCompile Include="source\camera\Camera.cpp" />
     <ClCompile Include="source\camera\FreeCamera.cpp" />
     <ClCompile Include="source\ezExtensions\Color.cpp" />
+    <ClCompile Include="source\FolderChangeWatcher.cpp" />
+    <ClCompile Include="source\GlobalEvents.cpp" />
     <ClCompile Include="source\gl\Font.cpp" />
     <ClCompile Include="source\gl\GLUtils.cpp" />
     <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp" />

@@ -12,6 +12,9 @@
 #include <Foundation/Logging/HTMLWriter.h>
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include "FolderChangeWatcher.h"
+#include "GlobalEvents.h"
+
 
 Application::Application() :
    m_pHTMLLogWriter(nullptr),
@@ -36,6 +39,9 @@ void Application::AfterEngineInit()
   // load global config variables
   ezCVar::SetStorageFolder("CVars");
   ezCVar::LoadCVars();
+
+  // global events
+  GlobalEvents::g_pShaderFileChanged = EZ_DEFAULT_NEW(ezEvent<const ezString&>);
 
   // setup log
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -73,7 +79,10 @@ void Application::BeforeEngineShutdown()
   EZ_DEFAULT_DELETE(m_pOnScreenLogWriter);
 
   EZ_DEFAULT_DELETE(m_pWindow);
-    
+  
+  EZ_DEFAULT_DELETE(m_pShaderChangesWatcher);
+  EZ_DEFAULT_DELETE(GlobalEvents::g_pShaderFileChanged);
+
   ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
   m_pHTMLLogWriter->EndLog();
   EZ_DEFAULT_DELETE(m_pHTMLLogWriter);
@@ -87,17 +96,29 @@ ezApplication::ApplicationExecution Application::Run()
   m_LastFrameTime = now;
 
   // update
-  UpdateInput(lastFrameDuration);
-  m_pScene->Update(lastFrameDuration);
-  if(m_pWindow->ProcessWindowMessages() != ezWindow::Continue)
-    m_bRunning = false;
-  m_pOnScreenLogWriter->Update(lastFrameDuration);
+  Update(lastFrameDuration);
 
   // rendering
   RenderFrame(lastFrameDuration);
 
 
   return m_bRunning ? ezApplication::Continue : ezApplication::Quit;
+}
+
+void Application::Update(ezTime lastFrameDuration)
+{
+  UpdateInput(lastFrameDuration);
+  m_pScene->Update(lastFrameDuration);
+  if(m_pWindow->ProcessWindowMessages() != ezWindow::Continue)
+    m_bRunning = false;
+  m_pOnScreenLogWriter->Update(lastFrameDuration);
+
+  ezString changedShaderFile = m_pShaderChangesWatcher->PopChangedFile();
+  while(changedShaderFile != "")
+  {
+    GlobalEvents::g_pShaderFileChanged->Broadcast(changedShaderFile);
+    changedShaderFile = m_pShaderChangesWatcher->PopChangedFile();
+  }
 }
 
 void Application::RenderFrame(ezTime lastFrameDuration)
@@ -122,6 +143,7 @@ void Application::SetupFileSystem()
   ezStringBuilder shaderDir(applicationDir);
   shaderDir.AppendPath("..", "..", "voxelsurfacerealtimeexp", "shader"); // dev only!
   ezFileSystem::AddDataDirectory(shaderDir.GetData(), ezFileSystem::ReadOnly, "graphics", "");
+  m_pShaderChangesWatcher = EZ_DEFAULT_NEW(FolderChangeWatcher)(shaderDir.GetData());
 }
 
 EZ_APPLICATION_ENTRY_POINT(Application);

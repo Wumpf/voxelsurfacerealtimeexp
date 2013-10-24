@@ -101,8 +101,8 @@ namespace gl
 
     ezResult CheckError(const ezString& sTitle)
     {
-      int Error;
-      if((Error = glGetError()) != GL_NO_ERROR)
+      int Error = glGetError();
+      if(Error != GL_NO_ERROR)
       {
         std::string ErrorString;
         switch(Error)

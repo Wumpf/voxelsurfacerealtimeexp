@@ -3,11 +3,10 @@
 inline void UniformBuffer::Variable::Set(const void* pData, ezUInt32 uiSizeInBytes)
 {
   EZ_ASSERT(m_pUniformBuffer != NULL, "Uniform buffer variable is not assigned to an Uniform Buffer!");
-  EZ_ASSERT(m_pMetaInfo != NULL, "No meta info for the given variable!");
   EZ_ASSERT(uiSizeInBytes != 0, "Given size to set for uniform variable is 0.");
   EZ_ASSERT(pData != NULL, "Data to set for uniform variable is NULL.");
 
-  m_pUniformBuffer->SetData(pData, uiSizeInBytes, m_pMetaInfo->iBlockOffset);
+  m_pUniformBuffer->SetData(pData, uiSizeInBytes, m_MetaInfo.iBlockOffset);
 }
 
 inline void UniformBuffer::SetData(const void* pData, ezUInt32 uiDataSize, ezUInt32 uiOffset)

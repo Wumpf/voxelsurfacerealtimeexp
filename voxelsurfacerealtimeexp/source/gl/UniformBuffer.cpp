@@ -47,7 +47,7 @@ namespace gl
     }
 
     for(auto it = uniformBufferInfoIterator.Value().Variables.GetIterator(); it.IsValid(); ++it)
-      m_Variables.Insert(it.Key(), Variable(&it.Value(), this));
+      m_Variables.Insert(it.Key(), Variable(it.Value(), this));
 
     return Init(uniformBufferInfoIterator.Value().iBufferDataSizeByte, sBufferName);
   }
@@ -85,7 +85,7 @@ namespace gl
       for(auto varIt = uniformBufferInfoIterator.Value().Variables.GetIterator(); varIt.IsValid(); ++varIt)
       {
         auto ownVarIt = m_Variables.Find(varIt.Key());
-        if(ownVarIt.IsValid())  // overlapp
+        if(ownVarIt.IsValid())  // overlap
         {
           // sanity check
           if(ezMemoryUtils::ByteCompare(&varIt.Value(), reinterpret_cast<const gl::UniformVariableInfo*>(&ownVarIt.Value().GetMetaInfo()), sizeof(gl::UniformVariableInfo)) != 0)
@@ -96,8 +96,9 @@ namespace gl
         }
         else // new one
         {
-          m_Variables.Insert(varIt.Key(), Variable(&varIt.Value(), this));
-          // todo? check overlapps
+
+          m_Variables.Insert(varIt.Key(), Variable(varIt.Value(), this));
+          // todo? check overlaps
         }
       }
     }
