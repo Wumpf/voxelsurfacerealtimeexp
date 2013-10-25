@@ -4,7 +4,7 @@
 #include "RenderWindow.h"
 #include "Scene.h"
 #include "OnScreenLogWriter.h"
-#include "Random.h"
+#include "math/Random.h"
 
 #include <Foundation/Configuration/Startup.h>
 

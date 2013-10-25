@@ -496,7 +496,7 @@ namespace gl
     pInfoLog[charsWritten] = '\0';
     if(strlen(pInfoLog.GetPtr()) > 0)
     {
-      ezLog::Error("Shader %s compiled. Output:", sShaderName.GetData());
+    //  ezLog::Error("Shader %s compiled. Output:", sShaderName.GetData());
       ezLog::Error(pInfoLog.GetPtr());
     }
     else
@@ -520,7 +520,7 @@ namespace gl
 
     if(strlen(pInfoLog.GetPtr()) > 0)
     {
-      ezLog::Error("Linked program. Output:");
+     // ezLog::Error("Linked program. Output:");
       ezLog::Error(pInfoLog.GetPtr());
     }
     else

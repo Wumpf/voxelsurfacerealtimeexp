@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include "ezExtensions/UniquePtr.h"
-#include "ezExtensions/Color.h"
+#include "UniquePtr.h"
+#include "math/Color.h"
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Time.h>

@@ -28,7 +28,7 @@ private:
   };
 
   static const ezVec2 m_vScreenPos;
-  static const ezUInt32 m_uiMaxDisplayedMessages = 5;
+  static const ezUInt32 m_uiMaxDisplayedMessages = 10;
   ezStaticRingBuffer<LogEntry, m_uiMaxDisplayedMessages> m_MessageBuffer;
 
   ezUniquePtr<gl::Font> m_pFont;

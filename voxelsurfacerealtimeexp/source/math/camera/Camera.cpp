@@ -20,9 +20,5 @@ Camera::~Camera(void)
 void Camera::UpdateMatrices()
 {
   m_ViewMatrix.SetLookAtMatrix(m_vPosition, m_vPosition + m_ViewDir, m_vUp);
-
-  ezVec3 vPos = m_vPosition;
-  ezVec3 vLockAt = m_vPosition+ m_ViewDir;
-
-  m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix ;
+  m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 }

@@ -21,7 +21,7 @@ void main()
 
 	// extremly primitive raymarching
 	
-	for(float t=0.005f; t<1000; t*=1.005)
+	for(float t=0.005f; t<100; t*=1.005)
 	{
 		vec3 samplePos = CameraPosition + rayDirection * (t+1);
 		if(all(greaterThan(samplePos, vec3(0.01,0.01,0.01))) && 

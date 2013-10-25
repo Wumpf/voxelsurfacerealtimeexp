@@ -5,7 +5,7 @@
 #include "gl/Font.h"
 #include "GlobalCVar.h"
 
-const ezVec2 OnScreenLogWriter::m_vScreenPos(10.0f, 20.0f);
+const ezVec2 OnScreenLogWriter::m_vScreenPos(10.0f, 10.0f);
 const float OnScreenLogWriter::m_fFadeSpeed = 0.25f;
 
 OnScreenLogWriter::OnScreenLogWriter(const RenderWindowGL& renderWindow) :
@@ -32,45 +32,62 @@ void OnScreenLogWriter::LogMessageHandler(const ezLoggingEventData& eventData)
     return;
   }
 
-  ezStringBuilder logtext;
-  if(m_sCurrentGroup != "")
-  {
-    logtext.Append("[");
-    logtext.Append(m_sCurrentGroup.GetData());
-    logtext.Append("] ");
-  }
+  // split up every line
+  const char* text = eventData.m_szText;
+  do {
+    ezStringBuilder logtext;
+    if(m_sCurrentGroup != "")
+    {
+      logtext.Append("[");
+      logtext.Append(m_sCurrentGroup.GetData());
+      logtext.Append("] ");
+    }
 
-  //for(ezUInt32 i=0; i<eventData.m_uiIndentation; ++i)
-  //  logtext.Append(" - ");
-  logtext.Append(eventData.m_szText);
+    const char* nextLine = ezStringIterator(text).FindSubString("\n");
+    if(nextLine != NULL)
+    {
+      ezUInt32 count = static_cast<ezUInt32>(nextLine-text);
+      ezHybridArray<char, 128> linecpy;
+      linecpy.SetCount(count);
+      char* data = static_cast<ezArrayPtr<char>>(linecpy).GetPtr();
+      ezStringUtils::Copy(data, count, text);
+      logtext.Append(data);
+      text = nextLine+1;
+    }
+    else
+    {
+      logtext.Append(text);
+      text = NULL;
+    }
 
-  LogEntry newEntry;
-  newEntry.text = logtext.GetData();
-  switch(eventData.m_EventType)
-  {
-  case ezLogMsgType::InfoMsg:
-    newEntry.color = ezColor::Grey;
-    break;
-  case ezLogMsgType::SeriousWarningMsg:
-  case ezLogMsgType::WarningMsg:
-    newEntry.color = ezColor(1.0f, 0.7f, 0.1f);
-    break;
-  case ezLogMsgType::ErrorMsg:
-    newEntry.color = ezColor::Red;
-    break;
-  case ezLogMsgType::SuccessMsg:
-    newEntry.color = ezColor::Green;
-    break;
-  default:
-    newEntry.color = ezColor::White;
-    break;
-  }
-  if(!m_MessageBuffer.CanAppend())
-  {
-    m_fOldestItemFade = 1.0f;
-    m_MessageBuffer.PopFront();
-  }
-  m_MessageBuffer.PushBack(newEntry);
+    LogEntry newEntry;
+    newEntry.text = logtext.GetData();
+    switch(eventData.m_EventType)
+    {
+    case ezLogMsgType::InfoMsg:
+      newEntry.color = ezColor::Grey;
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+    case ezLogMsgType::WarningMsg:
+      newEntry.color = ezColor(1.0f, 0.7f, 0.1f);
+      break;
+    case ezLogMsgType::ErrorMsg:
+      newEntry.color = ezColor::Red;
+      break;
+    case ezLogMsgType::SuccessMsg:
+      newEntry.color = ezColor::Green;
+      break;
+    default:
+      newEntry.color = ezColor::White;
+      break;
+    }
+    if(!m_MessageBuffer.CanAppend())
+    {
+      m_fOldestItemFade = 1.0f;
+      m_MessageBuffer.PopFront();
+    }
+    m_MessageBuffer.PushBack(newEntry);
+  } while(text != NULL);
 }
 
 ezResult OnScreenLogWriter::Update( ezTime lastFrameDuration )

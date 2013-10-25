@@ -3,13 +3,13 @@
 #include "GlobalCVar.h"
 
 #include "RenderWindow.h"
-#include "NoiseGenerator.h"
+#include "math/NoiseGenerator.h"
 
-#include "gl\ScreenAlignedTriangle.h"
-#include "gl\Font.h"
-#include "gl\Texture3D.h"
+#include "gl/ScreenAlignedTriangle.h"
+#include "gl/Font.h"
+#include "gl/Texture3D.h"
 
-#include "Camera\FreeCamera.h"
+#include "math/camera/FreeCamera.h"
 
 const ezUInt32 Scene::m_vVolumeWidth = 256;
 const ezUInt32 Scene::m_vVolumeHeight = 64;
@@ -18,7 +18,7 @@ const ezUInt32 Scene::m_vVolumeDepth = 256;
 Scene::Scene(const RenderWindowGL& renderWindow) :
   m_pScreenAlignedTriangle(EZ_DEFAULT_NEW_UNIQUE(gl::ScreenAlignedTriangle)),
   
-  m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, 90.0f, static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
+  m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, 70.0f, static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
   m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial Bold", 20, renderWindow.GetDeviceContext())) // cvar for resolution?
 {
   EZ_LOG_BLOCK("Scene shader init");

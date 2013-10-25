@@ -164,10 +164,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Application.h" />
-    <ClInclude Include="source\camera\Camera.h" />
-    <ClInclude Include="source\camera\FreeCamera.h" />
-    <ClInclude Include="source\ezExtensions\Color.h" />
-    <ClInclude Include="source\ezExtensions\UniquePtr.h" />
     <ClInclude Include="source\FolderChangeWatcher.h" />
     <ClInclude Include="source\GlobalCVar.h" />
     <ClInclude Include="source\GlobalEvents.h" />
@@ -180,12 +176,16 @@
     <ClInclude Include="source\gl\Texture3D.h" />
     <ClInclude Include="source\gl\UniformBuffer.h" />
     <ClInclude Include="source\InputConfig.h" />
-    <ClInclude Include="source\NoiseGenerator.h" />
+    <ClInclude Include="source\math\camera\Camera.h" />
+    <ClInclude Include="source\math\camera\FreeCamera.h" />
+    <ClInclude Include="source\math\Color.h" />
+    <ClInclude Include="source\math\NoiseGenerator.h" />
+    <ClInclude Include="source\math\Random.h" />
     <ClInclude Include="source\OnScreenLogWriter.h" />
     <ClInclude Include="source\PCH.h" />
-    <ClInclude Include="source\Random.h" />
     <ClInclude Include="source\RenderWindow.h" />
     <ClInclude Include="Source\Scene.h" />
+    <ClInclude Include="source\UniquePtr.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\background.frag" />
@@ -199,9 +199,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Application.cpp" />
-    <ClCompile Include="source\camera\Camera.cpp" />
-    <ClCompile Include="source\camera\FreeCamera.cpp" />
-    <ClCompile Include="source\ezExtensions\Color.cpp" />
     <ClCompile Include="source\FolderChangeWatcher.cpp" />
     <ClCompile Include="source\GlobalEvents.cpp" />
     <ClCompile Include="source\gl\Font.cpp" />
@@ -212,12 +209,15 @@
     <ClCompile Include="source\gl\Texture3D.cpp" />
     <ClCompile Include="source\gl\UniformBuffer.cpp" />
     <ClCompile Include="source\Input.cpp" />
-    <ClCompile Include="source\NoiseGenerator.cpp" />
+    <ClCompile Include="source\math\camera\Camera.cpp" />
+    <ClCompile Include="source\math\camera\FreeCamera.cpp" />
+    <ClCompile Include="source\math\Color.cpp" />
+    <ClCompile Include="source\math\NoiseGenerator.cpp" />
+    <ClCompile Include="source\math\Random.cpp" />
     <ClCompile Include="source\OnScreenLogWriter.cpp" />
     <ClCompile Include="source\PCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="source\Random.cpp" />
     <ClCompile Include="source\RenderWindow.cpp" />
     <ClCompile Include="Source\Scene.cpp" />
   </ItemGroup>
