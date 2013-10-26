@@ -29,8 +29,9 @@ private:
   void CreateVolumeTexture();
 
   gl::ShaderObject m_BackgroundShader;
+  gl::ShaderObject m_ExtractGeometryInfoShader;
   gl::ShaderObject m_DirectVolVisShader;
-  gl::ShaderObject m_extractgeometryShader;
+  gl::ShaderObject m_VolumeRenderShader;
 
   gl::UniformBuffer m_CameraUBO;
   gl::UniformBuffer m_TimeUBO;
@@ -40,6 +41,9 @@ private:
   static const ezUInt32 m_uiVolumeHeight;
   static const ezUInt32 m_uiVolumeDepth;
   gl::Texture* m_pVolumeTexture;
+
+  GLuint m_VolumeIndirectDrawBuffer;
+  GLuint m_GeometryInfoBuffer;
   
   ezUniquePtr<gl::TimerQuery> m_glTimer;
 
@@ -49,5 +53,7 @@ private:
   ezUniquePtr<gl::Font> m_pFont;
 
   GLuint m_TestBuffer;
+
+  static const ezUInt32 m_GeometryBufferElementCount = 2097152; // 8mb buffer, hopefully sufficient (if not we're sooo doomed)
 };
 

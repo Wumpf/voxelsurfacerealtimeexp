@@ -18,4 +18,13 @@ namespace gl
     /// checks if there is any OpenGL error
     ezResult CheckError(const ezString& sTitle);
   }
+
+  // Buffer definition for glDrawArraysIndirect
+  struct DrawArraysIndirectCommand  // http://www.opengl.org/sdk/docs/man/xhtml/glDrawArraysInstancedBaseInstance.xml
+  {
+    ezUInt32 count;
+    ezUInt32 primCount;
+    ezUInt32 first;
+    ezUInt32 baseInstance;
+  };
 }

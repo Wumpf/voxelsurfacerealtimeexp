@@ -2,15 +2,16 @@
 
 #include "constantbuffers.glsl"
 
-layout(binding = 0, rgba8) restrict uniform image3D VolumeTexture;
+layout(binding = 0, rgba8) readonly restrict uniform image3D VolumeTexture;
 
-/*
+
 // output buffer
-layout(binding = 0) writeonly buffer oBuffer
+layout(binding = 0, offset = 0) uniform atomic_uint NumQuadsAtomicCounter; // output buffer size, this is part of a draw indirect buffer
+layout(binding = 0) writeonly buffer QuadBuffer
 {
-  float Result;
-} Out;
-*/
+  uint Quads[];	// 8bit xyz position, 8bit w quad identifier
+};
+
 
 // a bit of perf history
 //
@@ -19,7 +20,7 @@ layout(binding = 0) writeonly buffer oBuffer
 // 2.03ms shared mem + restrict texture access
 // 2.12ms reordering attempt of kicked threads
 
-shared vec4 textureCache[1000]; 
+shared float textureCache[1000]; 
 
 // compute shader size
 layout (local_size_x = 10, local_size_y = 10, local_size_z = 10) in;
@@ -29,7 +30,7 @@ void main()
   uint textureCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
 
   // fill shared memory
-  vec4 ownValue = imageLoad(VolumeTexture, volumeCoordinate);
+  float ownValue = imageLoad(VolumeTexture, volumeCoordinate).w;
   textureCache[textureCachePos] = ownValue;
     // early out for some of us..
   if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || any(equal(gl_LocalInvocationID.xyz, uvec3(9))))
@@ -40,31 +41,50 @@ void main()
   //memoryBarrier();
   //groupMemoryBarrier();
 
-  vec4 left     = textureCache[textureCachePos - 1];
-  vec4 right    = textureCache[textureCachePos + 1];
-  vec4 up       = textureCache[textureCachePos + 10];
-  vec4 down     = textureCache[textureCachePos - 10];
-  vec4 forward  = textureCache[textureCachePos + 100];
-  vec4 backward = textureCache[textureCachePos - 100];
+  bool left     = textureCache[textureCachePos - 1] > IsoValue;
+  bool right    = textureCache[textureCachePos + 1] > IsoValue;
+  bool up       = textureCache[textureCachePos + 10] > IsoValue;
+  bool down     = textureCache[textureCachePos - 10] > IsoValue;
+  bool forward  = textureCache[textureCachePos + 100] > IsoValue;
+  bool backward = textureCache[textureCachePos - 100] > IsoValue;
 
-  uint numNeighbours = 0;
-  if(up.w > IsoValue)
-    ++numNeighbours;
-  if(down.w > IsoValue)
-    ++numNeighbours;
-  if(left.w > IsoValue)
-    ++numNeighbours;
-  if(right.w > IsoValue)
-    ++numNeighbours;
-  if(forward.w > IsoValue)
-    ++numNeighbours;
-  if(backward.w > IsoValue)
-    ++numNeighbours;
+  // all of them? so this one is useless
+  if(left && right && up && down && forward && backward)
+	return;
 
-  vec4 result;
-  result.xyz = vec3(numNeighbours * (1.0f / 6.0f));
-  result.w = ownValue.w;
-
-  // no double buffering so this will suck tremendously (flickering due to race conditions)
-  imageStore(VolumeTexture, volumeCoordinate, result);
+  uint quadData;
+  quadData = uint(volumeCoordinate.x);
+  quadData |= uint(volumeCoordinate.y) << 8;
+  quadData |= uint(volumeCoordinate.z) << 16;
+  uint quadIndex;
+  if(up)
+  {
+    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+	Quads[quadIndex] = quadData;// | (uint(0) << 24);
+  }
+  if(down)
+  {
+    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+	Quads[quadIndex] = quadData | (uint(1) << 24);
+  }
+  if(left)
+  {
+    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+	Quads[quadIndex] = quadData | (uint(2) << 24);
+  }
+  if(right)
+  {
+    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+	Quads[quadIndex] = quadData | (uint(3) << 24);
+  }
+  if(forward)
+  {
+    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+	Quads[quadIndex] = quadData | (uint(4) << 24);
+  }
+  if(backward)
+  {
+    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+	Quads[quadIndex] = quadData | (uint(5) << 24);
+  }
 }

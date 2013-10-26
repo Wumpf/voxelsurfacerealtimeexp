@@ -56,6 +56,8 @@ namespace gl
     // load new code
     ezSet<ezString> includingFiles;
     ezStringBuilder sourceCode = ReadShaderFromFile(sFilename, includingFiles);
+    if(sourceCode == "")
+      return EZ_FAILURE;
 
     ezResult result = AddShaderFromSource(Type, sourceCode.GetData(), sFilename);
 
@@ -568,7 +570,8 @@ namespace gl
     {
       if(m_aShader[static_cast<ezUInt32>(it.Value())].bLoaded)
       {
-        if(AddShaderFromFile(it.Value(), changedShaderFile) != EZ_FAILURE && m_bContainsAssembledProgram)
+        ezString origin(m_aShader[static_cast<ezUInt32>(it.Value())].sOrigin);  // need to copy the string, since it could be deleted in the course of reloading..
+        if(AddShaderFromFile(it.Value(), origin) != EZ_FAILURE && m_bContainsAssembledProgram)
           CreateProgram();
       }
     }

@@ -195,6 +195,11 @@
     <None Include="shader\directvis.frag" />
     <None Include="shader\helper.glsl" />
     <None Include="shader\screenTri.vert" />
+    <None Include="shader\volumeRender.cont" />
+    <None Include="shader\volumeRender.eval" />
+    <None Include="shader\volumeRender.frag" />
+    <None Include="shader\volumeRender.geom" />
+    <None Include="shader\volumeRender.vert" />
     <None Include="source\gl\ShaderDataMetaInfo.inl" />
     <None Include="source\gl\UniformBuffer.inl" />
   </ItemGroup>

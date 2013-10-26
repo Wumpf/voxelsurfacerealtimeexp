@@ -88,7 +88,9 @@ namespace gl
         if(ownVarIt.IsValid())  // overlap
         {
           // sanity check
-          if(ezMemoryUtils::ByteCompare(&varIt.Value(), reinterpret_cast<const gl::UniformVariableInfo*>(&ownVarIt.Value().GetMetaInfo()), sizeof(gl::UniformVariableInfo)) != 0)
+          const gl::UniformVariableInfo* ownVar =  &ownVarIt.Value().GetMetaInfo();
+          const gl::UniformVariableInfo* otherVar = &varIt.Value();
+          if(ezMemoryUtils::ByteCompare(ownVar, otherVar) != 0)
           {
             ezLog::Error("ShaderObject %i in list for uniform buffer \"%s\" initialization has a description of variable \"%s\" that doesn't match with the ones before!", 
                      i, sBufferName.GetData(), varIt.Key().GetData());   

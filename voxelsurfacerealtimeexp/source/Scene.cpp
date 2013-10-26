@@ -17,6 +17,8 @@ const ezUInt32 Scene::m_uiVolumeWidth = 256;
 const ezUInt32 Scene::m_uiVolumeHeight = 64;
 const ezUInt32 Scene::m_uiVolumeDepth = 256;
 
+GLuint vertexArray;
+
 Scene::Scene(const RenderWindowGL& renderWindow) :
   m_pScreenAlignedTriangle(EZ_DEFAULT_NEW_UNIQUE(gl::ScreenAlignedTriangle)),
   
@@ -36,8 +38,15 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
     m_DirectVolVisShader.AddShaderFromFile(gl::ShaderObject::ShaderType::FRAGMENT, "directvis.frag");
     m_DirectVolVisShader.CreateProgram();
 
-    m_extractgeometryShader.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "extractgeometry.comp");
-    m_extractgeometryShader.CreateProgram();
+    m_VolumeRenderShader.AddShaderFromFile(gl::ShaderObject::ShaderType::VERTEX, "volumeRender.vert");
+    m_VolumeRenderShader.AddShaderFromFile(gl::ShaderObject::ShaderType::CONTROL, "volumeRender.cont");
+    m_VolumeRenderShader.AddShaderFromFile(gl::ShaderObject::ShaderType::EVALUATION, "volumeRender.eval");
+    m_VolumeRenderShader.AddShaderFromFile(gl::ShaderObject::ShaderType::GEOMETRY, "volumeRender.geom");
+    m_VolumeRenderShader.AddShaderFromFile(gl::ShaderObject::ShaderType::FRAGMENT, "volumeRender.frag");
+    m_VolumeRenderShader.CreateProgram();
+
+    m_ExtractGeometryInfoShader.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "extractgeometry.comp");
+    m_ExtractGeometryInfoShader.CreateProgram();
   }
 
   // ubo init
@@ -45,6 +54,7 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
     ezDynamicArray<const gl::ShaderObject*> cameraUBOusingShader;
     cameraUBOusingShader.PushBack(&m_DirectVolVisShader);
     cameraUBOusingShader.PushBack(&m_BackgroundShader);
+    cameraUBOusingShader.PushBack(&m_VolumeRenderShader);
     m_CameraUBO.Init(cameraUBOusingShader, "Camera");
 
 /*    ezDynamicArray<const gl::ShaderObject*> timeUBOusingShader;
@@ -58,24 +68,46 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
     m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));  // add size scaling here if necessar
  }
 
-
-  /*
-  glGenBuffers(1, &m_TestBuffer);
-  float fInitalData;
-  glBindBuffer(GL_ARRAY_BUFFER, m_TestBuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float), &fInitalData, GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  */
+  {
+    glGenBuffers(1, &m_GeometryInfoBuffer);
+    float fInitalData;
+    glBindBuffer(GL_ARRAY_BUFFER, m_GeometryInfoBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ezUInt32) * m_GeometryBufferElementCount, NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  }
 
   CreateVolumeTexture();
 
+  // indirect draw buffer
+  {
+    glGenBuffers(1, &m_VolumeIndirectDrawBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VolumeIndirectDrawBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gl::DrawArraysIndirectCommand), NULL, GL_DYNAMIC_DRAW); // modified every frame to clear it
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  }
+
   m_pCamera->SetPosition(ezVec3(static_cast<float>(m_uiVolumeWidth/2), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth/2)));
+
+
+  glGenVertexArrays(1, &vertexArray);
+  glBindVertexArray(vertexArray);
+    glBindBuffer(GL_ARRAY_BUFFER, m_GeometryInfoBuffer);
+    glVertexAttribIPointer(0, 4, GL_UNSIGNED_BYTE, sizeof(ezUInt32), NULL);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glEnableVertexAttribArray(0);
+  glBindVertexArray(0);
+
 }
 
 
 Scene::~Scene(void)
 {
   EZ_DEFAULT_DELETE(m_pVolumeTexture);
+
+  glDeleteVertexArrays(1, &m_GeometryInfoBuffer);
+  glDeleteBuffers(1, &vertexArray);
+  glDeleteBuffers(1, &m_VolumeIndirectDrawBuffer);
 }
 
 void Scene::CreateVolumeTexture()
@@ -117,12 +149,12 @@ ezResult Scene::Update(ezTime lastFrameDuration)
   m_pCamera->Update(lastFrameDuration);
 
   //m_CameraUBO["ViewMatrix"].Set(m_pCamera->GetViewMatrix());
-  //m_CameraUBO["ViewProjection"].Set(m_pCamera->GetViewProjectionMatrix());
+  m_CameraUBO["ViewProjection"].Set(m_pCamera->GetViewProjectionMatrix());
   ezMat4 inverseViewProjection = m_pCamera->GetViewProjectionMatrix();
   inverseViewProjection.Invert();
   m_CameraUBO["InverseViewProjection"].Set(inverseViewProjection);
   m_CameraUBO["CameraPosition"].Set(m_pCamera->GetPosition());
-
+  
 
   //m_TimeUBO["CurrentTime"].Set();
   //m_TimeUBO["LastFrameDuration"].Set(lastFrameDuration);
@@ -132,39 +164,60 @@ ezResult Scene::Update(ezTime lastFrameDuration)
 
 ezResult Scene::Render(ezTime lastFrameDuration)
 {
-  // erode terrain
+  // need to clear the indirect draw buffer, otherwise we'll accumlate to much stuff...
+  gl::DrawArraysIndirectCommand indirectCommandEmpty;
+  indirectCommandEmpty.count = 6;
+  indirectCommandEmpty.primCount = 1;
+  indirectCommandEmpty.first = 0;
+  indirectCommandEmpty.baseInstance = 0;
+  glBindBuffer(GL_ARRAY_BUFFER, m_VolumeIndirectDrawBuffer);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(gl::DrawArraysIndirectCommand), &indirectCommandEmpty);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+  // extract geometry info from volume
+  m_ExtractGeometryInfoShader.BindImage(*m_pVolumeTexture, gl::Texture::ImageAccess::READ, "VolumeTexture");
+  m_ExtractGeometryInfoShader.Activate();
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_GeometryInfoBuffer);
+  glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_VolumeIndirectDrawBuffer);  // bind indirect draw buffer as atomic counter to count how many quads should be rendered
   m_glTimer->Start();
-  m_extractgeometryShader.BindImage(*m_pVolumeTexture, gl::Texture::ImageAccess::READ_WRITE, "VolumeTexture");
-  m_extractgeometryShader.Activate();
-  //m_extractgeometryShader.BindUBO(m_VolumeInfoUBO);
-  //m_extractgeometryShader.BindUBO(m_TimeUBO);
-  //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_TestBuffer);
   glDispatchCompute(m_uiVolumeWidth / 8, m_uiVolumeHeight / 8, m_uiVolumeDepth / 8);
-  gl::Utils::CheckError("glDispatchCompute");
   m_glTimer->End();
-  
-
-  //float data[4];
-  //glFlush();
-  //glGetTexImage(GL_TEXTURE_3D, 0, GL_RGBA, GL_FLOAT, data);
-
+  gl::Utils::CheckError("glDispatchCompute");
+    // unbinds
+  glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+ 
   // render nice background
   m_BackgroundShader.Activate();
   m_BackgroundShader.BindUBO(m_CameraUBO);
   m_pScreenAlignedTriangle->display();
   
-  // 
-  m_DirectVolVisShader.Activate();
+  // "reference renderer" direct volume visualization
+ /* m_DirectVolVisShader.Activate();
   m_DirectVolVisShader.BindTexture(*m_pVolumeTexture, "VolumeTexture");
   m_DirectVolVisShader.BindUBO(m_CameraUBO);
   m_DirectVolVisShader.BindUBO(m_VolumeInfoUBO);
-  m_pScreenAlignedTriangle->display();
+  m_pScreenAlignedTriangle->display();*/
+
+  // render processed data
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  m_VolumeRenderShader.BindUBO(m_CameraUBO);
+  m_VolumeRenderShader.Activate();
+  glBindVertexArray(vertexArray);
+  glPatchParameteri(GL_PATCH_VERTICES, 1);
+  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_VolumeIndirectDrawBuffer);
+  glDrawArraysIndirect(GL_PATCHES, NULL);
+  glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0); // unbind
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
   
-  // read
-  /*glFlush();
-  float* data2 = (float*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-  float f = *data2;
-  glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);*/
+  // read back (debug usage)
+ /* glFlush();
+  glBindBuffer(GL_ARRAY_BUFFER, m_VolumeIndirectDrawBuffer);
+  gl::DrawArraysIndirectCommand* data2 = (gl::DrawArraysIndirectCommand*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+  gl::DrawArraysIndirectCommand f = *data2;
+  glUnmapBuffer(GL_ARRAY_BUFFER); */
 
   // render some info text
     // performance

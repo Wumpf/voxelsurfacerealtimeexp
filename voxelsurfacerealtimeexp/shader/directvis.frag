@@ -1,4 +1,4 @@
-#version 420
+#version 430
 
 #include "constantbuffers.glsl"
 #include "helper.glsl"
@@ -10,7 +10,7 @@ const vec3 LightDirection = vec3(0, -0.333, 0.333);
 in vec2 vs_out_texcoord;
 
 // output
-out vec4 ps_out_fragColor;
+layout(location = 0, index = 0) out vec4 ps_out_fragColor;
 
 void main()
 {
@@ -36,7 +36,7 @@ void main()
 				vec3 normal = normalize(vol.xyz * 2 - 1);
 				normal = normalize(normal);
 				float lighting = clamp(dot(normal, -LightDirection), 0, 1) + 0.3;
-				ps_out_fragColor = vec4(vol.xyz, 1); //vec4(lighting);
+				ps_out_fragColor = vec4(lighting);
 
 		//		ps_out_fragColor.xyz = abs(rayDirection);//abs(normal);
 				return;

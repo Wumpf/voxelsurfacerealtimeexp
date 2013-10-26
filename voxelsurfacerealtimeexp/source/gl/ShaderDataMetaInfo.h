@@ -205,13 +205,13 @@ namespace gl
 
     // add more type implementations here if necessary
 
-    const ShaderVariableInfoBase& GetMetaInfo() const        { return m_MetaInfo; }
+    const VariableType& GetMetaInfo() const        { return m_MetaInfo; }
 
   protected:
     ShaderVariable() {}
     ShaderVariable(const VariableType& metaInfo) : m_MetaInfo(metaInfo) {}
 
-    ShaderVariableInfoBase m_MetaInfo;
+    VariableType m_MetaInfo;
   };
 
   #include "ShaderDataMetaInfo.inl"

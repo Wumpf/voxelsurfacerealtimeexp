@@ -1,4 +1,4 @@
-#version 420
+#version 430
 
 #include "constantbuffers.glsl"
 #include "helper.glsl"
@@ -10,7 +10,7 @@ const vec3 LightDirection = vec3(0, -0.333, 0.333);
 in vec2 vs_out_texcoord;
 
 // output
-out vec4 fragColor;
+layout(location = 0, index = 0) out vec4 fragColor;
 
 // ------------------------------------------------
 // SKY

@@ -116,6 +116,21 @@
     <None Include="shader\extractgeometry.comp">
       <Filter>shader</Filter>
     </None>
+    <None Include="shader\volumeRender.cont">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\volumeRender.eval">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\volumeRender.frag">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\volumeRender.vert">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="shader\volumeRender.geom">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp">
