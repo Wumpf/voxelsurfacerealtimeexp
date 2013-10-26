@@ -25,6 +25,8 @@ public:
   ezResult Update(ezTime lastFrameDuration);
   ezResult Render(ezTime lastFrameDuration);
 
+  void DrawInfos(ezTime &lastFrameDuration);
+
 private:
   void CreateVolumeTexture();
 
@@ -45,7 +47,8 @@ private:
   GLuint m_VolumeIndirectDrawBuffer;
   GLuint m_GeometryInfoBuffer;
   
-  ezUniquePtr<gl::TimerQuery> m_glTimer;
+  ezUniquePtr<gl::TimerQuery> m_ExtractGeometryTimer;
+  ezUniquePtr<gl::TimerQuery> m_DrawTimer;
 
   ezUniquePtr<gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
   ezUniquePtr<FreeCamera> m_pCamera;

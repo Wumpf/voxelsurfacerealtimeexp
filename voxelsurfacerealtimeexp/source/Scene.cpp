@@ -24,7 +24,8 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   
   m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, 70.0f, static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
   m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial", 20, renderWindow.GetDeviceContext())),
-  m_glTimer(EZ_DEFAULT_NEW_UNIQUE(gl::TimerQuery))
+  m_ExtractGeometryTimer(EZ_DEFAULT_NEW_UNIQUE(gl::TimerQuery)),
+  m_DrawTimer(EZ_DEFAULT_NEW_UNIQUE(gl::TimerQuery))
 {
   EZ_LOG_BLOCK("Scene shader init");
 
@@ -180,9 +181,9 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   m_ExtractGeometryInfoShader.Activate();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_GeometryInfoBuffer);
   glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_VolumeIndirectDrawBuffer);  // bind indirect draw buffer as atomic counter to count how many quads should be rendered
-  m_glTimer->Start();
+  m_ExtractGeometryTimer->Start();
   glDispatchCompute(m_uiVolumeWidth / 8, m_uiVolumeHeight / 8, m_uiVolumeDepth / 8);
-  m_glTimer->End();
+  m_ExtractGeometryTimer->End();
   gl::Utils::CheckError("glDispatchCompute");
     // unbinds
   glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
@@ -207,9 +208,12 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   glBindVertexArray(vertexArray);
   glPatchParameteri(GL_PATCH_VERTICES, 1);
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_VolumeIndirectDrawBuffer);
+  m_DrawTimer->Start();
   glDrawArraysIndirect(GL_PATCHES, NULL);
+  m_DrawTimer->End();
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0); // unbind
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 
   
   // read back (debug usage)
@@ -219,20 +223,24 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   gl::DrawArraysIndirectCommand f = *data2;
   glUnmapBuffer(GL_ARRAY_BUFFER); */
 
-  // render some info text
-    // performance
+
+
+  DrawInfos(lastFrameDuration);
+
+  return EZ_SUCCESS;
+}
+
+void Scene::DrawInfos(ezTime &lastFrameDuration)
+{
   ezStringBuilder fpsString;
   fpsString.AppendFormat("fps: %.2f (%.2f ms)", 1.0 / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
-  m_pFont->DrawString(fpsString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 250.0f, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
+  m_pFont->DrawString(fpsString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 300.0f, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
 
   ezStringBuilder extractgeometryTimeString;
-  extractgeometryTimeString.AppendFormat("extractgeometry shader: %.4f ms", m_glTimer->GetLastTimeElapsed().GetMilliSeconds());
-  m_pFont->DrawString(extractgeometryTimeString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 250.0f, 50.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
+  extractgeometryTimeString.AppendFormat("extract geom data: %.4f ms", m_ExtractGeometryTimer->GetLastTimeElapsed().GetMilliSeconds());
+  m_pFont->DrawString(extractgeometryTimeString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 300.0f, 50.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
 
-    // camera
- /* ezStringBuilder cameraString;
-  cameraString.AppendFormat("CameraPos (%.1f, %.1f, %.1f)", m_pCamera->GetPosition().x, m_pCamera->GetPosition().y, m_pCamera->GetPosition().z);
-  m_pFont->DrawString(cameraString.GetData(), ezVec2(10.0f, 60.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
-  */
-  return EZ_SUCCESS;
+  ezStringBuilder drawTimeString;
+  drawTimeString.AppendFormat("draw geom data: %.4f ms", m_DrawTimer->GetLastTimeElapsed().GetMilliSeconds());
+  m_pFont->DrawString(drawTimeString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 300.0f, 70.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
 }

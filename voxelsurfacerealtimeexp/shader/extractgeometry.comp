@@ -32,15 +32,22 @@ void main()
   // fill shared memory
   float ownValue = imageLoad(VolumeTexture, volumeCoordinate).w;
   textureCache[textureCachePos] = ownValue;
-    // early out for some of us..
+
+  // early outs
+  // own iso to small
+  if(ownValue <= IsoValue)
+	return;
+  // border threads (useless now)
   if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || any(equal(gl_LocalInvocationID.xyz, uvec3(9))))
     return;
 
+   // sync
    barrier();
   //memoryBarrierImage();
   //memoryBarrier();
   //groupMemoryBarrier();
 
+  // watch sourrundings
   bool left     = textureCache[textureCachePos - 1] > IsoValue;
   bool right    = textureCache[textureCachePos + 1] > IsoValue;
   bool up       = textureCache[textureCachePos + 10] > IsoValue;
