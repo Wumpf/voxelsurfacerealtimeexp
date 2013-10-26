@@ -12,6 +12,7 @@ namespace gl
     
     void SetData(ezUInt32 uiMipLevel, const ezColor* pData) EZ_OVERRIDE;
     void Bind(GLuint slotIndex) EZ_OVERRIDE;
+    void BindImage(GLuint slotIndex, Texture::ImageAccess access, GLenum format) EZ_OVERRIDE;
   };
 
 }

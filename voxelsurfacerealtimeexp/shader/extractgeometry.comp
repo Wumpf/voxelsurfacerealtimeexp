@@ -1,0 +1,70 @@
+﻿#version 430
+
+#include "constantbuffers.glsl"
+
+layout(binding = 0, rgba8) restrict uniform image3D VolumeTexture;
+
+/*
+// output buffer
+layout(binding = 0) writeonly buffer oBuffer
+{
+  float Result;
+} Out;
+*/
+
+// a bit of perf history
+//
+// 2.78ms brute force
+// 2.3ms shared mem
+// 2.03ms shared mem + restrict texture access
+// 2.12ms reordering attempt of kicked threads
+
+shared vec4 textureCache[1000]; 
+
+// compute shader size
+layout (local_size_x = 10, local_size_y = 10, local_size_z = 10) in;
+void main()
+{
+  ivec3 volumeCoordinate = ivec3(gl_WorkGroupID.xyz * ivec3(8,8,8) + gl_LocalInvocationID.xyz) - ivec3(1);
+  uint textureCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
+
+  // fill shared memory
+  vec4 ownValue = imageLoad(VolumeTexture, volumeCoordinate);
+  textureCache[textureCachePos] = ownValue;
+    // early out for some of us..
+  if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || any(equal(gl_LocalInvocationID.xyz, uvec3(9))))
+    return;
+
+   barrier();
+  //memoryBarrierImage();
+  //memoryBarrier();
+  //groupMemoryBarrier();
+
+  vec4 left     = textureCache[textureCachePos - 1];
+  vec4 right    = textureCache[textureCachePos + 1];
+  vec4 up       = textureCache[textureCachePos + 10];
+  vec4 down     = textureCache[textureCachePos - 10];
+  vec4 forward  = textureCache[textureCachePos + 100];
+  vec4 backward = textureCache[textureCachePos - 100];
+
+  uint numNeighbours = 0;
+  if(up.w > IsoValue)
+    ++numNeighbours;
+  if(down.w > IsoValue)
+    ++numNeighbours;
+  if(left.w > IsoValue)
+    ++numNeighbours;
+  if(right.w > IsoValue)
+    ++numNeighbours;
+  if(forward.w > IsoValue)
+    ++numNeighbours;
+  if(backward.w > IsoValue)
+    ++numNeighbours;
+
+  vec4 result;
+  result.xyz = vec3(numNeighbours * (1.0f / 6.0f));
+  result.w = ownValue.w;
+
+  // no double buffering so this will suck tremendously (flickering due to race conditions)
+  imageStore(VolumeTexture, volumeCoordinate, result);
+}

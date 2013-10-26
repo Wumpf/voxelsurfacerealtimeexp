@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "ShaderDataMetaInfo.h"
+#include "Texture.h"
 #include <Foundation/Containers/Set.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
@@ -49,12 +50,15 @@ namespace gl
     // Make sure that the ShaderObject is already activated
     // (Setting of ordinary global uniform variables is explicitly not supported! You can still handle this yourself using the available Meta-Info)
 
-    /// Binds a ubo by name
-    ezResult BindUBO(class UniformBuffer& ubo, const ezString sUBOName);
+    /// Binds an ubo by name
+    ezResult BindUBO(class UniformBuffer& ubo, const ezString& sUBOName);
+    /// Binds an ubo by its intern buffer name
+    ezResult BindUBO(UniformBuffer& ubo);
 
     /// Binds a texture
-    ezResult BindTexture(class Texture& texture, const ezString sTextureName);
-
+    ezResult BindTexture(Texture& texture, const ezString& sTextureName);
+    /// Binds texture as image
+    ezResult BindImage(Texture& texture, Texture::ImageAccess accessMode, const ezString& sImageName);
 
 
 
@@ -106,7 +110,7 @@ namespace gl
     /// Intern helper function for gather general BufferInformations
     template<typename BufferVariableType>
     void QueryBlockInformations(ezMap<ezString, BufferInfo<BufferVariableType>>& BufferToFill, GLenum InterfaceName);
-
+    
     // the program itself
     GLuint m_Program;
     bool m_bContainsAssembledProgram;

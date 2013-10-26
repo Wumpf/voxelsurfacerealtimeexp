@@ -174,6 +174,7 @@
     <ClInclude Include="source\gl\ShaderObject.h" />
     <ClInclude Include="source\gl\Texture.h" />
     <ClInclude Include="source\gl\Texture3D.h" />
+    <ClInclude Include="source\gl\TimerQuery.h" />
     <ClInclude Include="source\gl\UniformBuffer.h" />
     <ClInclude Include="source\InputConfig.h" />
     <ClInclude Include="source\math\camera\Camera.h" />
@@ -189,7 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\background.frag" />
-    <None Include="shader\comptest.comp" />
+    <None Include="shader\extractgeometry.comp" />
     <None Include="shader\constantbuffers.glsl" />
     <None Include="shader\directvis.frag" />
     <None Include="shader\helper.glsl" />
@@ -207,6 +208,7 @@
     <ClCompile Include="source\gl\ShaderObject.cpp" />
     <ClCompile Include="source\gl\Texture.cpp" />
     <ClCompile Include="source\gl\Texture3D.cpp" />
+    <ClCompile Include="source\gl\TimerQuery.cpp" />
     <ClCompile Include="source\gl\UniformBuffer.cpp" />
     <ClCompile Include="source\Input.cpp" />
     <ClCompile Include="source\math\camera\Camera.cpp" />

@@ -11,6 +11,7 @@ namespace gl
   class Texture;
   class UniformBuffer;
   class ScreenAlignedTriangle;
+  class TimerQuery;
 };
 class FreeCamera;
 
@@ -27,20 +28,20 @@ public:
 private:
   void CreateVolumeTexture();
 
-
   gl::ShaderObject m_BackgroundShader;
   gl::ShaderObject m_DirectVolVisShader;
-  gl::ShaderObject m_ComputeShaderTest;
+  gl::ShaderObject m_extractgeometryShader;
 
   gl::UniformBuffer m_CameraUBO;
-  gl::UniformBuffer m_TestUBO;
+  gl::UniformBuffer m_TimeUBO;
+  gl::UniformBuffer m_VolumeInfoUBO;
 
-  static const ezUInt32 m_vVolumeWidth;
-  static const ezUInt32 m_vVolumeHeight;
-  static const ezUInt32 m_vVolumeDepth;
+  static const ezUInt32 m_uiVolumeWidth;
+  static const ezUInt32 m_uiVolumeHeight;
+  static const ezUInt32 m_uiVolumeDepth;
   gl::Texture* m_pVolumeTexture;
   
-
+  ezUniquePtr<gl::TimerQuery> m_glTimer;
 
   ezUniquePtr<gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
   ezUniquePtr<FreeCamera> m_pCamera;

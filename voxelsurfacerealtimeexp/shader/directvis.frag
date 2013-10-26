@@ -1,12 +1,9 @@
-#version 330
+#version 420
 
 #include "constantbuffers.glsl"
 #include "helper.glsl"
 
-uniform sampler3D VolumeTexture;
-const float IsoValue = 0.5;
-const vec3 textureSize = vec3(128, 32, 128);
-
+layout(binding = 0) uniform sampler3D VolumeTexture;
 const vec3 LightDirection = vec3(0, -0.333, 0.333);
 
 // input
@@ -21,19 +18,25 @@ void main()
 
 	// extremly primitive raymarching
 	
-	for(float t=0.005f; t<100; t*=1.005)
+  vec3 boundsUpper = -(VolumeWorldSize - CameraPosition) / rayDirection;
+  vec3 boundsLower = -(vec3(0.01,0.01,0.01) - CameraPosition) / rayDirection;
+  vec3 boundsMax = max(boundsUpper, boundsLower);
+
+  float end = min(max(max(boundsMax.x, boundsMax.y), boundsMax.z), 1000);
+    
+	for(float t=4; t<end; t*=1.005)
 	{
-		vec3 samplePos = CameraPosition + rayDirection * (t+1);
+		vec3 samplePos = CameraPosition + rayDirection * t;
 		if(all(greaterThan(samplePos, vec3(0.01,0.01,0.01))) && 
-		   all(lessThan(samplePos, textureSize)) )
+		   all(lessThan(samplePos, VolumeWorldSize)) )
 		{
-			vec4 vol = textureLod(VolumeTexture, samplePos / textureSize, 0);
-			if(vol.w < IsoValue)
+			vec4 vol = textureLod(VolumeTexture, samplePos / VolumeWorldSize, 0);
+			if(vol.w > IsoValue)
 			{
 				vec3 normal = normalize(vol.xyz * 2 - 1);
 				normal = normalize(normal);
 				float lighting = clamp(dot(normal, -LightDirection), 0, 1) + 0.3;
-				ps_out_fragColor = vec4(lighting);
+				ps_out_fragColor = vec4(vol.xyz, 1); //vec4(lighting);
 
 		//		ps_out_fragColor.xyz = abs(rayDirection);//abs(normal);
 				return;

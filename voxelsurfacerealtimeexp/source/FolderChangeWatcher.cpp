@@ -62,23 +62,21 @@ FolderChangeWatcher::FolderWatchThread::FolderWatchThread(const ezString& sWatch
 
 ezUInt32 FolderChangeWatcher::FolderWatchThread::Run()
 {
+  ezStringBuilder wildcardPath(m_sWatchedDirectory.GetData());
+  wildcardPath.AppendPath("*");
+  ezStringWChar wildcardPath_wchar(wildcardPath.GetData());
+
   while(m_bRun)
   {
     DWORD waitStatus = WaitForMultipleObjects(1, &m_changeHandle, TRUE, 200);
 
     if(waitStatus == WAIT_OBJECT_0)
     {
-      ezStringBuilder wildcardPath(m_sWatchedDirectory.GetData());
-      wildcardPath.AppendPath("*");
-
       // iterate over each file
       WIN32_FIND_DATAW ffd;
-      HANDLE hFind = FindFirstFileW(ezStringWChar(wildcardPath.GetData()).GetData(), &ffd);
+      HANDLE hFind = FindFirstFileW(wildcardPath_wchar.GetData(), &ffd);
       if (hFind == INVALID_HANDLE_VALUE)
-      {
-        ezLog::Error("Error iterating over directory \"%s\"", m_sWatchedDirectory);
-        continue;
-      }
+        continue; // don't log this, happens far to often!
 
       ezUInt64 lastTrackedModificationNew = m_lastTrackedModification;
 
@@ -100,6 +98,7 @@ ezUInt32 FolderChangeWatcher::FolderWatchThread::Run()
           }
         }
       } while (FindNextFile(hFind, &ffd) != 0);
+      FindClose(hFind);
 
       m_lastTrackedModification = lastTrackedModificationNew;
     }

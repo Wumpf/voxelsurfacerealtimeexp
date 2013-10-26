@@ -13,6 +13,18 @@ namespace gl
 
     virtual void Bind(GLuint slotIndex)=0;
 
+    enum class ImageAccess
+    {
+      WRITE = GL_WRITE_ONLY,
+      READ = GL_READ_ONLY,
+      READ_WRITE = GL_READ_WRITE
+    };
+
+    void BindImage(GLuint slotIndex, ImageAccess access) { BindImage(0, access, m_Format); }
+    virtual void BindImage(GLuint slotIndex, ImageAccess access, GLenum format)=0;
+
+    GLuint GetInternHandle() { return m_TextureHandle; }
+
   protected:
     GLuint m_TextureHandle;
 

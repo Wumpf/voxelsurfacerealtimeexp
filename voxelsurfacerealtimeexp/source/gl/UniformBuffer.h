@@ -40,11 +40,12 @@ namespace gl
     /// Updates gpu data if necessary and binds buffer
     ezResult BindBuffer(GLuint locationIndex);
 
+    const ezString& GetBufferName() const { return m_sBufferName; }
+
   private:
     /// \brief Updates gpu UBO with dirty marked data
     /// Buffer should be already binded. Will be performed by BindBuffer by default.
     ezResult UpdateGPUData();
-
 
     GLuint      m_BufferObject;
     ezUInt32    m_uiBufferSizeBytes;

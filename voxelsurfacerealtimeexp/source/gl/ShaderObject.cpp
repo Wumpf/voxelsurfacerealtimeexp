@@ -445,7 +445,12 @@ namespace gl
     g_pCurrentlyActiveShaderObject = this;
   }
 
-  ezResult ShaderObject::BindUBO(UniformBuffer& ubo, const ezString sUBOName)
+  ezResult ShaderObject::BindUBO(UniformBuffer& ubo)
+  {
+    return BindUBO(ubo, ubo.GetBufferName());
+  }
+
+  ezResult ShaderObject::BindUBO(UniformBuffer& ubo, const ezString& sUBOName)
   {
     // does not change any uniform - not necessary!
     //EZ_ASSERT(g_pCurrentlyActiveShaderObject == this, "You need to activate the ShaderObject before calling BindUBO!");
@@ -457,11 +462,34 @@ namespace gl
     return ubo.BindBuffer(it.Value().iBufferBinding);
   }
 
-  ezResult ShaderObject::BindTexture(Texture& texture, const ezString sTextureName)
+  ezResult ShaderObject::BindImage(Texture& texture, Texture::ImageAccess accessMode, const ezString& sImageName)
   {
-    // does not change any uniform - not necessary!
-    //EZ_ASSERT(g_pCurrentlyActiveShaderObject == this, "You need to activate the ShaderObject before calling BindTexture!");
+    auto it = m_GlobalUniformInfo.Find(sImageName);
+    if(!it.IsValid())
+      return EZ_FAILURE;
 
+    // optional typechecking
+    switch(it.Value().Type)
+    {
+    case ShaderVariableType::UNSIGNED_INT_IMAGE_3D:
+    case ShaderVariableType::INT_IMAGE_3D:
+    case ShaderVariableType::IMAGE_3D:
+      EZ_ASSERT(dynamic_cast<Texture3D*>(&texture) != NULL, "3D Texture expected!");
+      break;
+    default:
+      EZ_ASSERT(false, "Handling for this type of uniform not implemented!");
+      break;
+    }
+
+    EZ_ASSERT(it.Value().iLocation >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
+
+    texture.BindImage(it.Value().iLocation, accessMode);
+
+    return EZ_SUCCESS;
+  }
+
+  ezResult ShaderObject::BindTexture(Texture& texture, const ezString& sTextureName)
+  {
     auto it = m_GlobalUniformInfo.Find(sTextureName);
     if(!it.IsValid())
       return EZ_FAILURE;
@@ -469,6 +497,8 @@ namespace gl
     // optional typechecking
     switch(it.Value().Type)
     {
+    case ShaderVariableType::UNSIGNED_INT_SAMPLER_3D:
+    case ShaderVariableType::INT_SAMPLER_3D:
     case ShaderVariableType::SAMPLER_3D:
       EZ_ASSERT(dynamic_cast<Texture3D*>(&texture) != NULL, "3D Texture expected!");
       break;
@@ -496,7 +526,7 @@ namespace gl
     pInfoLog[charsWritten] = '\0';
     if(strlen(pInfoLog.GetPtr()) > 0)
     {
-    //  ezLog::Error("Shader %s compiled. Output:", sShaderName.GetData());
+      ezLog::Error("Shader %s compiled. Output:", sShaderName.GetData());
       ezLog::Error(pInfoLog.GetPtr());
     }
     else

@@ -5,7 +5,7 @@
 #include "gl/Font.h"
 #include "GlobalCVar.h"
 
-const ezVec2 OnScreenLogWriter::m_vScreenPos(10.0f, 10.0f);
+const ezVec2 OnScreenLogWriter::m_vScreenPos(10.0f, 20.0f);
 const float OnScreenLogWriter::m_fFadeSpeed = 0.25f;
 
 OnScreenLogWriter::OnScreenLogWriter(const RenderWindowGL& renderWindow) :
