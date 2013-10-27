@@ -115,8 +115,11 @@ void RenderWindowGL::CreateGraphicsContext()
   // enable debug output
   gl::Utils::ActivateDebugOutput();
 
-  // set viewport
+  // some default gl settings
   glViewport(0,1, GeneralConfig::g_ResolutionWidth, GeneralConfig::g_ResolutionHeight);
+  glDepthFunc(GL_LEQUAL);
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
 }
 
 void RenderWindowGL::SwapBuffers()

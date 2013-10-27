@@ -32,19 +32,25 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   m_pBackground = EZ_DEFAULT_NEW(Background)(m_pScreenAlignedTriangle.Get());
 
   // global ubo init
-  {
-    ezDynamicArray<const gl::ShaderObject*> cameraUBOusingShader;
-    cameraUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderDirectVolVis());
-    cameraUBOusingShader.PushBack(&m_pBackground->GetShader());
-    cameraUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderVolumeRenderShader());
-    m_CameraUBO.Init(cameraUBOusingShader, "Camera");
+  ezDynamicArray<const gl::ShaderObject*> cameraUBOusingShader;
+  cameraUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderDirectVolVis());
+  cameraUBOusingShader.PushBack(&m_pBackground->GetShader());
+  cameraUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderVolumeRenderShader());
+  m_CameraUBO.Init(cameraUBOusingShader, "Camera");
+
+  ezDynamicArray<const gl::ShaderObject*> globalSceneInfoUBOusingShader;
+  globalSceneInfoUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderDirectVolVis());
+  globalSceneInfoUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderVolumeRenderShader());
+  m_GlobalSceneInfo.Init(globalSceneInfoUBOusingShader, "GlobalSceneInfo");
 
 /*    ezDynamicArray<const gl::ShaderObject*> timeUBOusingShader;
-    cameraUBOusingShader.PushBack(&m_DirectVolVisShader);
-    m_TimeUBO.Init(cameraUBOusingShader, "Time");
+  cameraUBOusingShader.PushBack(&m_DirectVolVisShader);
+  m_TimeUBO.Init(cameraUBOusingShader, "Time");
 */
-   }
 
+  m_GlobalSceneInfo["GlobalDirLightDirection"].Set(ezVec3(1,-1.2,1).GetNormalized());
+  m_GlobalSceneInfo["GlobalDirLightColor"].Set(ezVec3(0.98f, 0.98f, 0.8f));
+  m_GlobalSceneInfo["GlobalAmbient"].Set(ezVec3(0.3f, 0.3f, 0.3f));
 
   ezVec3 vCameraPos = m_pVoxelTerrain->GetWorldSize();
   vCameraPos.x /=2;
@@ -83,21 +89,39 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   // set global ubos to their global binding points
   m_CameraUBO.BindBuffer(0);
   m_TimeUBO.BindBuffer(1);
-
+  m_GlobalSceneInfo.BindBuffer(2);
 
   m_ExtractGeometryTimer->Start();
   m_pVoxelTerrain->ComputeGeometryInfo();
   m_ExtractGeometryTimer->End();
 
+  // no depth test needed so far
+  glDisable(GL_DEPTH_TEST);
+  glDepthMask(GL_FALSE);
+
   // render nice background
   m_pBackground->Draw();
+
+  // activate depth test
+
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
 
   // render processed data
   m_DrawTimer->Start();
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   m_pVoxelTerrain->Draw();
+  
+  //m_pVoxelTerrain->DrawReferenceRaycast();
+   
   //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   m_DrawTimer->End();
+
+  // disable depth test
+  glDisable(GL_DEPTH_TEST);
+  glDepthMask(GL_FALSE);
+
 
   // on screen info stuff
   DrawInfos(lastFrameDuration);

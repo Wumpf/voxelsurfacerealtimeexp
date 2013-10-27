@@ -4,7 +4,6 @@
 #include "helper.glsl"
 
 layout(binding = 0) uniform sampler3D VolumeTexture;
-const vec3 LightDirection = vec3(0, -0.333, 0.333);
 
 // input
 in vec2 vs_out_texcoord;
@@ -35,8 +34,9 @@ void main()
 			{
 				vec3 normal = normalize(vol.xyz * 2 - 1);
 				normal = normalize(normal);
-				float lighting = clamp(dot(normal, -LightDirection), 0, 1) + 0.3;
-				ps_out_fragColor = vec4(lighting);
+				float lighting = clamp(dot(normal, GlobalDirLightDirection), 0, 1);
+				ps_out_fragColor.xyz = GlobalDirLightColor * lighting + GlobalAmbient;
+				ps_out_fragColor.a = 1.0f;
 
 		//		ps_out_fragColor.xyz = abs(rayDirection);//abs(normal);
 				return;

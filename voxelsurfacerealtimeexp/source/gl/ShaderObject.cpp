@@ -430,7 +430,8 @@ namespace gl
       RawName.SetCount(pRawUniformBlockInfoData[0] + 1);
       glGetProgramResourceName(m_Program, InterfaceName, iBlock, RawName.GetCount(), &iActualNameLength, static_cast<ezArrayPtr<char>>(RawName).GetPtr());
       RawName[iActualNameLength] = '\0';
-      BufferToFill.Insert(static_cast<ezArrayPtr<char>>(RawName).GetPtr(), BlockInfo);
+      ezString key(static_cast<ezArrayPtr<char>>(RawName).GetPtr());
+      BufferToFill.Insert(key, BlockInfo);
     }
   }
 
@@ -464,6 +465,7 @@ namespace gl
     return ubo.BindBuffer(it.Value().iBufferBinding);
   }
 
+  /*
   ezResult ShaderObject::BindImage(Texture& texture, Texture::ImageAccess accessMode, const ezString& sImageName)
   {
     auto it = m_GlobalUniformInfo.Find(sImageName);
@@ -483,9 +485,9 @@ namespace gl
       break;
     }
 
-    EZ_ASSERT(it.Value().iLocation >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
+    EZ_ASSERT(it.Value(). ??  >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
 
-    texture.BindImage(it.Value().iLocation, accessMode);
+    texture.BindImage(it.Value(). ??, accessMode);
 
     return EZ_SUCCESS;
   }
@@ -509,12 +511,13 @@ namespace gl
       break;
     }
 
-    EZ_ASSERT(it.Value().iLocation >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
+    EZ_ASSERT(it.Value(). ?? >= 0, "Location of shader variable %s is invalid. You need to to specify the location with the layout qualifier!", it.Key());
 
-    texture.Bind(it.Value().iLocation);
+    texture.Bind(it.Value(). ??);
 
     return EZ_SUCCESS;
   }
+  */
 
   void ShaderObject::PrintShaderInfoLog(GLuint Shader, const ezString& sShaderName)
   {

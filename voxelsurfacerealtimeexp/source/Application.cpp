@@ -2,7 +2,7 @@
 
 #include "Application.h"
 #include "RenderWindow.h"
-#include "Scene.h"
+#include "scene/Scene.h"
 #include "OnScreenLogWriter.h"
 #include "math/Random.h"
 
@@ -123,6 +123,8 @@ void Application::Update(ezTime lastFrameDuration)
 
 void Application::RenderFrame(ezTime lastFrameDuration)
 {
+
+  glDepthMask(GL_TRUE);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   m_pScene->Render(lastFrameDuration);

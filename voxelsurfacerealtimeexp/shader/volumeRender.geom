@@ -1,23 +1,23 @@
 #version 430
 
-struct vertex
+struct VertexInOut
 {
-	vec4 Color;
+	vec3 Normal;
 };
 
 layout(triangles, invocations = 1) in;
-layout(triangle_strip, max_vertices = 4) out;
+layout(triangle_strip, max_vertices = 3) out;
 
-layout(location = 0) in vertex In[];
+layout(location = 0) in VertexInOut In[];
 
-layout(location = 0) out vertex Out;
+layout(location = 0) out VertexInOut Out;
 
 void main()
 {	
-	for(int i = 0; i < gl_in.length(); ++i)
+	for(int i = 0; i < 3; ++i)
 	{
 		gl_Position = gl_in[i].gl_Position;
-		Out.Color = In[i].Color;
+		Out.Normal = In[i].Normal;
 		EmitVertex();
 	}
 	EndPrimitive();

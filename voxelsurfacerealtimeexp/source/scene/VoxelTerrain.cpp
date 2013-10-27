@@ -36,6 +36,7 @@ VoxelTerrain::VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriang
   m_VolumeInfoUBO.Init(volumeInfoUBOusingShader, "VolumeDataInfo");
 
   m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));  // add size scaling here if necessar
+  m_VolumeInfoUBO.BindBuffer(3);
 
   // geometry info buffer
   {
@@ -127,7 +128,7 @@ void VoxelTerrain::ComputeGeometryInfo()
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   // extract geometry info from volume
-  m_ExtractGeometryInfoShader.BindImage(*m_pVolumeTexture, gl::Texture::ImageAccess::READ, "VolumeTexture");
+  m_pVolumeTexture->BindImage(0, gl::Texture::ImageAccess::READ);
   m_ExtractGeometryInfoShader.Activate();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_GeometryInfoBuffer);
   glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_VolumeIndirectDrawBuffer);  // bind indirect draw buffer as atomic counter to count how many quads should be rendered
@@ -149,6 +150,7 @@ void VoxelTerrain::ComputeGeometryInfo()
 void VoxelTerrain::Draw()
 {
   m_VolumeRenderShader.Activate();
+  m_pVolumeTexture->Bind(0);
   glBindVertexArray(m_GeometryInfoVA);
   glPatchParameteri(GL_PATCH_VERTICES, 1);
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_VolumeIndirectDrawBuffer);
@@ -160,7 +162,7 @@ void VoxelTerrain::DrawReferenceRaycast()
 {
   // "reference renderer" direct volume visualization
   m_DirectVolVisShader.Activate();
-  m_DirectVolVisShader.BindTexture(*m_pVolumeTexture, "VolumeTexture");
+  m_pVolumeTexture->Bind(0);
   m_DirectVolVisShader.BindUBO(m_VolumeInfoUBO);
   m_pScreenAlignedTriangle->Draw();
 }

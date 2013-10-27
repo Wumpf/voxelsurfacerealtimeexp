@@ -30,6 +30,7 @@ private:
 
   gl::UniformBuffer m_CameraUBO;
   gl::UniformBuffer m_TimeUBO;
+  gl::UniformBuffer m_GlobalSceneInfo;
 
   class VoxelTerrain* m_pVoxelTerrain;
   class Background* m_pBackground;

@@ -36,7 +36,7 @@ void main()
   // early outs
   // own iso to small
   if(ownValue <= IsoValue)
-	return;
+    return;
   // border threads (useless now)
   if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || any(equal(gl_LocalInvocationID.xyz, uvec3(9))))
     return;
@@ -60,38 +60,36 @@ void main()
 	return;
 
   uint quadData;
-  quadData = uint(volumeCoordinate.x);
-  quadData |= uint(volumeCoordinate.y) << 8;
-  quadData |= uint(volumeCoordinate.z) << 16;
+  quadData = volumeCoordinate.x | (volumeCoordinate.y << 8) | (volumeCoordinate.z << 16);
   uint quadIndex;
-  if(up)
+  if(!up)
   {
     quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	Quads[quadIndex] = quadData;// | (uint(0) << 24);
+	  Quads[quadIndex] = quadData;// | (uint(0) << 24);
   }
-  if(down)
+  if(!down)
   {
     quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	Quads[quadIndex] = quadData | (uint(1) << 24);
+	  Quads[quadIndex] = quadData | (uint(1) << 24);
   }
-  if(left)
+  if(!left)
   {
     quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	Quads[quadIndex] = quadData | (uint(2) << 24);
+	  Quads[quadIndex] = quadData | (uint(2) << 24);
   }
-  if(right)
+  if(!right)
   {
     quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	Quads[quadIndex] = quadData | (uint(3) << 24);
+	  Quads[quadIndex] = quadData | (uint(3) << 24);
   }
-  if(forward)
+  if(!forward)
   {
     quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	Quads[quadIndex] = quadData | (uint(4) << 24);
+	  Quads[quadIndex] = quadData | (uint(4) << 24);
   }
-  if(backward)
+  if(!backward)
   {
     quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	Quads[quadIndex] = quadData | (uint(5) << 24);
+	  Quads[quadIndex] = quadData | (uint(5) << 24);
   }
 }

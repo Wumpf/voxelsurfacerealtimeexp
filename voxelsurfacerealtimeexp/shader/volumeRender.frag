@@ -1,14 +1,20 @@
 #version 430
 
-struct vertex
-{
-	vec4 Color;
-};
+#include "constantbuffers.glsl"
 
-layout(location = 0) in vertex In;
-layout(location = 0, index = 0) out vec4 FragColor;
+struct Vertex
+{
+	vec3 Normal;
+};
+layout(location = 0) in Vertex In;
+
+layout(location = 0, index = 0) out vec4 ps_out_fragColor;
 
 void main()
 {
-	FragColor = In.Color;
+	vec3 normal = normalize(In.Normal);
+
+	float lighting = clamp(dot(normal, vec3(0,1,0)), 0, 1);
+	ps_out_fragColor.xyz = GlobalDirLightColor * lighting + GlobalAmbient;
+	ps_out_fragColor.a = 1.0f;
 }

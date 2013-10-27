@@ -12,7 +12,14 @@ layout(binding = 1, shared) uniform Time
   float LastFrameDuration;
 };
 
-layout(binding = 2, shared) uniform VolumeDataInfo
+layout(binding = 2, shared) uniform GlobalSceneInfo
+{
+  vec3 GlobalDirLightDirection;
+  vec3 GlobalDirLightColor;
+  vec3 GlobalAmbient;
+};
+
+layout(binding = 3, shared) uniform VolumeDataInfo
 {
   vec3 VolumeWorldSize;
 };

@@ -55,10 +55,12 @@ namespace gl
     /// Binds an ubo by its intern buffer name
     ezResult BindUBO(UniformBuffer& ubo);
 
+
+    // currently not possible to retrieve given texture binding
     /// Binds a texture
-    ezResult BindTexture(Texture& texture, const ezString& sTextureName);
+  //  ezResult BindTexture(Texture& texture, const ezString& sTextureName);
     /// Binds texture as image
-    ezResult BindImage(Texture& texture, Texture::ImageAccess accessMode, const ezString& sImageName);
+  //  ezResult BindImage(Texture& texture, Texture::ImageAccess accessMode, const ezString& sImageName);
 
 
 
