@@ -7,29 +7,11 @@
     <ClInclude Include="source\gl\ShaderObject.h">
       <Filter>source\gl</Filter>
     </ClInclude>
-    <ClInclude Include="source\PCH.h">
-      <Filter>source</Filter>
-    </ClInclude>
-    <ClInclude Include="source\RenderWindow.h">
-      <Filter>source</Filter>
-    </ClInclude>
-    <ClInclude Include="source\Application.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="source\gl\GLUtils.h">
       <Filter>source\gl</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Scene.h">
-      <Filter>source</Filter>
-    </ClInclude>
-    <ClInclude Include="source\InputConfig.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="source\gl\Font.h">
       <Filter>source\gl</Filter>
-    </ClInclude>
-    <ClInclude Include="source\GlobalCVar.h">
-      <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\UniformBuffer.h">
       <Filter>source\gl</Filter>
@@ -37,20 +19,11 @@
     <ClInclude Include="source\gl\ShaderDataMetaInfo.h">
       <Filter>source\gl</Filter>
     </ClInclude>
-    <ClInclude Include="source\OnScreenLogWriter.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="source\gl\Texture3D.h">
       <Filter>source\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\Texture.h">
       <Filter>source\gl</Filter>
-    </ClInclude>
-    <ClInclude Include="source\GlobalEvents.h">
-      <Filter>source</Filter>
-    </ClInclude>
-    <ClInclude Include="source\FolderChangeWatcher.h">
-      <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="source\math\NoiseGenerator.h">
       <Filter>source\math</Filter>
@@ -64,14 +37,47 @@
     <ClInclude Include="source\math\camera\Camera.h">
       <Filter>source\math\camera</Filter>
     </ClInclude>
-    <ClInclude Include="source\UniquePtr.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="source\math\Color.h">
       <Filter>source\math</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\TimerQuery.h">
       <Filter>source\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="source\FolderChangeWatcher.h">
+      <Filter>source\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="source\UniquePtr.h">
+      <Filter>source\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="source\PCH.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\scene\Scene.h">
+      <Filter>source\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Application.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\GlobalEvents.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\OnScreenLogWriter.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\RenderWindow.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="source\config\InputConfig.h">
+      <Filter>source\config</Filter>
+    </ClInclude>
+    <ClInclude Include="source\config\GlobalCVar.h">
+      <Filter>source\config</Filter>
+    </ClInclude>
+    <ClInclude Include="source\scene\VoxelTerrain.h">
+      <Filter>source\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="source\scene\Background.h">
+      <Filter>source\scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +95,15 @@
     </Filter>
     <Filter Include="source\math\camera">
       <UniqueIdentifier>{fe332968-eb97-4d40-9ca3-f57cd673ad0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\utils">
+      <UniqueIdentifier>{9d55c8f1-4eba-43f6-9637-9abac9441523}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\scene">
+      <UniqueIdentifier>{ff7bc567-d66f-47e0-a58c-ccbafa616ad1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\config">
+      <UniqueIdentifier>{888a6c69-8e76-4a85-b23d-90a4c19e2cfc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -139,23 +154,8 @@
     <ClCompile Include="source\gl\ShaderObject.cpp">
       <Filter>source\gl</Filter>
     </ClCompile>
-    <ClCompile Include="source\Input.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\PCH.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\RenderWindow.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\Application.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\gl\GLUtils.cpp">
       <Filter>source\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Scene.cpp">
-      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\UniformBuffer.cpp">
       <Filter>source\gl</Filter>
@@ -163,20 +163,11 @@
     <ClCompile Include="source\gl\Font.cpp">
       <Filter>source\gl</Filter>
     </ClCompile>
-    <ClCompile Include="source\OnScreenLogWriter.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="source\gl\Texture3D.cpp">
       <Filter>source\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\Texture.cpp">
       <Filter>source\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="source\GlobalEvents.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\FolderChangeWatcher.cpp">
-      <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="source\math\NoiseGenerator.cpp">
       <Filter>source\math</Filter>
@@ -195,6 +186,36 @@
     </ClCompile>
     <ClCompile Include="source\gl\TimerQuery.cpp">
       <Filter>source\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="source\FolderChangeWatcher.cpp">
+      <Filter>source\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="source\PCH.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\scene\Scene.cpp">
+      <Filter>source\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Application.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GlobalEvents.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\OnScreenLogWriter.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\RenderWindow.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\config\Input.cpp">
+      <Filter>source\config</Filter>
+    </ClCompile>
+    <ClCompile Include="source\scene\VoxelTerrain.cpp">
+      <Filter>source\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\scene\Background.cpp">
+      <Filter>source\scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

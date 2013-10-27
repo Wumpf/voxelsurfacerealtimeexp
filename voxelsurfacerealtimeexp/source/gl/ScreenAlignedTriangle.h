@@ -9,7 +9,7 @@ namespace gl
     ScreenAlignedTriangle();
     ~ScreenAlignedTriangle();
 
-    void display();
+    void Draw() const;
 
   private:
     GLuint vbo;

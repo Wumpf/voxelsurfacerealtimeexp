@@ -46,7 +46,7 @@ namespace gl
     glDeleteVertexArrays(1, &vao);
   }
 
-  void ScreenAlignedTriangle::display()
+  void ScreenAlignedTriangle::Draw() const
   {
     //glDisable(GL_DEPTH_TEST);
     glBindVertexArray(vao);

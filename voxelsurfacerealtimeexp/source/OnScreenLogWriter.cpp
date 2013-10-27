@@ -3,7 +3,7 @@
 
 #include "RenderWindow.h"
 #include "gl/Font.h"
-#include "GlobalCVar.h"
+#include "config/GlobalCVar.h"
 
 const ezVec2 OnScreenLogWriter::m_vScreenPos(10.0f, 20.0f);
 const float OnScreenLogWriter::m_fFadeSpeed = 0.25f;

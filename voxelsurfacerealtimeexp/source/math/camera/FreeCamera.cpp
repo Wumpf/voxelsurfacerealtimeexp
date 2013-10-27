@@ -1,6 +1,6 @@
 #include "PCH.h"
 #include "FreeCamera.h"
-#include "InputConfig.h"
+#include "config/InputConfig.h"
 
 FreeCamera::FreeCamera(float fov, float aspectRatio) :
   Camera(fov, aspectRatio),

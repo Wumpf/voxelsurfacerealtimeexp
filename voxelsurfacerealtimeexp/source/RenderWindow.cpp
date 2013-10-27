@@ -1,6 +1,6 @@
 #include "PCH.h"
 #include "RenderWindow.h"
-#include "GlobalCVar.h"
+#include "config/GlobalCVar.h"
 #include "gl/GLUtils.h"
 
 #include <Core/Input/InputManager.h>

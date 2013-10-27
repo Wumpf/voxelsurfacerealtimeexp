@@ -164,8 +164,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="source\Application.h" />
+    <ClInclude Include="source\config\GlobalCVar.h" />
+    <ClInclude Include="source\config\InputConfig.h" />
     <ClInclude Include="source\FolderChangeWatcher.h" />
-    <ClInclude Include="source\GlobalCVar.h" />
     <ClInclude Include="source\GlobalEvents.h" />
     <ClInclude Include="source\gl\Font.h" />
     <ClInclude Include="source\gl\GLUtils.h" />
@@ -176,7 +177,6 @@
     <ClInclude Include="source\gl\Texture3D.h" />
     <ClInclude Include="source\gl\TimerQuery.h" />
     <ClInclude Include="source\gl\UniformBuffer.h" />
-    <ClInclude Include="source\InputConfig.h" />
     <ClInclude Include="source\math\camera\Camera.h" />
     <ClInclude Include="source\math\camera\FreeCamera.h" />
     <ClInclude Include="source\math\Color.h" />
@@ -185,7 +185,9 @@
     <ClInclude Include="source\OnScreenLogWriter.h" />
     <ClInclude Include="source\PCH.h" />
     <ClInclude Include="source\RenderWindow.h" />
-    <ClInclude Include="Source\Scene.h" />
+    <ClInclude Include="source\scene\Background.h" />
+    <ClInclude Include="source\scene\Scene.h" />
+    <ClInclude Include="source\scene\VoxelTerrain.h" />
     <ClInclude Include="source\UniquePtr.h" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Application.cpp" />
+    <ClCompile Include="source\config\Input.cpp" />
     <ClCompile Include="source\FolderChangeWatcher.cpp" />
     <ClCompile Include="source\GlobalEvents.cpp" />
     <ClCompile Include="source\gl\Font.cpp" />
@@ -215,7 +218,6 @@
     <ClCompile Include="source\gl\Texture3D.cpp" />
     <ClCompile Include="source\gl\TimerQuery.cpp" />
     <ClCompile Include="source\gl\UniformBuffer.cpp" />
-    <ClCompile Include="source\Input.cpp" />
     <ClCompile Include="source\math\camera\Camera.cpp" />
     <ClCompile Include="source\math\camera\FreeCamera.cpp" />
     <ClCompile Include="source\math\Color.cpp" />
@@ -226,7 +228,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="source\RenderWindow.cpp" />
-    <ClCompile Include="Source\Scene.cpp" />
+    <ClCompile Include="source\scene\Background.cpp" />
+    <ClCompile Include="source\scene\Scene.cpp" />
+    <ClCompile Include="source\scene\VoxelTerrain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
