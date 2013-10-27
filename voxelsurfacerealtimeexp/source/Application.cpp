@@ -44,6 +44,7 @@ void Application::AfterEngineInit()
 
   // global events
   GlobalEvents::g_pShaderFileChanged = EZ_DEFAULT_NEW(ezEvent<const ezString&>);
+  GlobalEvents::g_pWindowMessage = EZ_DEFAULT_NEW(ezEvent<const GlobalEvents::Win32Message&>);
 
   // setup log
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -84,6 +85,7 @@ void Application::BeforeEngineShutdown()
   
   EZ_DEFAULT_DELETE(m_pShaderChangesWatcher);
   EZ_DEFAULT_DELETE(GlobalEvents::g_pShaderFileChanged);
+  EZ_DEFAULT_DELETE(GlobalEvents::g_pWindowMessage);
 
   ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
   m_pHTMLLogWriter->EndLog();

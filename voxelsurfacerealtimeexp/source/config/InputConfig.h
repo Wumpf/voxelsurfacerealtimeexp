@@ -8,6 +8,7 @@ namespace InputConfig
   extern const char* g_szAction_CloseApplication;
   
   extern const char* g_szSetName_Camera;
+  extern const char* g_szRotationActivated_Camera;
   extern const char* g_szAction_CameraForward;
   extern const char* g_szAction_CameraBackward;
   extern const char* g_szAction_CameraLeft;

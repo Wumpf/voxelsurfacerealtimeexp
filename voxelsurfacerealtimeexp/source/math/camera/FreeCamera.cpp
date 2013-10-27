@@ -14,18 +14,22 @@ FreeCamera::~FreeCamera()
 
 void FreeCamera::Update(ezTime lastFrameDuration)
 {
-  float fMouseXDeltaPos, fMouseYDeltaPos;
-  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXPos, &fMouseXDeltaPos);
-  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYPos, &fMouseYDeltaPos);
-  float fMouseXDeltaNeg, fMouseYDeltaNeg;
-  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXNeg, &fMouseXDeltaNeg);
-  ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYNeg, &fMouseYDeltaNeg);
-  m_fMouseX -= fMouseXDeltaPos - fMouseXDeltaNeg;
-  m_fMouseY += fMouseYDeltaPos - fMouseYDeltaNeg;
+   
+ if(ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szRotationActivated_Camera, NULL) == ezKeyState::Down)
+ {
+   float fMouseXDeltaPos, fMouseYDeltaPos;
+   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXPos, &fMouseXDeltaPos);
+   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYPos, &fMouseYDeltaPos);
+   float fMouseXDeltaNeg, fMouseYDeltaNeg;
+   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisXNeg, &fMouseXDeltaNeg);
+   ezInputManager::GetInputActionState(InputConfig::g_szSetName_Camera, InputConfig::g_szAction_CameraRotateAxisYNeg, &fMouseYDeltaNeg);
+   m_fMouseX -= fMouseXDeltaPos - fMouseXDeltaNeg;
+   m_fMouseY += fMouseYDeltaPos - fMouseYDeltaNeg;
 
-  m_ViewDir.x = cosf(m_fMouseX) * sinf(m_fMouseY);
-  m_ViewDir.y = cosf(m_fMouseY);
-  m_ViewDir.z = sinf(m_fMouseX) * sinf(m_fMouseY);
+   m_ViewDir.x = cosf(m_fMouseX) * sinf(m_fMouseY);
+   m_ViewDir.y = cosf(m_fMouseY);
+   m_ViewDir.z = sinf(m_fMouseX) * sinf(m_fMouseY);
+ }
 
   /*
   float theta2 = m_fMouseY + ezMath::BasicType<float>::Pi() / 2.0f;

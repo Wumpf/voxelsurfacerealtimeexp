@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ezSystem.lib;ezFoundation.lib;ezCore.lib;ezInputWindows.lib;ezInputXBox360.lib;ezThirdParty.lib;OpenGL32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ezSystem.lib;ezFoundation.lib;ezCore.lib;ezInputWindows.lib;ezInputXBox360.lib;ezThirdParty.lib;OpenGL32.lib;glew32s.lib;AntTweakBar/AntTweakBar64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Debug64 $(TargetDir) /D /Y</Command>
@@ -156,7 +156,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>ezSystem.lib;ezFoundation.lib;ezCore.lib;ezInputWindows.lib;ezInputXBox360.lib;ezThirdParty.lib;OpenGL32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ezSystem.lib;ezFoundation.lib;ezCore.lib;ezInputWindows.lib;ezInputXBox360.lib;ezThirdParty.lib;OpenGL32.lib;glew32s.lib;AntTweakBar/AntTweakBar64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Release64 $(TargetDir) /D /Y</Command>
@@ -185,6 +185,7 @@
     <ClInclude Include="source\OnScreenLogWriter.h" />
     <ClInclude Include="source\PCH.h" />
     <ClInclude Include="source\RenderWindow.h" />
+    <ClInclude Include="source\scene\AntTweakBarInterface.h" />
     <ClInclude Include="source\scene\Background.h" />
     <ClInclude Include="source\scene\Scene.h" />
     <ClInclude Include="source\scene\VoxelTerrain.h" />
@@ -228,6 +229,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="source\RenderWindow.cpp" />
+    <ClCompile Include="source\scene\AntTweakBarInterface.cpp" />
     <ClCompile Include="source\scene\Background.cpp" />
     <ClCompile Include="source\scene\Scene.cpp" />
     <ClCompile Include="source\scene\VoxelTerrain.cpp" />

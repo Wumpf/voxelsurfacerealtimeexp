@@ -14,6 +14,13 @@
 #include "VoxelTerrain.h"
 #include "Background.h"
 
+#include "AntTweakBarInterface.h"
+
+namespace SceneConfig
+{
+  ezCVarBool g_Wireframe("Wireframe", false, ezCVarFlags::Save, "Wireframe of Volume Rendering on/off");
+  ezCVarBool g_UseReferenceVis("UseReferenceVis", false, ezCVarFlags::Save, "Direct volume visualization on/off");
+}
 
 GLuint vertexArray;
 
@@ -24,7 +31,9 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial", 20, renderWindow.GetDeviceContext())),
 
   m_ExtractGeometryTimer(EZ_DEFAULT_NEW_UNIQUE(gl::TimerQuery)),
-  m_DrawTimer(EZ_DEFAULT_NEW_UNIQUE(gl::TimerQuery))
+  m_DrawTimer(EZ_DEFAULT_NEW_UNIQUE(gl::TimerQuery)),
+
+  m_UserInterface(EZ_DEFAULT_NEW_UNIQUE(AntTweakBarInterface))
 {
   EZ_LOG_BLOCK("Scene init");
 
@@ -56,6 +65,9 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   vCameraPos.x /=2;
   vCameraPos.z /=2;
   m_pCamera->SetPosition(vCameraPos);
+
+  // user interface
+  m_UserInterface->Init();
 }
 
 
@@ -110,13 +122,17 @@ ezResult Scene::Render(ezTime lastFrameDuration)
 
   // render processed data
   m_DrawTimer->Start();
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  m_pVoxelTerrain->Draw();
+  if(SceneConfig::g_Wireframe)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   
- // m_pVoxelTerrain->DrawReferenceRaycast();
+  if(SceneConfig::g_UseReferenceVis)
+    m_pVoxelTerrain->DrawReferenceRaycast();
+  else
+    m_pVoxelTerrain->Draw();
    
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+ 
   m_DrawTimer->End();
+   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   // disable depth test
   glDisable(GL_DEPTH_TEST);
@@ -125,6 +141,8 @@ ezResult Scene::Render(ezTime lastFrameDuration)
 
   // on screen info stuff
   DrawInfos(lastFrameDuration);
+  // and ui
+  m_UserInterface->Draw();
 
   return EZ_SUCCESS;
 }

@@ -2,7 +2,7 @@
 #include "RenderWindow.h"
 #include "config/GlobalCVar.h"
 #include "gl/GLUtils.h"
-
+#include "GlobalEvents.h"
 #include <Core/Input/InputManager.h>
 #include <InputWindows/InputDeviceWindows.h>
 
@@ -44,6 +44,13 @@ RenderWindowGL::~RenderWindowGL()
 void RenderWindowGL::OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
 {
   ezInputDeviceWindows::GetDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
+  
+  GlobalEvents::Win32Message message;
+  message.msg = Msg;
+  message.wnd = hWnd;
+  message.lParam = LParam;
+  message.wParam = WParam;
+  GlobalEvents::g_pWindowMessage->Broadcast(message);
 }
 
 void RenderWindowGL::DestroyGraphicsContext()

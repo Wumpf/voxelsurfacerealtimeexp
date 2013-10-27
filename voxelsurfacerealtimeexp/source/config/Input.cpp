@@ -9,6 +9,7 @@ namespace InputConfig
   const char* g_szAction_CloseApplication = "CloseApp";
 
   const char* g_szSetName_Camera = "Camera";
+  const char* g_szRotationActivated_Camera = "RotOn";
   const char* g_szAction_CameraForward = "Forward";
   const char* g_szAction_CameraBackward = "Backward";
   const char* g_szAction_CameraLeft = "Left";
@@ -30,6 +31,9 @@ void Application::SetupInput()
 
 
   inputConfig.m_bApplyTimeScaling = true;
+
+  inputConfig.m_sInputSlotTrigger[0] = ezInputSlot_MouseButton1;
+  ezInputManager::SetInputActionConfig(InputConfig::g_szSetName_Camera, InputConfig::g_szRotationActivated_Camera, inputConfig, false);
 
   inputConfig.m_fInputSlotScale[0] = InputConfig::g_fCameraMoveScale;
   inputConfig.m_sInputSlotTrigger[0] = ezInputSlot_KeyW;
