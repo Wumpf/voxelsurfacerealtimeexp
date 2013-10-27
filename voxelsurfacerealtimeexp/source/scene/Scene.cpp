@@ -113,7 +113,7 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   m_pVoxelTerrain->Draw();
   
-  //m_pVoxelTerrain->DrawReferenceRaycast();
+ // m_pVoxelTerrain->DrawReferenceRaycast();
    
   //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   m_DrawTimer->End();

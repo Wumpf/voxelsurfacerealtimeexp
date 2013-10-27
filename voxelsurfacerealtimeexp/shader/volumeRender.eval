@@ -11,7 +11,7 @@ in gl_PerVertex
 
 struct InVertex
 {
-	vec4 VolumeData;
+	vec3 Normal;
 };
 layout(location = 0) in InVertex In[];
 
@@ -45,6 +45,5 @@ void main()
 {	
 	gl_Position = interpolateQuad(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position, gl_in[3].gl_Position);
 
-	vec4 volumedata = interpolateQuad(In[0].VolumeData, In[1].VolumeData, In[2].VolumeData, In[3].VolumeData);
-	Out.Normal = volumedata.xyz * 2.0f - vec3(1.0f);
+	Out.Normal = interpolateQuad(In[0].Normal, In[1].Normal, In[2].Normal, In[3].Normal);
 }

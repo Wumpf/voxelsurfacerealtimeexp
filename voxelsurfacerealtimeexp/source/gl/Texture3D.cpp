@@ -8,13 +8,7 @@ namespace gl
     Texture( uiWidth, uiHeight, uiDepth, format, iNumMipLevels)
   {
     Bind(0);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexStorage3D(GL_TEXTURE_3D, m_uiNumMipLevels, format, m_uiWidth, m_uiHeight, m_uiDepth);
-  
-   // glTexImage3D(GL_TEXTURE_3D, 0, format, m_uiWidth, m_uiHeight, m_uiDepth, 0, GL_RED, GL_FLOAT, NULL);
-
-
     gl::Utils::CheckError("glTexStorage3D");
   }
 

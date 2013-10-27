@@ -40,11 +40,13 @@ private:
   GLuint m_GeometryInfoBuffer;
   GLuint m_GeometryInfoVA;
 
+  GLuint m_VolumeSamplerObject;
+
   static const ezUInt32 m_uiVolumeWidth;
   static const ezUInt32 m_uiVolumeHeight;
   static const ezUInt32 m_uiVolumeDepth;
   gl::Texture* m_pVolumeTexture;
 
-  static const ezUInt32 m_GeometryBufferElementCount = 2097152; // 8mb buffer, hopefully sufficient (if not we're sooo doomed)
+  static const ezUInt32 m_GeometryBufferElementCount = 1048576; // 4mb buffer, hopefully sufficient
 };
 

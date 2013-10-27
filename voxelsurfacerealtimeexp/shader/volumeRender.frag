@@ -14,7 +14,7 @@ void main()
 {
 	vec3 normal = normalize(In.Normal);
 
-	float lighting = clamp(dot(normal, vec3(0,1,0)), 0, 1);
+	float lighting = clamp(dot(normal, GlobalDirLightDirection), 0, 1);
 	ps_out_fragColor.xyz = GlobalDirLightColor * lighting + GlobalAmbient;
 	ps_out_fragColor.a = 1.0f;
 }

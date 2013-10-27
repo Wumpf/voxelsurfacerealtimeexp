@@ -46,7 +46,6 @@ VoxelTerrain::VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriang
     glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
 
-
   // indirect draw buffer
   {
     glGenBuffers(1, &m_VolumeIndirectDrawBuffer);
@@ -54,7 +53,6 @@ VoxelTerrain::VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriang
     glBufferData(GL_ARRAY_BUFFER, sizeof(gl::DrawArraysIndirectCommand), NULL, GL_DYNAMIC_DRAW); // modified every frame to clear it
     glBindBuffer(GL_ARRAY_BUFFER, 0);
   }
-
 
   // vertex array
   {
@@ -66,6 +64,18 @@ VoxelTerrain::VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriang
 
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
+  }
+
+  // sampler
+  {
+    glGenSamplers(1, &m_VolumeSamplerObject);
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    float borderColor[] = {0.5f, 0.5f, 0.5f, 0}; // normal 0, iso negative (=nothing)
+    glSamplerParameterfv(m_VolumeSamplerObject, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
 
 
@@ -80,6 +90,7 @@ VoxelTerrain::~VoxelTerrain(void)
   glDeleteVertexArrays(1, &m_GeometryInfoVA);
   glDeleteBuffers(1, &m_GeometryInfoBuffer);
   glDeleteBuffers(1, &m_VolumeIndirectDrawBuffer);
+  glDeleteSamplers(1, &m_VolumeSamplerObject);
 }
 
 void VoxelTerrain::CreateVolumeTexture()
@@ -100,7 +111,7 @@ void VoxelTerrain::CreateVolumeTexture()
       {
         ezVec3 gradient;
         ezColor& current = volumeData[x + y * m_uiVolumeWidth + z * slicePitch];
-        current.w = noiseGen.GetValueNoise(ezVec3(mulitplier*x, mulitplier*y, mulitplier*z), 0, 4, 0.5f, false, &gradient) * 0.5f + 0.5f;
+        current.w = noiseGen.GetValueNoise(ezVec3(mulitplier*x, mulitplier*y, mulitplier*z), 0, 5, 0.8f, false, &gradient) * 0.5f + 0.5f;
         gradient.Normalize();
         gradient = gradient * 0.5f;
         current.x = gradient.x + 0.5f;
@@ -150,6 +161,7 @@ void VoxelTerrain::ComputeGeometryInfo()
 void VoxelTerrain::Draw()
 {
   m_VolumeRenderShader.Activate();
+  glBindSampler(0, m_VolumeSamplerObject);
   m_pVolumeTexture->Bind(0);
   glBindVertexArray(m_GeometryInfoVA);
   glPatchParameteri(GL_PATCH_VERTICES, 1);
@@ -162,6 +174,7 @@ void VoxelTerrain::DrawReferenceRaycast()
 {
   // "reference renderer" direct volume visualization
   m_DirectVolVisShader.Activate();
+  glBindSampler(0, m_VolumeSamplerObject);
   m_pVolumeTexture->Bind(0);
   m_DirectVolVisShader.BindUBO(m_VolumeInfoUBO);
   m_pScreenAlignedTriangle->Draw();
