@@ -22,6 +22,7 @@ layout(binding = 2, shared) uniform GlobalSceneInfo
 layout(binding = 3, shared) uniform VolumeDataInfo
 {
   vec3 VolumeWorldSize;
+  vec3 VolumePosToTexcoord;
 };
 
 const float IsoValue = 0.5;

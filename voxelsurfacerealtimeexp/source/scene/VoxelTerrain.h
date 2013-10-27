@@ -11,7 +11,7 @@ namespace gl
 class VoxelTerrain
 {
 public:
-  VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriangle);
+  VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle>& pScreenAlignedTriangle);
   ~VoxelTerrain();
   
   // you should put as much stuff between ComputeGeometryInfo and Draw as possible!
@@ -28,7 +28,7 @@ public:
 private:
   void CreateVolumeTexture();
 
-  const gl::ScreenAlignedTriangle* m_pScreenAlignedTriangle;
+  std::shared_ptr<const gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
 
   gl::ShaderObject m_DirectVolVisShader;
   gl::ShaderObject m_ExtractGeometryInfoShader;

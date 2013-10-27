@@ -3,7 +3,7 @@
 #include "gl/ScreenAlignedTriangle.h"
 
 
-Background::Background(const gl::ScreenAlignedTriangle* pScreenAlignedTriangle) :
+Background::Background(const std::shared_ptr<const gl::ScreenAlignedTriangle>& pScreenAlignedTriangle) :
   m_pScreenAlignedTriangle(pScreenAlignedTriangle)
 {
   m_BackgroundShader.AddShaderFromFile(gl::ShaderObject::ShaderType::VERTEX, "screenTri.vert");

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <Foundation/Basics.h>
 #include "UniquePtr.h"
 #include "math/Color.h"

@@ -16,71 +16,69 @@ namespace gl
       )
     {
       ezLogMsgType::Enum eventType = ezLogMsgType::Enum::InfoMsg;
-      char debSource[32], debType[32], debSev[32];
+      ezString debSource, debType, debSev;
 
       if(source == GL_DEBUG_SOURCE_API_ARB)
-        strcpy(debSource, "OpenGL");
+        debSource = "OpenGL";
       else if(source == GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB)
-        strcpy(debSource, "Windows");
+        debSource = "Windows";
       else if(source == GL_DEBUG_SOURCE_SHADER_COMPILER_ARB)
-        strcpy(debSource, "Shader Compiler");
+        debSource = "Shader Compiler";
       else if(source == GL_DEBUG_SOURCE_THIRD_PARTY_ARB)
-        strcpy(debSource, "Third Party");
+        debSource = "Third Party";
       else if(source == GL_DEBUG_SOURCE_APPLICATION_ARB)
-        strcpy(debSource, "Application");
+        debSource = "Application";
       else if(source == GL_DEBUG_SOURCE_OTHER_ARB)
-        strcpy(debSource, "Other");
+        debSource = "Other";
 
       if(type == GL_DEBUG_TYPE_ERROR_ARB)
       {
         eventType = ezLogMsgType::Enum::ErrorMsg;
-        strcpy(debType, "error");
+        debType = "error";
       }
       else if(type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB)
       {
         eventType = ezLogMsgType::Enum::WarningMsg;
-        strcpy(debType, "deprecated behavior");
+        debType = "deprecated behavior";
       }
       else if(type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB)
       {
         eventType = ezLogMsgType::Enum::SeriousWarningMsg;
-        strcpy(debType, "undefined behavior");
+        debType = "undefined behavior";
       }
       else if(type == GL_DEBUG_TYPE_PORTABILITY_ARB)
       {
         eventType = ezLogMsgType::Enum::WarningMsg;
-        strcpy(debType, "portability");
+        debType = "portability";
       }
       else if(type == GL_DEBUG_TYPE_PERFORMANCE_ARB)
       {
         eventType = ezLogMsgType::Enum::WarningMsg;
-        strcpy(debType, "performance");
+        debType = "performance";
       }
       else if(type == GL_DEBUG_TYPE_OTHER_ARB)
-        strcpy(debType, "message");
+        debType = "message";
 
      
-      EZ_ASSERT_ALWAYS(severity != GL_DEBUG_SEVERITY_HIGH_ARB, "Fatal GL error occurred: %s: %s(high) %d: %s", debSource, debType, id, message);
+      EZ_ASSERT_ALWAYS(severity != GL_DEBUG_SEVERITY_HIGH_ARB, "Fatal GL error occurred: %s: %s(high) %d: %s", debSource.GetData(), debType.GetData(), id, message);
 
       if(severity == GL_DEBUG_SEVERITY_MEDIUM_ARB)
-        strcpy(debSev, "medium");
+        debSev = "medium";
       else if(severity == GL_DEBUG_SEVERITY_LOW_ARB)
-        strcpy(debSev, "low");
+        debSev = "low";
 
       switch(eventType)
       {
       case ezLogMsgType::Enum::WarningMsg:
-        ezLog::Warning("%s: %s(%s) %d: %s\n", debSource, debType, debSev, id, message);
+        ezLog::Warning("%s: %s(%s) %d: %s\n", debSource.GetData(), debType.GetData(), debSev.GetData(), id, message);
         break;
       case ezLogMsgType::Enum::SeriousWarningMsg:
-        ezLog::SeriousWarning("%s: %s(%s) %d: %s\n", debSource, debType, debSev, id, message);
+        ezLog::SeriousWarning("%s: %s(%s) %d: %s\n", debSource.GetData(), debType.GetData(), debSev.GetData(), id, message);
         break;
       case ezLogMsgType::Enum::InfoMsg:
-        ezLog::Info("%s: %s(%s) %d: %s\n", debSource, debType, debSev, id, message);
+        ezLog::Info("%s: %s(%s) %d: %s\n", debSource.GetData(), debType.GetData(), debSev.GetData(), id, message);
         break;
       }
-
-      
     }
 
     void ActivateDebugOutput(DebugMessageSeverity minMessageSeverity)

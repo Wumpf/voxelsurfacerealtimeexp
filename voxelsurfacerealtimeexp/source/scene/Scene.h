@@ -38,7 +38,7 @@ private:
   ezUniquePtr<gl::TimerQuery> m_ExtractGeometryTimer;
   ezUniquePtr<gl::TimerQuery> m_DrawTimer;
 
-  ezUniquePtr<gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
+  std::shared_ptr<const gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
   ezUniquePtr<FreeCamera> m_pCamera;
 
   ezUniquePtr<gl::Font> m_pFont;

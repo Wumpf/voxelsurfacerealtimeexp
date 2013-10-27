@@ -18,7 +18,7 @@
 GLuint vertexArray;
 
 Scene::Scene(const RenderWindowGL& renderWindow) :
-  m_pScreenAlignedTriangle(EZ_DEFAULT_NEW_UNIQUE(gl::ScreenAlignedTriangle)),
+  m_pScreenAlignedTriangle(std::make_shared<gl::ScreenAlignedTriangle>()),
   
   m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, 70.0f, static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
   m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial", 20, renderWindow.GetDeviceContext())),
@@ -28,8 +28,8 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
 {
   EZ_LOG_BLOCK("Scene init");
 
-  m_pVoxelTerrain = EZ_DEFAULT_NEW(VoxelTerrain)(m_pScreenAlignedTriangle.Get());
-  m_pBackground = EZ_DEFAULT_NEW(Background)(m_pScreenAlignedTriangle.Get());
+  m_pVoxelTerrain = EZ_DEFAULT_NEW(VoxelTerrain)(m_pScreenAlignedTriangle);
+  m_pBackground = EZ_DEFAULT_NEW(Background)(m_pScreenAlignedTriangle);
 
   // global ubo init
   ezDynamicArray<const gl::ShaderObject*> cameraUBOusingShader;

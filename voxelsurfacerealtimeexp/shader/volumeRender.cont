@@ -68,13 +68,14 @@ void main()
 		gl_TessLevelOuter[3] = 1.0f;
 	}
 
-	for(int i=0; i<8; ++i)
+	vec4 volumeData = vec4(1);
+	for(int i=0; i<8 && abs(volumeData.w) > 0.001f; ++i)	// additional condition makes it acutally faster (tested with 6 samples, scaling 15)
 	{
-		vec4 volumeData = textureLod(VolumeTexture, position / VolumeWorldSize, 0.0f) * 2.0f - 1.0f;
-		position -= volumeData.xyz * (volumeData.w * 20);
+		volumeData = textureLod(VolumeTexture, position * VolumePosToTexcoord, 0.0f) * 4.0f - 2.0f;
+		position -= volumeData.xyz * (volumeData.w * 8);
 	}
 
-	Out[gl_InvocationID].Normal = textureLod(VolumeTexture, position / VolumeWorldSize, 0.0f).xyz * 2.0f - 1.0f;
+	Out[gl_InvocationID].Normal = volumeData.xyz;	// possibly a bit outdated, but nothing bad.. btw. this is not normalized!
 	gl_out[gl_InvocationID].gl_Position = ViewProjection * vec4(position, 1.0f);
 //	Out[gl_InvocationID].VolumeData.x = gl_out[gl_InvocationID].gl_Position.z / gl_out[gl_InvocationID].gl_Position.w;
 }

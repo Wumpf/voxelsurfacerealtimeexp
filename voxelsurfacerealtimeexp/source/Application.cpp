@@ -28,6 +28,8 @@ Application::~Application()
 {
 }
 
+#include <memory>
+
 void Application::AfterEngineInit()
 {
   // start engine

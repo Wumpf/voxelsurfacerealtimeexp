@@ -11,7 +11,7 @@ const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 256;
 const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64;
 const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 256;
 
-VoxelTerrain::VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriangle) :
+VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle>& pScreenAlignedTriangle) :
   m_pScreenAlignedTriangle(pScreenAlignedTriangle)
 {
   // shader init
@@ -33,9 +33,13 @@ VoxelTerrain::VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriang
   // ubo init
   ezDynamicArray<const gl::ShaderObject*> volumeInfoUBOusingShader;
   volumeInfoUBOusingShader.PushBack(&m_DirectVolVisShader);
+  volumeInfoUBOusingShader.PushBack(&m_VolumeRenderShader);
   m_VolumeInfoUBO.Init(volumeInfoUBOusingShader, "VolumeDataInfo");
 
-  m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));  // add size scaling here if necessar
+  m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));
+  m_VolumeInfoUBO["VolumePosToTexcoord"].Set(ezVec3(1.0f / static_cast<float>(m_uiVolumeWidth-1), 1.0f /static_cast<float>(m_uiVolumeHeight-1), 1.0f /static_cast<float>(m_uiVolumeDepth-1))); // minus one is very important! otherwise the fetching won't match exactly! texture with 256 -> 255 maps to 1
+  
+
   m_VolumeInfoUBO.BindBuffer(3);
 
   // geometry info buffer
@@ -69,9 +73,9 @@ VoxelTerrain::VoxelTerrain(const gl::ScreenAlignedTriangle* pScreenAlignedTriang
   // sampler
   {
     glGenSamplers(1, &m_VolumeSamplerObject);
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);  
     glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
     glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     float borderColor[] = {0.5f, 0.5f, 0.5f, 0}; // normal 0, iso negative (=nothing)
@@ -128,7 +132,7 @@ void VoxelTerrain::CreateVolumeTexture()
 
 void VoxelTerrain::ComputeGeometryInfo()
 {
-  // need to clear the indirect draw buffer, otherwise we'll accumlate to much stuff...
+  // need to clear the indirect draw buffer, otherwise we'll accumulate to much stuff...
   gl::DrawArraysIndirectCommand indirectCommandEmpty;
   indirectCommandEmpty.count = 6;
   indirectCommandEmpty.primCount = 1;

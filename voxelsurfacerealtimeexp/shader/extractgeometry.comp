@@ -9,7 +9,7 @@ layout(binding = 0, rgba8) readonly restrict uniform image3D VolumeTexture;
 layout(binding = 0, offset = 0) uniform atomic_uint NumQuadsAtomicCounter; // output buffer size, this is part of a draw indirect buffer
 layout(binding = 0) writeonly buffer QuadBuffer
 {
-  uint Quads[];	// 8bit xyz position, 8bit w quad identifier
+	uint Quads[];	// 8bit xyz position, 8bit w quad identifier
 };
 
 
@@ -26,70 +26,70 @@ shared float textureCache[1000];
 layout (local_size_x = 10, local_size_y = 10, local_size_z = 10) in;
 void main()
 {
-  ivec3 volumeCoordinate = ivec3(gl_WorkGroupID.xyz * ivec3(8,8,8) + gl_LocalInvocationID.xyz) - ivec3(1);
-  uint textureCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
+	ivec3 volumeCoordinate = ivec3(gl_WorkGroupID.xyz * ivec3(8,8,8) + gl_LocalInvocationID.xyz) - ivec3(1,1,1);
+	uint textureCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
 
-  // fill shared memory
-  float ownValue = imageLoad(VolumeTexture, volumeCoordinate).w;
-  textureCache[textureCachePos] = ownValue;
+	// fill shared memory
+	float ownValue = imageLoad(VolumeTexture, volumeCoordinate).w;
+	textureCache[textureCachePos] = ownValue;
 
-  // early outs
-  // own iso to small
-  if(ownValue <= IsoValue)
-    return;
-  // border threads (useless now)
-  if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || any(equal(gl_LocalInvocationID.xyz, uvec3(9))))
-    return;
+	// early outs
+	// own iso to small
+	if(ownValue <= IsoValue)
+		return;
+	// border threads (useless now)
+	if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || any(equal(gl_LocalInvocationID.xyz, uvec3(9))))
+		return;
 
-   // sync
-   barrier();
-  //memoryBarrierImage();
-  //memoryBarrier();
-  //groupMemoryBarrier();
+	 // sync
+	barrier();
+	//memoryBarrierImage();
+	//memoryBarrier();
+	//groupMemoryBarrier();
 
-  // watch sourrundings
-  bool left     = textureCache[textureCachePos - 1] > IsoValue;
-  bool right    = textureCache[textureCachePos + 1] > IsoValue;
-  bool up       = textureCache[textureCachePos + 10] > IsoValue;
-  bool down     = textureCache[textureCachePos - 10] > IsoValue;
-  bool forward  = textureCache[textureCachePos + 100] > IsoValue;
-  bool backward = textureCache[textureCachePos - 100] > IsoValue;
+	// watch sourrundings
+	bool left     = textureCache[textureCachePos - 1] > IsoValue;
+	bool right    = textureCache[textureCachePos + 1] > IsoValue;
+	bool up       = textureCache[textureCachePos + 10] > IsoValue;
+	bool down     = textureCache[textureCachePos - 10] > IsoValue;
+	bool forward  = textureCache[textureCachePos + 100] > IsoValue;
+	bool backward = textureCache[textureCachePos - 100] > IsoValue;
 
-  // all of them? so this one is useless
-  if(left && right && up && down && forward && backward)
-	return;
+	// all of them? so this one is useless
+	if(left && right && up && down && forward && backward)
+		return;
 
-  uint quadData;
-  quadData = volumeCoordinate.x | (volumeCoordinate.y << 8) | (volumeCoordinate.z << 16);
-  uint quadIndex;
-  if(!up)
-  {
-    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	  Quads[quadIndex] = quadData;// | (uint(0) << 24);
-  }
-  if(!down)
-  {
-    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	  Quads[quadIndex] = quadData | (uint(1) << 24);
-  }
-  if(!left)
-  {
-    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	  Quads[quadIndex] = quadData | (uint(2) << 24);
-  }
-  if(!right)
-  {
-    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	  Quads[quadIndex] = quadData | (uint(3) << 24);
-  }
-  if(!forward)
-  {
-    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	  Quads[quadIndex] = quadData | (uint(4) << 24);
-  }
-  if(!backward)
-  {
-    quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
-	  Quads[quadIndex] = quadData | (uint(5) << 24);
-  }
+	uint quadData;
+	quadData = volumeCoordinate.x | (volumeCoordinate.y << 8) | (volumeCoordinate.z << 16);
+	uint quadIndex;
+	if(!up)
+	{
+		quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+		Quads[quadIndex] = quadData;// | (uint(0) << 24);
+	}
+	if(!down)
+	{
+		quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+		Quads[quadIndex] = quadData | (uint(1) << 24);
+	}
+	if(!left)
+	{
+		quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+		Quads[quadIndex] = quadData | (uint(2) << 24);
+	}
+	if(!right)
+	{
+		quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+		Quads[quadIndex] = quadData | (uint(3) << 24);
+	}
+	if(!forward)
+	{
+		quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+		Quads[quadIndex] = quadData | (uint(4) << 24);
+	}
+	if(!backward)
+	{
+		quadIndex = atomicCounterIncrement(NumQuadsAtomicCounter);
+		Quads[quadIndex] = quadData | (uint(5) << 24);
+	}
 }
