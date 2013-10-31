@@ -3,6 +3,7 @@
 struct VertexInOut
 {
 	vec3 Normal;
+	vec3 WorldPos;
 };
 
 layout(triangles, invocations = 1) in;
@@ -18,6 +19,7 @@ void main()
 	{
 		gl_Position = gl_in[i].gl_Position;
 		Out.Normal = In[i].Normal;
+		Out.WorldPos = In[i].WorldPos;
 		EmitVertex();
 	}
 	EndPrimitive();

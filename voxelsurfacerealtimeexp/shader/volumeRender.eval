@@ -9,11 +9,12 @@ in gl_PerVertex
 	vec4 gl_Position;
 } gl_in[];
 
-struct InVertex
+struct Vertex
 {
 	vec3 Normal;
+	vec3 WorldPos;
 };
-layout(location = 0) in InVertex In[];
+layout(location = 0) in Vertex In[];
 
 
 // output
@@ -21,11 +22,12 @@ out gl_PerVertex
 {
 	vec4 gl_Position;
 };
-struct OutVertex
+struct Vertex
 {
 	vec3 Normal;
+	vec3 WorldPos;
 };
-layout(location = 0) out OutVertex Out;
+layout(location = 0) out Vertex Out;
 
 vec4 interpolateQuad(in vec4 v0, in vec4 v1, in vec4 v2, in vec4 v3)
 {
@@ -46,4 +48,5 @@ void main()
 	gl_Position = interpolateQuad(gl_in[0].gl_Position, gl_in[1].gl_Position, gl_in[2].gl_Position, gl_in[3].gl_Position);
 
 	Out.Normal = interpolateQuad(In[0].Normal, In[1].Normal, In[2].Normal, In[3].Normal);
+	Out.WorldPos = interpolateQuad(In[0].WorldPos, In[1].WorldPos, In[2].WorldPos, In[3].WorldPos);
 }

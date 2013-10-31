@@ -2,9 +2,13 @@
 
 #include "constantbuffers.glsl"
 
+layout(binding = 1) uniform sampler2D TextureY;
+layout(binding = 2) uniform sampler2D TextureXZ;
+
 struct Vertex
 {
 	vec3 Normal;
+	vec3 WorldPos;
 };
 layout(location = 0) in Vertex In;
 
@@ -15,6 +19,26 @@ void main()
 	vec3 normal = normalize(In.Normal);
 
 	float lighting = clamp(dot(normal, GlobalDirLightDirection), 0, 1);
-	ps_out_fragColor.xyz = GlobalDirLightColor * lighting + GlobalAmbient;
+	
+	// good old backlighting hack!
+	vec3 backLightDir = GlobalDirLightDirection;
+	backLightDir.xz = -backLightDir.xz;
+	float ambientLightAmount = clamp(dot(normal, backLightDir), 0, 1) + 0.3f; // currently ambient is meant for adding - so we have to scale this a bit
+
+
+	// texturing
+	vec3 texcoord3D = In.WorldPos*0.15f;
+	vec3 textureWeights = abs(normal);
+	textureWeights /= textureWeights.x + textureWeights.y + textureWeights.z;
+	
+	vec3 textureY = texture(TextureY, texcoord3D.xz).xyz;
+	vec3 textureZ = texture(TextureXZ, texcoord3D.xy).xyz;
+	vec3 textureX = texture(TextureXZ, texcoord3D.yz).xyz;
+
+	vec3 diffuseColor = textureX * textureWeights.x + textureY * textureWeights.y + textureZ * textureWeights.z;
+	
+
+
+	ps_out_fragColor.xyz = diffuseColor * (GlobalDirLightColor * lighting + GlobalAmbient * ambientLightAmount);
 	ps_out_fragColor.a = 1.0f;
 }

@@ -57,7 +57,7 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   m_TimeUBO.Init(cameraUBOusingShader, "Time");
 */
 
-  m_GlobalSceneInfo["GlobalDirLightDirection"].Set(ezVec3(1,-1.2,1).GetNormalized());
+  m_GlobalSceneInfo["GlobalDirLightDirection"].Set(ezVec3(1,-1.2f,1).GetNormalized());
   m_GlobalSceneInfo["GlobalDirLightColor"].Set(ezVec3(0.98f, 0.98f, 0.8f));
   m_GlobalSceneInfo["GlobalAmbient"].Set(ezVec3(0.3f, 0.3f, 0.3f));
 

@@ -17,6 +17,7 @@ out gl_PerVertex
 struct Vertex
 {
 	vec3 Normal;
+	vec3 WorldPos;
 };
 layout(location = 0) out Vertex Out[];
 
@@ -76,7 +77,7 @@ void main()
 	}
 
 	Out[gl_InvocationID].Normal = volumeData.xyz;	// possibly a bit outdated, but nothing bad.. btw. this is not normalized!
+	Out[gl_InvocationID].WorldPos = position;
 	gl_out[gl_InvocationID].gl_Position = ViewProjection * vec4(position, 1.0f);
-//	Out[gl_InvocationID].VolumeData.x = gl_out[gl_InvocationID].gl_Position.z / gl_out[gl_InvocationID].gl_Position.w;
 }
 

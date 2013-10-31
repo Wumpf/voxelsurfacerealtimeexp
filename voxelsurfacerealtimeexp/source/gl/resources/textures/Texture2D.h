@@ -11,7 +11,7 @@ namespace gl
     Texture2D(ezUInt32 uiWidth, ezUInt32 uiHeight, GLuint format = GL_RGBA8, ezInt32 iNumMipLevels = 1);
     
     /// loads texture from file using stb_image
-    static ezUniquePtr<Texture2D> LoadFromFile(const ezString& sFilename, bool generateMipMaps);
+    static ezUniquePtr<Texture2D> LoadFromFile(const ezString& sFilename, bool generateMipMaps = true);
 
     void SetData(ezUInt32 uiMipLevel, const ezColor* pData) EZ_OVERRIDE;
     void SetData(ezUInt32 uiMipLevel, const ezColor8* pData) EZ_OVERRIDE;

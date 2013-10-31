@@ -147,9 +147,14 @@ void Application::SetupFileSystem()
   ezFileSystem::AddDataDirectory(applicationDir.GetData(), ezFileSystem::AllowWrites, "general", "");
   
   ezStringBuilder shaderDir(applicationDir);
-  shaderDir.AppendPath("..", "..", "voxelsurfacerealtimeexp", "shader"); // dev only!
+  shaderDir.AppendPath("..", "..", "voxelsurfacerealtimeexp", "shader"); // dev only! otherwise the realtime shader editing doesn't work as expected in rel+debug
   ezFileSystem::AddDataDirectory(shaderDir.GetData(), ezFileSystem::ReadOnly, "graphics", "");
   m_pShaderChangesWatcher = EZ_DEFAULT_NEW(FolderChangeWatcher)(shaderDir.GetData());
+
+  ezStringBuilder textureDir(applicationDir);
+  textureDir.AppendPath("textures");
+  ezFileSystem::AddDataDirectory(textureDir.GetData(), ezFileSystem::ReadOnly, "graphics", "");
+  // optionally a texture change watcher could be established here ;)
 }
 
 EZ_APPLICATION_ENTRY_POINT(Application);

@@ -80,6 +80,13 @@ public:
     this->m_pData = pOther.m_pData;
     pOther.m_pData = pTemp;
   }
+  /// \brief Swaps contents with another ezUniquePtr, rvalue ref
+  EZ_FORCE_INLINE void Swap(ezUniquePtr<T, AllocatorWrapper>&& pOther)
+  {
+    EZ_DEFAULT_DELETE(this->m_pData);
+    this->m_pData = pOther.m_pData;
+    pOther.m_pData = NULL;
+  }
 
   /// \brief Assignment with temporary unique ptr
   EZ_FORCE_INLINE void operator = (ezUniquePtr<T, AllocatorWrapper>&& tempPtr)

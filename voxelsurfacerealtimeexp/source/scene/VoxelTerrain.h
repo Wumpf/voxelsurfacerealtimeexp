@@ -6,6 +6,7 @@
 namespace gl
 {
   class ScreenAlignedTriangle;
+  class Texture2D;
 };
 
 class VoxelTerrain
@@ -41,11 +42,15 @@ private:
   GLuint m_GeometryInfoVA;
 
   GLuint m_VolumeSamplerObject;
+  GLuint m_TexturingSamplerObject;
 
   static const ezUInt32 m_uiVolumeWidth;
   static const ezUInt32 m_uiVolumeHeight;
   static const ezUInt32 m_uiVolumeDepth;
   gl::Texture* m_pVolumeTexture;
+
+  ezUniquePtr<gl::Texture2D> m_pTextureY;
+  ezUniquePtr<gl::Texture2D> m_pTextureXZ;
 
   static const ezUInt32 m_GeometryBufferElementCount = 1048576; // 4mb buffer, hopefully sufficient
 };

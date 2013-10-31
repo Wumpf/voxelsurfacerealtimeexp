@@ -117,7 +117,8 @@
       <AdditionalDependencies>ezSystem.lib;ezFoundation.lib;ezCore.lib;ezInputWindows.lib;ezInputXBox360.lib;ezThirdParty.lib;OpenGL32.lib;glew32s.lib;AntTweakBar/AntTweakBar64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Debug64 $(TargetDir) /D /Y</Command>
+      <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Debug64\ $(TargetDir) /D /Y
+xcopy $(ProjectDir)textures $(TargetDir)textures\ /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,7 +160,8 @@
       <AdditionalDependencies>ezSystem.lib;ezFoundation.lib;ezCore.lib;ezInputWindows.lib;ezInputXBox360.lib;ezThirdParty.lib;OpenGL32.lib;glew32s.lib;AntTweakBar/AntTweakBar64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Release64 $(TargetDir) /D /Y</Command>
+      <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Release64 $(TargetDir) /D /Y
+xcopy $(ProjectDir)textures $(TargetDir)textures\ /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -237,6 +239,11 @@
     <ClCompile Include="source\scene\Background.cpp" />
     <ClCompile Include="source\scene\Scene.cpp" />
     <ClCompile Include="source\scene\VoxelTerrain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\grass.bmp">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </Image>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

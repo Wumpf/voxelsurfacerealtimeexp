@@ -120,6 +120,9 @@
     <Filter Include="stb_image">
       <UniqueIdentifier>{9bb394f6-95a5-46c0-bc00-45bf13957863}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{6dcd8b52-e4b6-4a4f-bf41-8a6a79c88a34}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\screenTri.vert">
@@ -238,5 +241,10 @@
     <ClCompile Include="..\dependencies\include\stb_image\stb_image.c">
       <Filter>stb_image</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\grass.bmp">
+      <Filter>textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

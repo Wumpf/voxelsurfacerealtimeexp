@@ -5,6 +5,7 @@
 
 #include "gl/ScreenAlignedTriangle.h"
 #include "gl/resources/textures/Texture3D.h"
+#include "gl/resources/textures/Texture2D.h"
 #include "gl/GLUtils.h"
 
 const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 128;//256;
@@ -81,7 +82,19 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
     float borderColor[] = {0.5f, 0.5f, 0.5f, 0}; // normal 0, iso negative (=nothing)
     glSamplerParameterfv(m_VolumeSamplerObject, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
+  // sampler
+  {
+    glGenSamplers(1, &m_TexturingSamplerObject);
+    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    //glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  
+    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // todo anistrophic filtering, setable over anttweakbar? :)
+  }
 
+  // load textures
+  m_pTextureY.Swap(gl::Texture2D::LoadFromFile("grass.bmp"));
+  m_pTextureXZ.Swap(gl::Texture2D::LoadFromFile("rock.bmp"));
 
   CreateVolumeTexture();
 }
@@ -95,6 +108,7 @@ VoxelTerrain::~VoxelTerrain(void)
   glDeleteBuffers(1, &m_GeometryInfoBuffer);
   glDeleteBuffers(1, &m_VolumeIndirectDrawBuffer);
   glDeleteSamplers(1, &m_VolumeSamplerObject);
+  glDeleteSamplers(1, &m_TexturingSamplerObject);
 }
 
 void VoxelTerrain::CreateVolumeTexture()
@@ -164,8 +178,20 @@ void VoxelTerrain::ComputeGeometryInfo()
 void VoxelTerrain::Draw()
 {
   m_VolumeRenderShader.Activate();
+
   glBindSampler(0, m_VolumeSamplerObject);
   m_pVolumeTexture->Bind(0);
+  if(m_pTextureY)
+  {
+    glBindSampler(1, m_TexturingSamplerObject);
+    m_pTextureY->Bind(1);
+  }
+  if(m_pTextureXZ)
+  {
+    glBindSampler(2, m_TexturingSamplerObject);
+    m_pTextureXZ->Bind(2);
+  }
+
   glBindVertexArray(m_GeometryInfoVA);
   glPatchParameteri(GL_PATCH_VERTICES, 1);
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_VolumeIndirectDrawBuffer);
