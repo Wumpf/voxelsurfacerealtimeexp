@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "UniformBuffer.h"
-#include "GLUtils.h"
-#include "ShaderObject.h"
+#include "../GLUtils.h"
+#include "../ShaderObject.h"
 
 namespace gl
 {

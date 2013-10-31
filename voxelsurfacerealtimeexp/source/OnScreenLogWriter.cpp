@@ -65,20 +65,20 @@ void OnScreenLogWriter::LogMessageHandler(const ezLoggingEventData& eventData)
     switch(eventData.m_EventType)
     {
     case ezLogMsgType::InfoMsg:
-      newEntry.color = ezColor::Grey;
+      newEntry.color = ezColor(0.4f, 0.4f, 0.4f);
       break;
     case ezLogMsgType::SeriousWarningMsg:
     case ezLogMsgType::WarningMsg:
       newEntry.color = ezColor(1.0f, 0.7f, 0.1f);
       break;
     case ezLogMsgType::ErrorMsg:
-      newEntry.color = ezColor::Red;
+      newEntry.color = ezColor::GetRed();
       break;
     case ezLogMsgType::SuccessMsg:
-      newEntry.color = ezColor::Green;
+      newEntry.color = ezColor::GetGreen();
       break;
     default:
-      newEntry.color = ezColor::White;
+      newEntry.color = ezColor::GetWhite();
       break;
     }
     if(!m_MessageBuffer.CanAppend())
@@ -112,7 +112,7 @@ ezResult OnScreenLogWriter::Render()
   {
     ezColor color = m_MessageBuffer[i].color;
     if(i == 0)
-      color.A() = m_fOldestItemFade;
+      color.a = m_fOldestItemFade;
 
     m_pFont->DrawString(m_MessageBuffer[i].text, vCurScreenPos.CompDiv(GeneralConfig::GetScreenResolutionF()), color);
     vCurScreenPos.y += 12.0f;

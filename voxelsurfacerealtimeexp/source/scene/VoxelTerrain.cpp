@@ -4,12 +4,12 @@
 #include "math/NoiseGenerator.h"
 
 #include "gl/ScreenAlignedTriangle.h"
-#include "gl/Texture3D.h"
+#include "gl/resources/textures/Texture3D.h"
 #include "gl/GLUtils.h"
 
-const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 256;
+const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 128;//256;
 const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64;
-const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 256;
+const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 128;//256;
 
 VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle>& pScreenAlignedTriangle) :
   m_pScreenAlignedTriangle(pScreenAlignedTriangle)
@@ -73,9 +73,9 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   // sampler
   {
     glGenSamplers(1, &m_VolumeSamplerObject);
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);//_TO_EDGE);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);//_TO_EDGE);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);//_TO_EDGE);  
     glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
     glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     float borderColor[] = {0.5f, 0.5f, 0.5f, 0}; // normal 0, iso negative (=nothing)
@@ -99,15 +99,15 @@ VoxelTerrain::~VoxelTerrain(void)
 
 void VoxelTerrain::CreateVolumeTexture()
 {
-  m_pVolumeTexture = EZ_DEFAULT_NEW(gl::Texture3D)(m_uiVolumeWidth, m_uiVolumeHeight, m_uiVolumeDepth, GL_RGBA8, 1);
+  m_pVolumeTexture = EZ_DEFAULT_NEW(gl::Texture3D)(m_uiVolumeWidth, m_uiVolumeHeight, m_uiVolumeDepth, GL_RGBA8, 1); // tried to use GL_RGBA32F without changing anything else: saw nothing then
   ezColor* volumeData = EZ_DEFAULT_NEW_RAW_BUFFER(ezColor, m_uiVolumeWidth * m_uiVolumeHeight * m_uiVolumeDepth);
 
   NoiseGenerator noiseGen;
   ezUInt32 slicePitch = m_uiVolumeWidth * m_uiVolumeHeight;
   float mulitplier = 1.0f / static_cast<float>(std::max(std::max(m_uiVolumeWidth, m_uiVolumeHeight), m_uiVolumeDepth));
 
-#pragma omp parallel for // OpenMP parallel for loop
-  for(ezInt32 z=0; z<m_uiVolumeDepth; ++z) // needs to be signed for openmp
+#pragma omp parallel for // OpenMP parallel for loop.
+  for(ezInt32 z=0; z<m_uiVolumeDepth; ++z) // Needs to be signed for OpenMP.
   {
     for(ezUInt32 y=0; y<m_uiVolumeHeight; ++y)
     {
@@ -115,12 +115,11 @@ void VoxelTerrain::CreateVolumeTexture()
       {
         ezVec3 gradient;
         ezColor& current = volumeData[x + y * m_uiVolumeWidth + z * slicePitch];
-        current.w = noiseGen.GetValueNoise(ezVec3(mulitplier*x, mulitplier*y, mulitplier*z), 0, 5, 0.8f, false, &gradient) * 0.5f + 0.5f;
+        current.a = noiseGen.GetValueNoise(ezVec3(mulitplier*x, mulitplier*y, mulitplier*z), 0, 5, 0.8f, false, &gradient);
         gradient.Normalize();
-        gradient = gradient * 0.5f;
-        current.x = gradient.x + 0.5f;
-        current.y = gradient.y + 0.5f;
-        current.z = gradient.z + 0.5f;
+        current.SetRGB(gradient);
+        current *= 0.5f;
+        current += ezColor32f(0.5f,0.5f,0.5f,0.5f);
       }
     }
   }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gl\ShaderObject.h"
-#include "gl\UniformBuffer.h"
+#include "gl/ShaderObject.h"
+#include "gl/resources/UniformBuffer.h"
 
 namespace gl
 {

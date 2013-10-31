@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ShaderDataMetaInfo.h"
+#include "../ShaderDataMetaInfo.h"
 
 namespace gl
 {

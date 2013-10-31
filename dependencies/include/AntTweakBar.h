@@ -134,7 +134,7 @@ typedef enum ETwType
     TW_TYPE_DIR3F,      // direction vector represented by 3 floats
     TW_TYPE_DIR3D       // direction vector represented by 3 doubles
 } TwType;
-#define TW_TYPE_CSSTRING(n) ((TwType)(0x30000000+((n)&0xfffffff))) // Null-terminated C Static String of size n (defined as char[n], with n<2^28)
+#define TW_TYPE_CSSTRING( n) ((TwType)(0x30000000+((n)&0xfffffff))) // Null-terminated C Static String of size n (defined as char[n], with n<2^28)
 
 typedef void (TW_CALL * TwSetVarCallback)(const void *value, void *clientData);
 typedef void (TW_CALL * TwGetVarCallback)(void *value, void *clientData);

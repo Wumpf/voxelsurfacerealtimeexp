@@ -45,7 +45,7 @@ void RenderWindowGL::OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM 
 {
   ezInputDeviceWindows::GetDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
   
-  GlobalEvents::Win32Message message;
+  GlobalEvents::Win32Message message; 
   message.msg = Msg;
   message.wnd = hWnd;
   message.lParam = LParam;

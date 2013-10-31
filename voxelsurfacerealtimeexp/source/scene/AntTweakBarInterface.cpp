@@ -54,8 +54,12 @@ ezResult AntTweakBarInterface::Init()
   TwDefine(" TweakBar size='250 100' ");
   TwDefine(" TweakBar position='10 150' ");
 
+  //float fps = 59.999999123f;
+  //TwAddVarRO(m_pTweakBar, "Fps:", TW_TYPE_FLOAT, &fps, NULL);
+  TwAddSeparator(m_pTweakBar, "Volume Rendering", NULL);
   TwAddVarCB(m_pTweakBar, "Wireframe", TW_TYPE_BOOLCPP, &TWCallbacks::SetWireframe, &TWCallbacks::GetWireframe, NULL, NULL);
   TwAddVarCB(m_pTweakBar, "Legacy Direct VolVis", TW_TYPE_BOOLCPP, &TWCallbacks::SetLegacyVolVis, &TWCallbacks::GetLegacyVolVis, NULL, NULL);
+  
 
   // register eventhandler
   GlobalEvents::g_pWindowMessage->AddEventHandler(ezEvent<const GlobalEvents::Win32Message&>::Handler(&AntTweakBarInterface::WindowMessageEventHandler, this));

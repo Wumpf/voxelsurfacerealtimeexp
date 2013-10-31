@@ -1,9 +1,9 @@
 ﻿#include "PCH.h"
 #include "ShaderObject.h"
 #include "GLUtils.h"
-#include "UniformBuffer.h"
-#include "Texture.h"
-#include "Texture3D.h"
+#include "resources/UniformBuffer.h"
+#include "resources/textures/Texture.h"
+#include "resources/textures/Texture3D.h"
 
 #include <GL/glew.h>
 

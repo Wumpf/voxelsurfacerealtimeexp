@@ -76,12 +76,12 @@ void Application::BeforeEngineShutdown()
 {
   ezStartup::ShutdownEngine();
 
+  EZ_DEFAULT_DELETE(m_pWindow);
+
   EZ_DEFAULT_DELETE(m_pScene);
 
   ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&OnScreenLogWriter::LogMessageHandler, m_pOnScreenLogWriter));
   EZ_DEFAULT_DELETE(m_pOnScreenLogWriter);
-
-  EZ_DEFAULT_DELETE(m_pWindow);
   
   EZ_DEFAULT_DELETE(m_pShaderChangesWatcher);
   EZ_DEFAULT_DELETE(GlobalEvents::g_pShaderFileChanged);

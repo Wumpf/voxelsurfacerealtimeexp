@@ -1,5 +1,6 @@
 #include "PCH.h"
 #include "Texture.h"
+#include "../../GLUtils.h"
 
 namespace gl
 {
@@ -53,4 +54,9 @@ namespace gl
       return iMipMapSetting;
   }
 
+  void Texture::BindImage(GLuint slotIndex, Texture::ImageAccess access, GLenum format)
+  {
+    glBindImageTexture(slotIndex, m_TextureHandle, 0, GL_TRUE, 0, static_cast<GLenum>(access), format);
+    gl::Utils::CheckError("glBindImageTexture");
+  }
 }

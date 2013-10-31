@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "ShaderDataMetaInfo.h"
-#include "Texture.h"
+#include "resources/textures/Texture.h"
 #include <Foundation/Containers/Set.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 

@@ -4,7 +4,7 @@
 
 #include <Foundation/Basics.h>
 #include "UniquePtr.h"
-#include "math/Color.h"
+
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Time.h>
@@ -15,6 +15,8 @@
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Color32f.h>
+#include <Foundation/Math/Color8.h>
 #include <Foundation/Math/Size.h>
 
 

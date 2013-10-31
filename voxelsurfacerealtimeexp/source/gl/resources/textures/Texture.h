@@ -9,7 +9,7 @@ namespace gl
     ~Texture();
 
     virtual void SetData(ezUInt32 uiMipLevel, const ezColor* pData)=0;
-    /// todo more overloads of SetData
+    virtual void SetData(ezUInt32 uiMipLevel, const ezColor8* pData)=0;
 
     virtual void Bind(GLuint slotIndex)=0;
 
@@ -19,9 +19,9 @@ namespace gl
       READ = GL_READ_ONLY,
       READ_WRITE = GL_READ_WRITE
     };
-
+      
     void BindImage(GLuint slotIndex, ImageAccess access) { BindImage(0, access, m_Format); }
-    virtual void BindImage(GLuint slotIndex, ImageAccess access, GLenum format)=0;
+    void BindImage(GLuint slotIndex, ImageAccess access, GLenum format);
 
     GLuint GetInternHandle() { return m_TextureHandle; }
 

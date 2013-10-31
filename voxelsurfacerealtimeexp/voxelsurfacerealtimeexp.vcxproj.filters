@@ -10,16 +10,7 @@
     <ClInclude Include="source\gl\GLUtils.h">
       <Filter>source\gl</Filter>
     </ClInclude>
-    <ClInclude Include="source\gl\UniformBuffer.h">
-      <Filter>source\gl</Filter>
-    </ClInclude>
     <ClInclude Include="source\gl\ShaderDataMetaInfo.h">
-      <Filter>source\gl</Filter>
-    </ClInclude>
-    <ClInclude Include="source\gl\Texture3D.h">
-      <Filter>source\gl</Filter>
-    </ClInclude>
-    <ClInclude Include="source\gl\Texture.h">
       <Filter>source\gl</Filter>
     </ClInclude>
     <ClInclude Include="source\math\NoiseGenerator.h">
@@ -33,9 +24,6 @@
     </ClInclude>
     <ClInclude Include="source\math\camera\Camera.h">
       <Filter>source\math\camera</Filter>
-    </ClInclude>
-    <ClInclude Include="source\math\Color.h">
-      <Filter>source\math</Filter>
     </ClInclude>
     <ClInclude Include="source\gl\TimerQuery.h">
       <Filter>source\gl</Filter>
@@ -82,6 +70,21 @@
     <ClInclude Include="source\scene\AntTweakBarInterface.h">
       <Filter>source\scene</Filter>
     </ClInclude>
+    <ClInclude Include="source\gl\resources\UniformBuffer.h">
+      <Filter>source\gl\resources</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gl\resources\textures\Texture3D.h">
+      <Filter>source\gl\resources\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gl\resources\textures\Texture.h">
+      <Filter>source\gl\resources\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gl\resources\textures\Texture2D.h">
+      <Filter>source\gl\resources\textures</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\include\stb_image\stb_image.h">
+      <Filter>stb_image</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source">
@@ -108,6 +111,15 @@
     <Filter Include="source\config">
       <UniqueIdentifier>{888a6c69-8e76-4a85-b23d-90a4c19e2cfc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source\gl\resources">
+      <UniqueIdentifier>{78b2e374-1ddc-4a60-8334-e42cae42e921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\gl\resources\textures">
+      <UniqueIdentifier>{ec691e07-4280-42f5-aecb-e87769b55569}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="stb_image">
+      <UniqueIdentifier>{9bb394f6-95a5-46c0-bc00-45bf13957863}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\screenTri.vert">
@@ -115,9 +127,6 @@
     </None>
     <None Include="shader\background.frag">
       <Filter>shader</Filter>
-    </None>
-    <None Include="source\gl\UniformBuffer.inl">
-      <Filter>source\gl</Filter>
     </None>
     <None Include="source\gl\ShaderDataMetaInfo.inl">
       <Filter>source\gl</Filter>
@@ -149,6 +158,9 @@
     <None Include="shader\volumeRender.geom">
       <Filter>shader</Filter>
     </None>
+    <None Include="source\gl\resources\UniformBuffer.inl">
+      <Filter>source\gl\resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\gl\ScreenAlignedTriangle.cpp">
@@ -158,15 +170,6 @@
       <Filter>source\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\GLUtils.cpp">
-      <Filter>source\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="source\gl\UniformBuffer.cpp">
-      <Filter>source\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="source\gl\Texture3D.cpp">
-      <Filter>source\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="source\gl\Texture.cpp">
       <Filter>source\gl</Filter>
     </ClCompile>
     <ClCompile Include="source\math\NoiseGenerator.cpp">
@@ -180,9 +183,6 @@
     </ClCompile>
     <ClCompile Include="source\math\camera\Camera.cpp">
       <Filter>source\math\camera</Filter>
-    </ClCompile>
-    <ClCompile Include="source\math\Color.cpp">
-      <Filter>source\math</Filter>
     </ClCompile>
     <ClCompile Include="source\gl\TimerQuery.cpp">
       <Filter>source\gl</Filter>
@@ -222,6 +222,21 @@
     </ClCompile>
     <ClCompile Include="source\scene\AntTweakBarInterface.cpp">
       <Filter>source\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\resources\UniformBuffer.cpp">
+      <Filter>source\gl\resources</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\resources\textures\Texture.cpp">
+      <Filter>source\gl\resources\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\resources\textures\Texture3D.cpp">
+      <Filter>source\gl\resources\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gl\resources\textures\Texture2D.cpp">
+      <Filter>source\gl\resources\textures</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\include\stb_image\stb_image.c">
+      <Filter>stb_image</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
