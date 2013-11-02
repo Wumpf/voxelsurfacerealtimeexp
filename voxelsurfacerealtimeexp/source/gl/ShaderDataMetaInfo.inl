@@ -82,3 +82,15 @@ inline void ShaderVariable<VariableType>::Set(const ezVec2U32& v)
   EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::UNSIGNED_INT_VEC2, "Variable type does not match!");
   Set(&v, sizeof(v));
 }
+template<typename VariableType>
+inline void ShaderVariable<VariableType>::Set(ezInt32 i)         
+{
+  EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::INT, "Variable type does not match!");
+  Set(&i, sizeof(i));
+}
+template<typename VariableType>
+inline void ShaderVariable<VariableType>::Set(const ezVec2I32& v) 
+{
+  EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::INT_VEC2, "Variable type does not match!");
+  Set(&v, sizeof(v));
+}

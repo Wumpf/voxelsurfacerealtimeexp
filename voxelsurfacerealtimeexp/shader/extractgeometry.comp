@@ -26,11 +26,16 @@ shared float textureCache[1000];
 layout (local_size_x = 10, local_size_y = 10, local_size_z = 10) in;
 void main()
 {
-	ivec3 volumeCoordinate = ivec3(gl_WorkGroupID.xyz * ivec3(8,8,8) + gl_LocalInvocationID.xyz) - ivec3(1,1,1);
+	ivec3 volumeCoordinate = ivec3(gl_WorkGroupID.xyz) * ivec3(8,8,8) + ivec3(gl_LocalInvocationID.xyz) - ivec3(1,1,1);
 	uint textureCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
 
 	// fill shared memory
 	float ownValue = imageLoad(VolumeTexture, volumeCoordinate).w;
+/*	if(any(lessThan(volumeCoordinate, vec3(0))))
+		ownValue = 0.0f;
+	if(any(greaterThan(volumeCoordinate, vec3(127, 63, 127))))
+		ownValue = 0.0f;
+*/
 	textureCache[textureCachePos] = ownValue;
 
 	// early outs
@@ -38,7 +43,8 @@ void main()
 	if(ownValue <= IsoValue)
 		return;
 	// border threads (useless now)
-	if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || any(equal(gl_LocalInvocationID.xyz, uvec3(9))))
+	if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || 
+	   any(equal(gl_LocalInvocationID.xyz, uvec3(9))) )
 		return;
 
 	 // sync

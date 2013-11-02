@@ -23,6 +23,9 @@ layout(binding = 3, shared) uniform VolumeDataInfo
 {
   vec3 VolumeWorldSize;
   vec3 VolumePosToTexcoord;
+
+  float GradientDescendStepMultiplier;
+  int GradientDescendStepCount;
 };
 
 const float IsoValue = 0.5;

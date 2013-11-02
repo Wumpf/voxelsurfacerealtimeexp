@@ -39,7 +39,7 @@ static void GetCVarValue(ezTypedCVar<Type, CVarType>& cvar, void *value)
   *reinterpret_cast<Type*>(value) = cvar;
 }
 
-#define ADD_CVAR_TO_TWEAKBAR_RW(cvar, szDefine) \
+#define ADD_CVAR_TO_TWEAKBAR_RW(cvar) \
   do { \
     TwSetVarCallback setFkt = [](const void *value, void *clientData) { \
       SetCVarValue(cvar, value); \
@@ -47,17 +47,17 @@ static void GetCVarValue(ezTypedCVar<Type, CVarType>& cvar, void *value)
     TwGetVarCallback getFkt = [](void *value, void *clientData) { \
       GetCVarValue(cvar, value); \
     }; \
-    TwAddVarCB(m_pTweakBar, cvar.GetName(), TwTypeFromCVarType(cvar.GetType()), setFkt, getFkt, NULL, szDefine); \
+    TwAddVarCB(m_pTweakBar, cvar.GetName(), TwTypeFromCVarType(cvar.GetType()), setFkt, getFkt, NULL, cvar.GetDescription()); \
     const char* errorDesc = TwGetLastError(); \
     if(errorDesc != NULL) ezLog::SeriousWarning(errorDesc); \
   } while(false)
 
-#define ADD_CVAR_TO_TWEAKBAR_RO(cvar, szDefine) \
+#define ADD_CVAR_TO_TWEAKBAR_RO(cvar) \
   do { \
     TwGetVarCallback getFkt = [](void *value, void *clientData) { \
       GetCVarValue(cvar, value); \
     }; \
-    TwAddVarCB(m_pTweakBar, cvar.GetName(), TwTypeFromCVarType(cvar.GetType()), NULL, getFkt, NULL, szDefine); \
+    TwAddVarCB(m_pTweakBar, cvar.GetName(), TwTypeFromCVarType(cvar.GetType()), NULL, getFkt, NULL, cvar.GetDescription()); \
     const char* errorDesc = TwGetLastError(); \
     if(errorDesc != NULL) ezLog::SeriousWarning(errorDesc); \
   } while(false)
@@ -92,19 +92,23 @@ ezResult AntTweakBarInterface::Init()
 
   // Create a tweak bar
   m_pTweakBar = TwNewBar("TweakBar");
-  TwDefine(" TweakBar size='250 150' ");
+  TwDefine(" TweakBar size='350 200' ");
   TwDefine(" TweakBar position='10 150' ");
-  TwDefine(" TweakBar refresh=0.25 ");
+  TwDefine(" TweakBar refresh=0.2 ");
 
   // general info
   TwAddVarRO(m_pTweakBar, "FPS:", TW_TYPE_CSSTRING(m_maxStringLength), m_szFpsInfo, NULL);
   TwAddSeparator(m_pTweakBar, "Volume Rendering", NULL);
 
   // volume
-  ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumePrepareTime, NULL);
-  ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumeDrawTime, NULL);
-  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_Wireframe, NULL);
-  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_UseReferenceVis, NULL);
+  ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumePrepareTime);
+  ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumeDrawTime);
+
+  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_Wireframe);
+  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_UseReferenceVis);
+  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_UseAnisotropicFilter);
+  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_GradientDescendStepMultiplier);
+  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_GradientDescendStepCount);
   
 
   // register eventhandler

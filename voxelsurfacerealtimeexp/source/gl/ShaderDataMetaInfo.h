@@ -17,7 +17,7 @@ namespace gl
     DOUBLE_VEC4 = GL_DOUBLE_VEC4,
     
     INT = GL_INT,
-    INT_VEC​2 = GL_INT_VEC2,
+    INT_VEC2 = GL_INT_VEC2,
     INT_VEC3 = GL_INT_VEC3,
     INT_VEC4 = GL_INT_VEC4,
    
@@ -198,8 +198,10 @@ namespace gl
     void Set(const ezMat3d& m);
     void Set(const ezMat4d& m);
 
-    void Set(ezUInt32 f);
+    void Set(ezUInt32 ui);
     void Set(const ezVec2U32& v);
+    void Set(ezInt32 i);
+    void Set(const ezVec2I32& v);
 
     virtual void Set(const void* pData, ezUInt32 uiSizeInBytes) = 0;
 

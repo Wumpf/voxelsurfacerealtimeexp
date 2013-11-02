@@ -42,7 +42,8 @@ private:
   GLuint m_GeometryInfoVA;
 
   GLuint m_VolumeSamplerObject;
-  GLuint m_TexturingSamplerObject;
+  GLuint m_TexturingSamplerObjectAnisotropic;
+  GLuint m_TexturingSamplerObjectTrilinear;
 
   static const ezUInt32 m_uiVolumeWidth;
   static const ezUInt32 m_uiVolumeHeight;

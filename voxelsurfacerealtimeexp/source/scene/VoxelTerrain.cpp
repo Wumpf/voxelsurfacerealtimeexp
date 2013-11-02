@@ -8,9 +8,18 @@
 #include "gl/resources/textures/Texture2D.h"
 #include "gl/GLUtils.h"
 
+#include "..\config\GlobalCVar.h"
+
 const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 128;//256;
 const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64;
 const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 128;//256;
+
+namespace SceneConfig
+{
+  ezCVarFloat g_GradientDescendStepMultiplier("Gradient Descend Step Multiplier", 8.0f, ezCVarFlags::Save, "min=0.1 max=30.0 step=0.1");
+  ezCVarInt g_GradientDescendStepCount("Gradient Descend Step Count", 12, ezCVarFlags::Save, "min=1 max=50");
+  ezCVarBool g_UseAnisotropicFilter("Anisotropic Filter on/off", true, ezCVarFlags::Save, "");
+}
 
 VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle>& pScreenAlignedTriangle) :
   m_pScreenAlignedTriangle(pScreenAlignedTriangle)
@@ -39,9 +48,6 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
 
   m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));
   m_VolumeInfoUBO["VolumePosToTexcoord"].Set(ezVec3(1.0f / static_cast<float>(m_uiVolumeWidth-1), 1.0f /static_cast<float>(m_uiVolumeHeight-1), 1.0f /static_cast<float>(m_uiVolumeDepth-1))); // minus one is very important! otherwise the fetching won't match exactly! texture with 256 -> 255 maps to 1
-  
-
-  m_VolumeInfoUBO.BindBuffer(3);
 
   // geometry info buffer
   {
@@ -74,24 +80,27 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   // sampler
   {
     glGenSamplers(1, &m_VolumeSamplerObject);
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);//_TO_EDGE);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);//_TO_EDGE);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);//_TO_EDGE);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);  
     glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
     glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    float borderColor[] = {0.5f, 0.5f, 0.5f, 0}; // normal 0, iso negative (=nothing)
-    glSamplerParameterfv(m_VolumeSamplerObject, GL_TEXTURE_BORDER_COLOR, borderColor);
   }
   // sampler
   {
-    glGenSamplers(1, &m_TexturingSamplerObject);
-    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_R, GL_REPEAT);
-    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  
-    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+    glGenSamplers(1, &m_TexturingSamplerObjectAnisotropic);
+    glSamplerParameteri(m_TexturingSamplerObjectAnisotropic, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glSamplerParameteri(m_TexturingSamplerObjectAnisotropic, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(m_TexturingSamplerObjectAnisotropic, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  
+    glSamplerParameteri(m_TexturingSamplerObjectAnisotropic, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+    glSamplerParameteri(m_TexturingSamplerObjectAnisotropic, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
 
-    // todo anistrophic filtering, on/off
-    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
+    glGenSamplers(1, &m_TexturingSamplerObjectTrilinear);
+    glSamplerParameteri(m_TexturingSamplerObjectTrilinear, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glSamplerParameteri(m_TexturingSamplerObjectTrilinear, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glSamplerParameteri(m_TexturingSamplerObjectTrilinear, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  
+    glSamplerParameteri(m_TexturingSamplerObjectTrilinear, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+    glSamplerParameteri(m_TexturingSamplerObjectTrilinear, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
   }
 
   // load textures
@@ -101,7 +110,6 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   CreateVolumeTexture();
 }
 
-
 VoxelTerrain::~VoxelTerrain(void)
 {
   EZ_DEFAULT_DELETE(m_pVolumeTexture);
@@ -110,7 +118,8 @@ VoxelTerrain::~VoxelTerrain(void)
   glDeleteBuffers(1, &m_GeometryInfoBuffer);
   glDeleteBuffers(1, &m_VolumeIndirectDrawBuffer);
   glDeleteSamplers(1, &m_VolumeSamplerObject);
-  glDeleteSamplers(1, &m_TexturingSamplerObject);
+  glDeleteSamplers(1, &m_TexturingSamplerObjectAnisotropic);
+  glDeleteSamplers(1, &m_TexturingSamplerObjectTrilinear);
 }
 
 void VoxelTerrain::CreateVolumeTexture()
@@ -120,7 +129,7 @@ void VoxelTerrain::CreateVolumeTexture()
 
   NoiseGenerator noiseGen;
   ezUInt32 slicePitch = m_uiVolumeWidth * m_uiVolumeHeight;
-  float mulitplier = 0.5f / static_cast<float>(std::max(std::max(m_uiVolumeWidth, m_uiVolumeHeight), m_uiVolumeDepth));
+  float mulitplier = 0.5f / static_cast<float>(ezMath::Max(m_uiVolumeWidth, m_uiVolumeHeight, m_uiVolumeDepth) - 1);
 
 #pragma omp parallel for // OpenMP parallel for loop.
   for(ezInt32 z=0; z<m_uiVolumeDepth; ++z) // Needs to be signed for OpenMP.
@@ -147,6 +156,8 @@ void VoxelTerrain::CreateVolumeTexture()
 
 void VoxelTerrain::ComputeGeometryInfo()
 {
+  m_VolumeInfoUBO.BindBuffer(3);
+
   // need to clear the indirect draw buffer, otherwise we'll accumulate to much stuff...
   gl::DrawArraysIndirectCommand indirectCommandEmpty;
   indirectCommandEmpty.count = 6;
@@ -179,20 +190,24 @@ void VoxelTerrain::ComputeGeometryInfo()
 
 void VoxelTerrain::Draw()
 {
+  // todo? change only if necessary
+  m_VolumeInfoUBO["GradientDescendStepMultiplier"].Set(SceneConfig::g_GradientDescendStepMultiplier);
+  m_VolumeInfoUBO["GradientDescendStepCount"].Set(SceneConfig::g_GradientDescendStepCount);
+  m_VolumeInfoUBO.BindBuffer(3);
+
   m_VolumeRenderShader.Activate();
+
 
   glBindSampler(0, m_VolumeSamplerObject);
   m_pVolumeTexture->Bind(0);
-  if(m_pTextureY)
-  {
-    glBindSampler(1, m_TexturingSamplerObject);
-    m_pTextureY->Bind(1);
-  }
-  if(m_pTextureXZ)
-  {
-    glBindSampler(2, m_TexturingSamplerObject);
-    m_pTextureXZ->Bind(2);
-  }
+
+  GLint textureSampler = m_TexturingSamplerObjectAnisotropic;
+  if(!SceneConfig::g_UseAnisotropicFilter)
+    textureSampler = m_TexturingSamplerObjectTrilinear;
+  glBindSampler(1, textureSampler);
+  m_pTextureY->Bind(1);
+  glBindSampler(2, textureSampler);
+  m_pTextureXZ->Bind(2);
 
   glBindVertexArray(m_GeometryInfoVA);
   glPatchParameteri(GL_PATCH_VERTICES, 1);

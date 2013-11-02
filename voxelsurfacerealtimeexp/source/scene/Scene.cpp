@@ -18,13 +18,13 @@
 
 namespace SceneConfig
 {
-  ezCVarBool g_Wireframe("Wireframe", false, ezCVarFlags::Save, "Wireframe of Volume Rendering on/off");
-  ezCVarBool g_UseReferenceVis("UseReferenceVis", false, ezCVarFlags::Save, "Direct volume visualization on/off");
+  ezCVarBool g_Wireframe("Wireframe", false, ezCVarFlags::Save, "");
+  ezCVarBool g_UseReferenceVis("UseReferenceVis", false, ezCVarFlags::Save, "");
 
   namespace Status
   {
-    ezCVarFloat g_VolumePrepareTime("extract geom data (ms)", 0.0f, ezCVarFlags::None, "extract geom data duration (ms)");
-    ezCVarFloat g_VolumeDrawTime("draw geom data (ms)", 0.0f, ezCVarFlags::None, "draw geom data duration (ms)");
+    ezCVarFloat g_VolumePrepareTime("extract geom data (ms)", 0.0f, ezCVarFlags::None, "");
+    ezCVarFloat g_VolumeDrawTime("draw geom data (ms)", 0.0f, ezCVarFlags::None, "");
   }
 }
 

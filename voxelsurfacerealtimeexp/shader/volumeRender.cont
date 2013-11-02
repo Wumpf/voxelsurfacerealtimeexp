@@ -70,10 +70,10 @@ void main()
 	}
 
 	vec4 volumeData = vec4(1);
-	for(int i=0; i<8 && abs(volumeData.w) > 0.001f; ++i)	// additional condition makes it acutally faster (tested with 6 samples, scaling 15)
+	for(int i=0; i<GradientDescendStepCount && abs(volumeData.w) > 0.001f; ++i)	// additional condition makes it acutally faster (tested with 6 samples, scaling 15)
 	{
-		volumeData = textureLod(VolumeTexture, position * VolumePosToTexcoord, 0.0f) * 4.0f - 2.0f;
-		position -= volumeData.xyz * (volumeData.w * 8);
+		volumeData = textureLod(VolumeTexture, position * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+		position -= volumeData.xyz * (volumeData.w * GradientDescendStepMultiplier);
 	}
 
 	Out[gl_InvocationID].Normal = volumeData.xyz;	// possibly a bit outdated, but nothing bad.. btw. this is not normalized!
