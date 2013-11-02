@@ -53,7 +53,7 @@ void Application::AfterEngineInit()
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, m_pHTMLLogWriter));
   
   // setup random
-  Random::Init(231656523);
+  Random::Init(231656522);
 
   // start window
   m_pWindow = EZ_DEFAULT_NEW(RenderWindowGL);

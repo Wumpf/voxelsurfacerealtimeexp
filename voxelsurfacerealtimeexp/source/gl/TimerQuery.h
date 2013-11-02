@@ -17,6 +17,7 @@ namespace gl
 
   private:
     GLuint m_Query;
+    bool m_queryResultAvailable;
   };
 }
 

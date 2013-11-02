@@ -9,9 +9,16 @@ namespace GeneralConfig
   ezVec2 GetScreenResolutionF();
 }
 
+// defined in Scene.cpp
 namespace SceneConfig
 {
-  // defined in Scene.cpp
   extern ezCVarBool g_Wireframe;
   extern ezCVarBool g_UseReferenceVis;
+
+  // this cvars are not saved, they only provide different informations about the general status
+  namespace Status
+  {
+    extern ezCVarFloat g_VolumePrepareTime;
+    extern ezCVarFloat g_VolumeDrawTime;
+  };
 }

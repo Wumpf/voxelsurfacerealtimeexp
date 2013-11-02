@@ -5,29 +5,68 @@
 
 #include <AntTweakBar.h>
 
+
+static TwType TwTypeFromCVarType(ezCVarType::Enum type)
+{
+  TwType twType = TW_TYPE_UNDEF;
+  switch (type)
+  {
+  case ezCVarType::Bool:
+    twType = TW_TYPE_BOOLCPP;
+    break;
+  case ezCVarType::Int:
+    twType = TW_TYPE_INT32;
+    break;
+  case ezCVarType::String:
+    twType = TW_TYPE_CDSTRING;
+    break;
+  case ezCVarType::Float:
+    twType = TW_TYPE_FLOAT;
+    break;
+  }
+  return twType;
+}
+
+template<typename Type, ezCVarType::Enum CVarType>
+static void SetCVarValue(ezTypedCVar<Type, CVarType>& cvar, const void *value)
+{
+  cvar = *reinterpret_cast<const Type*>(value);
+}
+
+template<typename Type, ezCVarType::Enum CVarType>
+static void GetCVarValue(ezTypedCVar<Type, CVarType>& cvar, void *value)
+{
+  *reinterpret_cast<Type*>(value) = cvar;
+}
+
+#define ADD_CVAR_TO_TWEAKBAR_RW(cvar, szDefine) \
+  do { \
+    TwSetVarCallback setFkt = [](const void *value, void *clientData) { \
+      SetCVarValue(cvar, value); \
+    }; \
+    TwGetVarCallback getFkt = [](void *value, void *clientData) { \
+      GetCVarValue(cvar, value); \
+    }; \
+    TwAddVarCB(m_pTweakBar, cvar.GetName(), TwTypeFromCVarType(cvar.GetType()), setFkt, getFkt, NULL, szDefine); \
+    const char* errorDesc = TwGetLastError(); \
+    if(errorDesc != NULL) ezLog::SeriousWarning(errorDesc); \
+  } while(false)
+
+#define ADD_CVAR_TO_TWEAKBAR_RO(cvar, szDefine) \
+  do { \
+    TwGetVarCallback getFkt = [](void *value, void *clientData) { \
+      GetCVarValue(cvar, value); \
+    }; \
+    TwAddVarCB(m_pTweakBar, cvar.GetName(), TwTypeFromCVarType(cvar.GetType()), NULL, getFkt, NULL, szDefine); \
+    const char* errorDesc = TwGetLastError(); \
+    if(errorDesc != NULL) ezLog::SeriousWarning(errorDesc); \
+  } while(false)
+
+
 AntTweakBarInterface::AntTweakBarInterface(void) :
    m_pTweakBar(NULL)
 {
-}
-
-namespace TWCallbacks
-{
-  static void TW_CALL SetWireframe(const void *value, void *clientData)
-  { 
-    SceneConfig::g_Wireframe = *reinterpret_cast<const bool*>(value);  // for instance
-  }
-  static void TW_CALL GetWireframe(void *value, void *clientData)
-  { 
-    *reinterpret_cast<bool*>(value) = SceneConfig::g_Wireframe;  // for instance
-  }
-  static void TW_CALL SetLegacyVolVis(const void *value, void *clientData)
-  { 
-    SceneConfig::g_UseReferenceVis = *reinterpret_cast<const bool*>(value);  // for instance
-  }
-  static void TW_CALL GetLegacyVolVis(void *value, void *clientData)
-  { 
-    *reinterpret_cast<bool*>(value) = SceneConfig::g_UseReferenceVis;  // for instance
-  }
+  m_szFpsInfo[0] = '\0';
 }
 
 AntTweakBarInterface::~AntTweakBarInterface(void)
@@ -41,6 +80,8 @@ AntTweakBarInterface::~AntTweakBarInterface(void)
 
 ezResult AntTweakBarInterface::Init()
 {
+  ezLogBlock("AntTweakBarInit");
+
   if (!TwInit(TW_OPENGL, NULL))
   {
     ezLog::Error("AntTweakBar initialization failed: %s\n", TwGetLastError());
@@ -51,14 +92,19 @@ ezResult AntTweakBarInterface::Init()
 
   // Create a tweak bar
   m_pTweakBar = TwNewBar("TweakBar");
-  TwDefine(" TweakBar size='250 100' ");
+  TwDefine(" TweakBar size='250 150' ");
   TwDefine(" TweakBar position='10 150' ");
+  TwDefine(" TweakBar refresh=0.25 ");
 
-  //float fps = 59.999999123f;
-  //TwAddVarRO(m_pTweakBar, "Fps:", TW_TYPE_FLOAT, &fps, NULL);
+  // general info
+  TwAddVarRO(m_pTweakBar, "FPS:", TW_TYPE_CSSTRING(m_maxStringLength), m_szFpsInfo, NULL);
   TwAddSeparator(m_pTweakBar, "Volume Rendering", NULL);
-  TwAddVarCB(m_pTweakBar, "Wireframe", TW_TYPE_BOOLCPP, &TWCallbacks::SetWireframe, &TWCallbacks::GetWireframe, NULL, NULL);
-  TwAddVarCB(m_pTweakBar, "Legacy Direct VolVis", TW_TYPE_BOOLCPP, &TWCallbacks::SetLegacyVolVis, &TWCallbacks::GetLegacyVolVis, NULL, NULL);
+
+  // volume
+  ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumePrepareTime, NULL);
+  ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumeDrawTime, NULL);
+  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_Wireframe, NULL);
+  ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_UseReferenceVis, NULL);
   
 
   // register eventhandler
@@ -73,7 +119,7 @@ void AntTweakBarInterface::WindowMessageEventHandler(const GlobalEvents::Win32Me
   m_MessageQueue.PushBack(message);
 }
 
-void AntTweakBarInterface::Draw()
+void AntTweakBarInterface::Draw(ezTime lastFrameDuration)
 {
   // unwind message buffer - this avoid recursive calls
   while(!m_MessageQueue.IsEmpty())
@@ -82,6 +128,8 @@ void AntTweakBarInterface::Draw()
     TwEventWin(message.wnd, message.msg, message.wParam, message.lParam);
     m_MessageQueue.PopFront();
   }
+
+  sprintf_s(m_szFpsInfo, "%.2f fps (%.2f ms)", 1.0f / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
 
   TwDraw();
 }

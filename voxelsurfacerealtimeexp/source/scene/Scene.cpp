@@ -20,6 +20,12 @@ namespace SceneConfig
 {
   ezCVarBool g_Wireframe("Wireframe", false, ezCVarFlags::Save, "Wireframe of Volume Rendering on/off");
   ezCVarBool g_UseReferenceVis("UseReferenceVis", false, ezCVarFlags::Save, "Direct volume visualization on/off");
+
+  namespace Status
+  {
+    ezCVarFloat g_VolumePrepareTime("extract geom data (ms)", 0.0f, ezCVarFlags::None, "extract geom data duration (ms)");
+    ezCVarFloat g_VolumeDrawTime("draw geom data (ms)", 0.0f, ezCVarFlags::None, "draw geom data duration (ms)");
+  }
 }
 
 GLuint vertexArray;
@@ -57,7 +63,7 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   m_TimeUBO.Init(cameraUBOusingShader, "Time");
 */
 
-  m_GlobalSceneInfo["GlobalDirLightDirection"].Set(ezVec3(1,-1.2f,1).GetNormalized());
+  m_GlobalSceneInfo["GlobalDirLightDirection"].Set(ezVec3(1,-2.0f,1).GetNormalized());
   m_GlobalSceneInfo["GlobalDirLightColor"].Set(ezVec3(0.98f, 0.98f, 0.8f));
   m_GlobalSceneInfo["GlobalAmbient"].Set(ezVec3(0.3f, 0.3f, 0.3f));
 
@@ -92,6 +98,10 @@ ezResult Scene::Update(ezTime lastFrameDuration)
 
   //m_TimeUBO["CurrentTime"].Set();
   //m_TimeUBO["LastFrameDuration"].Set(lastFrameDuration);
+
+  // update stats vars
+  SceneConfig::Status::g_VolumePrepareTime = static_cast<float>(m_ExtractGeometryTimer->GetLastTimeElapsed().GetMilliSeconds());
+  SceneConfig::Status::g_VolumeDrawTime = static_cast<float>(m_DrawTimer->GetLastTimeElapsed().GetMilliSeconds());
 
   return EZ_SUCCESS;
 }
@@ -138,26 +148,8 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   glDisable(GL_DEPTH_TEST);
   glDepthMask(GL_FALSE);
 
-
-  // on screen info stuff
-  DrawInfos(lastFrameDuration);
   // and ui
-  m_UserInterface->Draw();
+  m_UserInterface->Draw(lastFrameDuration);
 
   return EZ_SUCCESS;
-}
-
-void Scene::DrawInfos(ezTime &lastFrameDuration)
-{
-  ezStringBuilder fpsString;
-  fpsString.AppendFormat("fps: %.2f (%.2f ms)", 1.0 / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
-  m_pFont->DrawString(fpsString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 300.0f, 30.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
-
-  ezStringBuilder extractgeometryTimeString;
-  extractgeometryTimeString.AppendFormat("extract geom data: %.4f ms", m_ExtractGeometryTimer->GetLastTimeElapsed().GetMilliSeconds());
-  m_pFont->DrawString(extractgeometryTimeString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 300.0f, 50.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
-
-  ezStringBuilder drawTimeString;
-  drawTimeString.AppendFormat("draw geom data: %.4f ms", m_DrawTimer->GetLastTimeElapsed().GetMilliSeconds());
-  m_pFont->DrawString(drawTimeString.GetData(), ezVec2(GeneralConfig::g_ResolutionWidth - 300.0f, 70.0f).CompDiv(GeneralConfig::GetScreenResolutionF()));
 }

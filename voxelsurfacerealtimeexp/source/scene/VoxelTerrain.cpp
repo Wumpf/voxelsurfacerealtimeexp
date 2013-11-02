@@ -87,14 +87,16 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
     glGenSamplers(1, &m_TexturingSamplerObject);
     glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_R, GL_REPEAT);
     glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);  
-    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // todo anistrophic filtering, setable over anttweakbar? :)
+    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR); 
+
+    // todo anistrophic filtering, on/off
+    glSamplerParameteri(m_TexturingSamplerObject, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16);
   }
 
   // load textures
-  m_pTextureY.Swap(gl::Texture2D::LoadFromFile("grass.bmp"));
-  m_pTextureXZ.Swap(gl::Texture2D::LoadFromFile("rock.bmp"));
+  m_pTextureY.Swap(gl::Texture2D::LoadFromFile("grass.png"));
+  m_pTextureXZ.Swap(gl::Texture2D::LoadFromFile("rock.png"));
 
   CreateVolumeTexture();
 }
@@ -118,7 +120,7 @@ void VoxelTerrain::CreateVolumeTexture()
 
   NoiseGenerator noiseGen;
   ezUInt32 slicePitch = m_uiVolumeWidth * m_uiVolumeHeight;
-  float mulitplier = 1.0f / static_cast<float>(std::max(std::max(m_uiVolumeWidth, m_uiVolumeHeight), m_uiVolumeDepth));
+  float mulitplier = 0.5f / static_cast<float>(std::max(std::max(m_uiVolumeWidth, m_uiVolumeHeight), m_uiVolumeDepth));
 
 #pragma omp parallel for // OpenMP parallel for loop.
   for(ezInt32 z=0; z<m_uiVolumeDepth; ++z) // Needs to be signed for OpenMP.

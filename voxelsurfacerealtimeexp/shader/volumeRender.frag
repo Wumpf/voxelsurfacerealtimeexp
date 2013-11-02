@@ -23,17 +23,18 @@ void main()
 	// good old backlighting hack!
 	vec3 backLightDir = GlobalDirLightDirection;
 	backLightDir.xz = -backLightDir.xz;
-	float ambientLightAmount = clamp(dot(normal, backLightDir), 0, 1) + 0.3f; // currently ambient is meant for adding - so we have to scale this a bit
+	float ambientLightAmount = clamp(dot(normal, backLightDir), 0, 1) + 0.4f; // currently ambient is meant for adding - so we have to scale this a bit
 
 
 	// texturing
-	vec3 texcoord3D = In.WorldPos*0.15f;
+	vec3 texcoord3D = In.WorldPos*0.1f;
 	vec3 textureWeights = abs(normal);
+	textureWeights.y *= 2;
 	textureWeights /= textureWeights.x + textureWeights.y + textureWeights.z;
 	
 	vec3 textureY = texture(TextureY, texcoord3D.xz).xyz;
 	vec3 textureZ = texture(TextureXZ, texcoord3D.xy).xyz;
-	vec3 textureX = texture(TextureXZ, texcoord3D.yz).xyz;
+	vec3 textureX = texture(TextureXZ, texcoord3D.zy).xyz;
 
 	vec3 diffuseColor = textureX * textureWeights.x + textureY * textureWeights.y + textureZ * textureWeights.z;
 	

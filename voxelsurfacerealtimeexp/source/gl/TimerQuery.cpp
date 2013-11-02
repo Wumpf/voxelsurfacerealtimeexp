@@ -4,7 +4,7 @@
 namespace gl
 {
 
-  TimerQuery::TimerQuery(void)
+  TimerQuery::TimerQuery() : m_queryResultAvailable(false)
   {
     glGenQueries(1, &m_Query);
   }
@@ -16,19 +16,26 @@ namespace gl
 
   void TimerQuery::Start()
   {
+    m_queryResultAvailable = false;
     glBeginQuery(GL_TIME_ELAPSED, m_Query);
   }
 
   void TimerQuery::End()
   {
     glEndQuery(GL_TIME_ELAPSED);
+    m_queryResultAvailable = true;
   }
 
   ezTime TimerQuery::GetLastTimeElapsed()
   {
-    GLuint time = 0;
-    glGetQueryObjectuiv(m_Query, GL_QUERY_RESULT, &time);
+    if(m_queryResultAvailable)
+    {
+      GLuint time = 0;
+      glGetQueryObjectuiv(m_Query, GL_QUERY_RESULT, &time);
 
-    return ezTime::NanoSeconds(time);
+      return ezTime::NanoSeconds(time);
+    }
+    else
+      return ezTime::Seconds(0);
   }
 }

@@ -20,6 +20,10 @@ OnScreenLogWriter::~OnScreenLogWriter(void)
 
 void OnScreenLogWriter::LogMessageHandler(const ezLoggingEventData& eventData)
 {
+  // ignore registered input sloat
+  if(ezStringUtils::FindSubString(eventData.m_szText, "Registered Input Slot") != NULL)
+    return;
+
   // ignore groups
   if(eventData.m_EventType == ezLogMsgType::BeginGroup)
   {

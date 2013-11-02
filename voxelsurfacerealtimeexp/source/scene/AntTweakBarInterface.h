@@ -10,12 +10,15 @@ public:
   ~AntTweakBarInterface(void);
 
   ezResult Init();
-  void Draw();
+  void Draw(ezTime lastFrameDuration);
 
 private:
   void WindowMessageEventHandler(const GlobalEvents::Win32Message& message);
 
   struct CTwBar* m_pTweakBar;
   ezList<GlobalEvents::Win32Message> m_MessageQueue;
+
+  static const ezUInt32 m_maxStringLength = 256;
+  char m_szFpsInfo[m_maxStringLength];
 };
 
