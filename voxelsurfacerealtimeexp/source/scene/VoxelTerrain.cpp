@@ -11,7 +11,7 @@
 #include "..\config\GlobalCVar.h"
 
 const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 128;//256;
-const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64;
+const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64
 const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 128;//256;
 
 namespace SceneConfig
@@ -44,8 +44,11 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   ezDynamicArray<const gl::ShaderObject*> volumeInfoUBOusingShader;
   volumeInfoUBOusingShader.PushBack(&m_DirectVolVisShader);
   volumeInfoUBOusingShader.PushBack(&m_VolumeRenderShader);
+  volumeInfoUBOusingShader.PushBack(&m_ExtractGeometryInfoShader);
   m_VolumeInfoUBO.Init(volumeInfoUBOusingShader, "VolumeDataInfo");
 
+  
+  m_VolumeInfoUBO["VolumeMaxTextureLoad"].Set(ezVec3Template<ezInt32>(m_uiVolumeWidth-1, m_uiVolumeHeight-1, m_uiVolumeDepth));
   m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));
   m_VolumeInfoUBO["VolumePosToTexcoord"].Set(ezVec3(1.0f / static_cast<float>(m_uiVolumeWidth-1), 1.0f /static_cast<float>(m_uiVolumeHeight-1), 1.0f /static_cast<float>(m_uiVolumeDepth-1))); // minus one is very important! otherwise the fetching won't match exactly! texture with 256 -> 255 maps to 1
 
@@ -160,7 +163,7 @@ void VoxelTerrain::ComputeGeometryInfo()
 
   // need to clear the indirect draw buffer, otherwise we'll accumulate to much stuff...
   gl::DrawArraysIndirectCommand indirectCommandEmpty;
-  indirectCommandEmpty.count = 6;
+  indirectCommandEmpty.count = 0;
   indirectCommandEmpty.primCount = 1;
   indirectCommandEmpty.first = 0;
   indirectCommandEmpty.baseInstance = 0;

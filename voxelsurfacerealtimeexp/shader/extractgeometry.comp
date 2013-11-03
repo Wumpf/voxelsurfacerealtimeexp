@@ -12,14 +12,6 @@ layout(binding = 0) writeonly buffer QuadBuffer
 	uint Quads[];	// 8bit xyz position, 8bit w quad identifier
 };
 
-
-// a bit of perf history
-//
-// 2.78ms brute force
-// 2.3ms shared mem
-// 2.03ms shared mem + restrict texture access
-// 2.12ms reordering attempt of kicked threads
-
 shared float textureCache[1000]; 
 
 // compute shader size
@@ -30,12 +22,10 @@ void main()
 	uint textureCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
 
 	// fill shared memory
-	float ownValue = imageLoad(VolumeTexture, volumeCoordinate).w;
-/*	if(any(lessThan(volumeCoordinate, vec3(0))))
-		ownValue = 0.0f;
-	if(any(greaterThan(volumeCoordinate, vec3(127, 63, 127))))
-		ownValue = 0.0f;
-*/
+	ivec3 textureSamplingPos = volumeCoordinate;
+	textureSamplingPos = clamp(textureSamplingPos, ivec3(0), VolumeMaxTextureLoad);
+	float ownValue = imageLoad(VolumeTexture, textureSamplingPos).w;
+	
 	textureCache[textureCachePos] = ownValue;
 
 	// early outs
@@ -49,9 +39,6 @@ void main()
 
 	 // sync
 	barrier();
-	//memoryBarrierImage();
-	//memoryBarrier();
-	//groupMemoryBarrier();
 
 	// watch sourrundings
 	bool left     = textureCache[textureCachePos - 1] > IsoValue;

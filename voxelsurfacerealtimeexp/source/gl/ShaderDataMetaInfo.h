@@ -200,8 +200,12 @@ namespace gl
 
     void Set(ezUInt32 ui);
     void Set(const ezVec2U32& v);
+    void Set(const ezVec3Template<ezInt32>& v);
+    void Set(const ezVec4Template<ezInt32>& v);
     void Set(ezInt32 i);
     void Set(const ezVec2I32& v);
+    void Set(const ezVec3Template<ezUInt32>& v);
+    void Set(const ezVec4Template<ezUInt32>& v);
 
     virtual void Set(const void* pData, ezUInt32 uiSizeInBytes) = 0;
 

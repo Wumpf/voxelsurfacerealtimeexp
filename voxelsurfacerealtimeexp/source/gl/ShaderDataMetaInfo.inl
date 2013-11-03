@@ -83,6 +83,19 @@ inline void ShaderVariable<VariableType>::Set(const ezVec2U32& v)
   Set(&v, sizeof(v));
 }
 template<typename VariableType>
+inline void ShaderVariable<VariableType>::Set(const ezVec3Template<ezUInt32>& v) 
+{
+  EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::UNSIGNED_INT_VEC3, "Variable type does not match!");
+  Set(&v, sizeof(v));
+}
+template<typename VariableType>
+inline void ShaderVariable<VariableType>::Set(const ezVec4Template<ezUInt32>& v) 
+{
+  EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::UNSIGNED_INT_VEC4, "Variable type does not match!");
+  Set(&v, sizeof(v));
+}
+
+template<typename VariableType>
 inline void ShaderVariable<VariableType>::Set(ezInt32 i)         
 {
   EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::INT, "Variable type does not match!");
@@ -92,5 +105,17 @@ template<typename VariableType>
 inline void ShaderVariable<VariableType>::Set(const ezVec2I32& v) 
 {
   EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::INT_VEC2, "Variable type does not match!");
+  Set(&v, sizeof(v));
+}
+template<typename VariableType>
+inline void ShaderVariable<VariableType>::Set(const ezVec3Template<ezInt32>& v) 
+{
+  EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::INT_VEC3, "Variable type does not match!");
+  Set(&v, sizeof(v));
+}
+template<typename VariableType>
+inline void ShaderVariable<VariableType>::Set(const ezVec4Template<ezInt32>& v) 
+{
+  EZ_ASSERT(m_MetaInfo.Type == ShaderVariableType::INT_VEC4, "Variable type does not match!");
   Set(&v, sizeof(v));
 }
