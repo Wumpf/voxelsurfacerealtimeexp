@@ -67,6 +67,7 @@ AntTweakBarInterface::AntTweakBarInterface(void) :
    m_pTweakBar(NULL)
 {
   m_szFpsInfo[0] = '\0';
+  m_szFrameTimeInfo[0] = '\0';
 }
 
 AntTweakBarInterface::~AntTweakBarInterface(void)
@@ -92,18 +93,27 @@ ezResult AntTweakBarInterface::Init()
 
   // Create a tweak bar
   m_pTweakBar = TwNewBar("TweakBar");
-  TwDefine(" TweakBar size='350 200' ");
-  TwDefine(" TweakBar position='10 150' ");
+
+  static const ezSizeU32 tweakBarSize(280, 300);
+  ezStringBuilder stringBuilder;
+  stringBuilder.Format(" TweakBar size='%i %i' ", tweakBarSize.width, tweakBarSize.height);
+  TwDefine(stringBuilder.GetData());
+  stringBuilder.Format(" TweakBar position='%i %i' ", GeneralConfig::g_ResolutionWidth - tweakBarSize.width - 10, 10);
+  TwDefine(stringBuilder.GetData());
+
   TwDefine(" TweakBar refresh=0.2 ");
+  //TwDefine(" TweakBar alpha=200 ");
 
   // general info
-  TwAddVarRO(m_pTweakBar, "FPS:", TW_TYPE_CSSTRING(m_maxStringLength), m_szFpsInfo, NULL);
-  TwAddSeparator(m_pTweakBar, "Volume Rendering", NULL);
+  TwAddVarRO(m_pTweakBar, "Frames per Seconds", TW_TYPE_CSSTRING(m_maxStringLength), m_szFpsInfo, "group='General Performance'");
+  TwAddVarRO(m_pTweakBar, "Frame Time (ms)", TW_TYPE_CSSTRING(m_maxStringLength), m_szFrameTimeInfo, "group='General Performance'");
+  
+  
 
   // volume
   ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumePrepareTime);
   ADD_CVAR_TO_TWEAKBAR_RO(SceneConfig::Status::g_VolumeDrawTime);
-
+  TwAddSeparator(m_pTweakBar, NULL, "group=VolumeRendering");
   ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_Wireframe);
   ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_UseReferenceVis);
   ADD_CVAR_TO_TWEAKBAR_RW(SceneConfig::g_UseAnisotropicFilter);
@@ -123,7 +133,7 @@ void AntTweakBarInterface::WindowMessageEventHandler(const GlobalEvents::Win32Me
   m_MessageQueue.PushBack(message);
 }
 
-void AntTweakBarInterface::Draw(ezTime lastFrameDuration)
+void AntTweakBarInterface::Render(ezTime lastFrameDuration)
 {
   // unwind message buffer - this avoid recursive calls
   while(!m_MessageQueue.IsEmpty())
@@ -133,7 +143,8 @@ void AntTweakBarInterface::Draw(ezTime lastFrameDuration)
     m_MessageQueue.PopFront();
   }
 
-  sprintf_s(m_szFpsInfo, "%.2f fps (%.2f ms)", 1.0f / lastFrameDuration.GetSeconds(), lastFrameDuration.GetMilliSeconds());
+  sprintf_s(m_szFpsInfo, "%.2f fps", 1.0f / lastFrameDuration.GetSeconds());
+  sprintf_s(m_szFrameTimeInfo, "%.2f ms", lastFrameDuration.GetMilliSeconds());
 
   TwDraw();
 }

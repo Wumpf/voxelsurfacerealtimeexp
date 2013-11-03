@@ -23,6 +23,8 @@ public:
   ezResult Update(ezTime lastFrameDuration);
   ezResult Render(ezTime lastFrameDuration);
 
+  void RenderUI(ezTime lastFrameDuration);
+
 private:
   void CreateVolumeTexture();
 

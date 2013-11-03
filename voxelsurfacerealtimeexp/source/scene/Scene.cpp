@@ -18,13 +18,13 @@
 
 namespace SceneConfig
 {
-  ezCVarBool g_Wireframe("Wireframe", false, ezCVarFlags::Save, "");
-  ezCVarBool g_UseReferenceVis("UseReferenceVis", false, ezCVarFlags::Save, "");
+  ezCVarBool g_Wireframe("Wireframe", false, ezCVarFlags::Save, "group=VolumeRendering");
+  ezCVarBool g_UseReferenceVis("UseReferenceVis", false, ezCVarFlags::Save, "group=VolumeRendering");
 
   namespace Status
   {
-    ezCVarFloat g_VolumePrepareTime("extract geom data (ms)", 0.0f, ezCVarFlags::None, "");
-    ezCVarFloat g_VolumeDrawTime("draw geom data (ms)", 0.0f, ezCVarFlags::None, "");
+    ezCVarFloat g_VolumePrepareTime("extract geom data (ms)", 0.0f, ezCVarFlags::None, "group=VolumeRendering");
+    ezCVarFloat g_VolumeDrawTime("draw geom data (ms)", 0.0f, ezCVarFlags::None, "group=VolumeRendering");
   }
 }
 
@@ -149,7 +149,12 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   glDepthMask(GL_FALSE);
 
   // and ui
-  m_UserInterface->Draw(lastFrameDuration);
+  RenderUI(lastFrameDuration);
 
   return EZ_SUCCESS;
+}
+
+void Scene::RenderUI(ezTime lastFrameDuration)
+{
+  m_UserInterface->Render(lastFrameDuration);
 }

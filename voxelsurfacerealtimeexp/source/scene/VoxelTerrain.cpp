@@ -16,9 +16,9 @@ const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 128;//256;
 
 namespace SceneConfig
 {
-  ezCVarFloat g_GradientDescendStepMultiplier("Gradient Descend Step Multiplier", 8.0f, ezCVarFlags::Save, "min=0.1 max=30.0 step=0.1");
-  ezCVarInt g_GradientDescendStepCount("Gradient Descend Step Count", 12, ezCVarFlags::Save, "min=1 max=50");
-  ezCVarBool g_UseAnisotropicFilter("Anisotropic Filter on/off", true, ezCVarFlags::Save, "");
+  ezCVarFloat g_GradientDescendStepMultiplier("Gradient Descend Step Multiplier", 8.0f, ezCVarFlags::Save, "min=0.1 max=30.0 step=0.1 group=VolumeRendering");
+  ezCVarInt g_GradientDescendStepCount("Gradient Descend Step Count", 12, ezCVarFlags::Save, "min=1 max=50 group=VolumeRendering");
+  ezCVarBool g_UseAnisotropicFilter("Anisotropic Filter on/off", true, ezCVarFlags::Save, "group=VolumeRendering");
 }
 
 VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle>& pScreenAlignedTriangle) :
