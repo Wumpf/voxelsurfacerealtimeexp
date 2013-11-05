@@ -33,7 +33,7 @@ namespace gl
     }
 
     ezUniquePtr<Texture2D> out(EZ_DEFAULT_NEW_UNIQUE(Texture2D, static_cast<ezUInt32>(uiTexSizeX), static_cast<ezUInt32>(uiTexSizeY), GL_RGBA8, generateMipMaps ? -1 : 1));
-    out->SetData(0, reinterpret_cast<const ezColor8*>(TextureData));
+    out->SetData(0, reinterpret_cast<const ezColor8UNorm*>(TextureData));
 
     if(generateMipMaps)
       glGenerateMipmap(GL_TEXTURE_2D);
@@ -55,7 +55,7 @@ namespace gl
                     GL_RGBA, GL_FLOAT, pData);
   }
 
-  void Texture2D::SetData(ezUInt32 uiMipLevel, const ezColor8* pData)
+  void Texture2D::SetData(ezUInt32 uiMipLevel, const ezColor8UNorm* pData)
   {
     EZ_ASSERT(uiMipLevel < m_uiNumMipLevels, "MipLevel %i does not exist, texture has only %i MipMapLevels", uiMipLevel, m_uiNumMipLevels);
 

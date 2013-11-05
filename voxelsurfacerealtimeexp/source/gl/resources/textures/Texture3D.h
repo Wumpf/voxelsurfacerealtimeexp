@@ -11,7 +11,7 @@ namespace gl
     Texture3D(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth, GLuint format = GL_RGBA8, ezInt32 iNumMipLevels = 1);
     
     void SetData(ezUInt32 uiMipLevel, const ezColor* pData) EZ_OVERRIDE;
-    void SetData(ezUInt32 uiMipLevel, const ezColor8* pData) EZ_OVERRIDE;
+    void SetData(ezUInt32 uiMipLevel, const ezColor8UNorm* pData) EZ_OVERRIDE;
 
     void Bind(GLuint slotIndex) EZ_OVERRIDE;
   };

@@ -118,7 +118,7 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy $(SolutionDir)..\ezEngine\Trunk\Output\Bin\Debug64\ $(TargetDir) /D /Y
-xcopy $(ProjectDir)textures $(TargetDir)textures\ /D /Y</Command>
+xcopy "$(ProjectDir)textures\" "$(TargetDir)textures\" /D /Y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

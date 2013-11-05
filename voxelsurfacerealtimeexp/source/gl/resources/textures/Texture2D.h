@@ -14,7 +14,7 @@ namespace gl
     static ezUniquePtr<Texture2D> LoadFromFile(const ezString& sFilename, bool generateMipMaps = true);
 
     void SetData(ezUInt32 uiMipLevel, const ezColor* pData) EZ_OVERRIDE;
-    void SetData(ezUInt32 uiMipLevel, const ezColor8* pData) EZ_OVERRIDE;
+    void SetData(ezUInt32 uiMipLevel, const ezColor8UNorm* pData) EZ_OVERRIDE;
 
     void Bind(GLuint slotIndex) EZ_OVERRIDE;
     void BindImage(GLuint slotIndex, Texture::ImageAccess access, GLenum format);

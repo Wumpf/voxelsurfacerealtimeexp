@@ -15,8 +15,8 @@
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Vec3.h>
-#include <Foundation/Math/Color32f.h>
-#include <Foundation/Math/Color8.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Size.h>
 
 

@@ -29,7 +29,7 @@ void main()
 	// texturing
 	vec3 texcoord3D = In.WorldPos*0.1f;
 	vec3 textureWeights = abs(normal);
-	textureWeights.y *= 2;
+	textureWeights.y *= textureWeights.y;
 	textureWeights /= textureWeights.x + textureWeights.y + textureWeights.z;
 	
 	vec3 textureY = texture(TextureY, texcoord3D.xz).xyz;

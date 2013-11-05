@@ -11,12 +11,12 @@
 #include "..\config\GlobalCVar.h"
 
 const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 128;//256;
-const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64
+const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64;
 const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 128;//256;
 
 namespace SceneConfig
 {
-  ezCVarFloat g_GradientDescendStepMultiplier("Gradient Descend Step Multiplier", 8.0f, ezCVarFlags::Save, "min=0.1 max=30.0 step=0.1 group=VolumeRendering");
+  ezCVarFloat g_GradientDescendStepMultiplier("Gradient Descend Step Multiplier", 14.0f, ezCVarFlags::Save, "min=0.1 max=30.0 step=0.1 group=VolumeRendering");
   ezCVarInt g_GradientDescendStepCount("Gradient Descend Step Count", 12, ezCVarFlags::Save, "min=1 max=50 group=VolumeRendering");
   ezCVarBool g_UseAnisotropicFilter("Anisotropic Filter on/off", true, ezCVarFlags::Save, "group=VolumeRendering");
 }
@@ -48,7 +48,7 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   m_VolumeInfoUBO.Init(volumeInfoUBOusingShader, "VolumeDataInfo");
 
   
-  m_VolumeInfoUBO["VolumeMaxTextureLoad"].Set(ezVec3Template<ezInt32>(m_uiVolumeWidth-1, m_uiVolumeHeight-1, m_uiVolumeDepth));
+  m_VolumeInfoUBO["VolumeMaxTextureLoad"].Set(ezVec3Template<ezInt32>(m_uiVolumeWidth-1, m_uiVolumeHeight-1, m_uiVolumeDepth-1));
   m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));
   m_VolumeInfoUBO["VolumePosToTexcoord"].Set(ezVec3(1.0f / static_cast<float>(m_uiVolumeWidth-1), 1.0f /static_cast<float>(m_uiVolumeHeight-1), 1.0f /static_cast<float>(m_uiVolumeDepth-1))); // minus one is very important! otherwise the fetching won't match exactly! texture with 256 -> 255 maps to 1
 
@@ -147,7 +147,7 @@ void VoxelTerrain::CreateVolumeTexture()
         gradient.Normalize();
         current.SetRGB(gradient);
         current *= 0.5f;
-        current += ezColor32f(0.5f,0.5f,0.5f,0.5f);
+        current += ezColor(0.5f,0.5f,0.5f,0.5f);
       }
     }
   }

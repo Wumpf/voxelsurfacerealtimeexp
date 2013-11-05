@@ -9,7 +9,7 @@ namespace gl
     ~Texture();
 
     virtual void SetData(ezUInt32 uiMipLevel, const ezColor* pData)=0;
-    virtual void SetData(ezUInt32 uiMipLevel, const ezColor8* pData)=0;
+    virtual void SetData(ezUInt32 uiMipLevel, const ezColor8UNorm* pData)=0;
 
     virtual void Bind(GLuint slotIndex)=0;
 

@@ -94,7 +94,7 @@ ezResult AntTweakBarInterface::Init()
   // Create a tweak bar
   m_pTweakBar = TwNewBar("TweakBar");
 
-  static const ezSizeU32 tweakBarSize(280, 300);
+  static const ezSizeU32 tweakBarSize(330, 300);
   ezStringBuilder stringBuilder;
   stringBuilder.Format(" TweakBar size='%i %i' ", tweakBarSize.width, tweakBarSize.height);
   TwDefine(stringBuilder.GetData());

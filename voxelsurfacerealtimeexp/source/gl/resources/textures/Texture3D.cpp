@@ -24,7 +24,7 @@ namespace gl
                     GL_RGBA, GL_FLOAT, pData);
   }
   
-  void Texture3D::SetData(ezUInt32 uiMipLevel, const ezColor8* pData)
+  void Texture3D::SetData(ezUInt32 uiMipLevel, const ezColor8UNorm* pData)
   {
     EZ_ASSERT(uiMipLevel < m_uiNumMipLevels, "MipLevel %i does not exist, texture has only %i MipMapLevels", uiMipLevel, m_uiNumMipLevels);
 
