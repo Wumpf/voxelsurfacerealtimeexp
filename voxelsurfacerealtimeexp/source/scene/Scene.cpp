@@ -33,7 +33,7 @@ GLuint vertexArray;
 Scene::Scene(const RenderWindowGL& renderWindow) :
   m_pScreenAlignedTriangle(std::make_shared<gl::ScreenAlignedTriangle>()),
   
-  m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, 70.0f, static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
+  m_pCamera(EZ_DEFAULT_NEW_UNIQUE(FreeCamera, ezAngle::Degree(70.0f), static_cast<float>(GeneralConfig::g_ResolutionWidth.GetValue()) / GeneralConfig::g_ResolutionHeight.GetValue())),
   m_pFont(EZ_DEFAULT_NEW_UNIQUE(gl::Font, "Arial", 20, renderWindow.GetDeviceContext())),
 
   m_ExtractGeometryTimer(EZ_DEFAULT_NEW_UNIQUE(gl::TimerQuery)),

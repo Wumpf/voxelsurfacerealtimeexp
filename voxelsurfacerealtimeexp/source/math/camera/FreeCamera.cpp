@@ -2,7 +2,7 @@
 #include "FreeCamera.h"
 #include "config/InputConfig.h"
 
-FreeCamera::FreeCamera(float fov, float aspectRatio) :
+FreeCamera::FreeCamera(ezAngle fov, float aspectRatio) :
   Camera(fov, aspectRatio),
   m_fMouseX(0.0f), m_fMouseY(0.0f)
 {

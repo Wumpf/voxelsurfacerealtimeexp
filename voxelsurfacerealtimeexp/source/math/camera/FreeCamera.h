@@ -5,7 +5,7 @@
 class FreeCamera : public Camera
 {
 public:
-  FreeCamera(float fovDeg, float aspectRatio);
+  FreeCamera(ezAngle fov, float aspectRatio);
   virtual ~FreeCamera();
 
   virtual void Update(ezTime lastFrameDuration) EZ_OVERRIDE;

@@ -1,7 +1,7 @@
 #include "PCH.h"
 #include "Camera.h"
 
-Camera::Camera(float fov, float aspectRatio) :
+Camera::Camera(ezAngle fov, float aspectRatio) :
   m_vPosition(0.0f, 200.0f, 0.0f),
   m_vUp(0.0f, 1.0f, 0.0f),
   m_ViewDir(1.0f, 0.0f, 0.0f)

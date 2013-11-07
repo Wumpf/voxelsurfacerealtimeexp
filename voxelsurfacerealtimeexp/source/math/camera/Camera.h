@@ -3,7 +3,7 @@
 class Camera
 {
 public:
-  Camera(float fFov, float fAspectRatio);
+  Camera(ezAngle fov, float fAspectRatio);
   virtual ~Camera();
 
   virtual void Update(ezTime lastFrameDuration)=0;

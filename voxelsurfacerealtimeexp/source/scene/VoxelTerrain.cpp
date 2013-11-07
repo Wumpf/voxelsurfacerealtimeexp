@@ -10,9 +10,9 @@
 
 #include "..\config\GlobalCVar.h"
 
-const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 128;//256;
+const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 256;
 const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64;
-const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 128;//256;
+const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 256;
 
 namespace SceneConfig
 {
@@ -39,12 +39,16 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   m_ExtractGeometryInfoShader.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "extractgeometry.comp");
   m_ExtractGeometryInfoShader.CreateProgram();
 
+  m_ComputeNormalsShader.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "computenormals.comp");
+  m_ComputeNormalsShader.CreateProgram();
+
 
   // ubo init
   ezDynamicArray<const gl::ShaderObject*> volumeInfoUBOusingShader;
   volumeInfoUBOusingShader.PushBack(&m_DirectVolVisShader);
   volumeInfoUBOusingShader.PushBack(&m_VolumeRenderShader);
   volumeInfoUBOusingShader.PushBack(&m_ExtractGeometryInfoShader);
+  volumeInfoUBOusingShader.PushBack(&m_ComputeNormalsShader);
   m_VolumeInfoUBO.Init(volumeInfoUBOusingShader, "VolumeDataInfo");
 
   
@@ -132,7 +136,7 @@ void VoxelTerrain::CreateVolumeTexture()
 
   NoiseGenerator noiseGen;
   ezUInt32 slicePitch = m_uiVolumeWidth * m_uiVolumeHeight;
-  float mulitplier = 0.5f / static_cast<float>(ezMath::Max(m_uiVolumeWidth, m_uiVolumeHeight, m_uiVolumeDepth) - 1);
+  float mulitplier = 1.0f / static_cast<float>(ezMath::Max(m_uiVolumeWidth, m_uiVolumeHeight, m_uiVolumeDepth) - 1);
 
 #pragma omp parallel for // OpenMP parallel for loop.
   for(ezInt32 z=0; z<m_uiVolumeDepth; ++z) // Needs to be signed for OpenMP.
@@ -141,6 +145,7 @@ void VoxelTerrain::CreateVolumeTexture()
     {
       for(ezUInt32 x=0; x<m_uiVolumeWidth; ++x)
       {
+        // todo: big mystery why the terrain is looking weird without feeding intial gradients - the computenormal shader mixes everything up anyway
         ezVec3 gradient;
         ezColor& current = volumeData[x + y * m_uiVolumeWidth + z * slicePitch];
         current.a = noiseGen.GetValueNoise(ezVec3(mulitplier*x, mulitplier*y, mulitplier*z), 0, 5, 0.8f, false, &gradient);
@@ -160,6 +165,15 @@ void VoxelTerrain::CreateVolumeTexture()
 void VoxelTerrain::ComputeGeometryInfo()
 {
   m_VolumeInfoUBO.BindBuffer(3);
+
+
+  // recompute normals
+  m_pVolumeTexture->BindImage(0, gl::Texture::ImageAccess::READ_WRITE);
+  m_ComputeNormalsShader.Activate();
+  glDispatchCompute(m_uiVolumeWidth / 8, m_uiVolumeHeight / 8, m_uiVolumeDepth / 8);
+  gl::Utils::CheckError("glDispatchCompute");
+
+
 
   // need to clear the indirect draw buffer, otherwise we'll accumulate to much stuff...
   gl::DrawArraysIndirectCommand indirectCommandEmpty;

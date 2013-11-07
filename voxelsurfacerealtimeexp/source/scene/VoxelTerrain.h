@@ -34,6 +34,7 @@ private:
   gl::ShaderObject m_DirectVolVisShader;
   gl::ShaderObject m_ExtractGeometryInfoShader;
   gl::ShaderObject m_VolumeRenderShader;
+  gl::ShaderObject m_ComputeNormalsShader;
 
   gl::UniformBuffer m_VolumeInfoUBO;
 
