@@ -191,6 +191,7 @@ xcopy $(ProjectDir)textures $(TargetDir)textures\ /D /Y</Command>
     <ClInclude Include="source\scene\AntTweakBarInterface.h" />
     <ClInclude Include="source\scene\Background.h" />
     <ClInclude Include="source\scene\Scene.h" />
+    <ClInclude Include="source\scene\VoxelOctreeGenerator.h" />
     <ClInclude Include="source\scene\VoxelTerrain.h" />
     <ClInclude Include="source\UniquePtr.h" />
   </ItemGroup>
@@ -238,6 +239,7 @@ xcopy $(ProjectDir)textures $(TargetDir)textures\ /D /Y</Command>
     <ClCompile Include="source\scene\AntTweakBarInterface.cpp" />
     <ClCompile Include="source\scene\Background.cpp" />
     <ClCompile Include="source\scene\Scene.cpp" />
+    <ClCompile Include="source\scene\VoxelOctreeGenerator.cpp" />
     <ClCompile Include="source\scene\VoxelTerrain.cpp" />
   </ItemGroup>
   <ItemGroup>

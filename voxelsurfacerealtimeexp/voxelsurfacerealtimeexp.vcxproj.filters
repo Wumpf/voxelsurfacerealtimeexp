@@ -85,6 +85,9 @@
     <ClInclude Include="..\dependencies\include\stb_image\stb_image.h">
       <Filter>stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="source\scene\VoxelOctreeGenerator.h">
+      <Filter>source\scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="source">
@@ -240,6 +243,9 @@
     </ClCompile>
     <ClCompile Include="..\dependencies\include\stb_image\stb_image.c">
       <Filter>stb_image</Filter>
+    </ClCompile>
+    <ClCompile Include="source\scene\VoxelOctreeGenerator.cpp">
+      <Filter>source\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

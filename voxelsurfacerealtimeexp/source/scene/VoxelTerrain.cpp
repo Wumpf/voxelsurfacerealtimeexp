@@ -1,8 +1,6 @@
 #include "PCH.h"
 #include "VoxelTerrain.h"
 
-#include "math/NoiseGenerator.h"
-
 #include "gl/ScreenAlignedTriangle.h"
 #include "gl/resources/textures/Texture3D.h"
 #include "gl/resources/textures/Texture2D.h"
@@ -10,9 +8,9 @@
 
 #include "..\config\GlobalCVar.h"
 
-const ezUInt32 VoxelTerrain::m_uiVolumeWidth = 256;
-const ezUInt32 VoxelTerrain::m_uiVolumeHeight = 64;
-const ezUInt32 VoxelTerrain::m_uiVolumeDepth = 256;
+#include "VoxelOctreeGenerator.h"
+
+const ezUInt32 VoxelTerrain::m_volumeSize = 512;
 
 namespace SceneConfig
 {
@@ -52,9 +50,9 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   m_VolumeInfoUBO.Init(volumeInfoUBOusingShader, "VolumeDataInfo");
 
   
-  m_VolumeInfoUBO["VolumeMaxTextureLoad"].Set(ezVec3Template<ezInt32>(m_uiVolumeWidth-1, m_uiVolumeHeight-1, m_uiVolumeDepth-1));
-  m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)));
-  m_VolumeInfoUBO["VolumePosToTexcoord"].Set(ezVec3(1.0f / static_cast<float>(m_uiVolumeWidth-1), 1.0f /static_cast<float>(m_uiVolumeHeight-1), 1.0f /static_cast<float>(m_uiVolumeDepth-1))); // minus one is very important! otherwise the fetching won't match exactly! texture with 256 -> 255 maps to 1
+  m_VolumeInfoUBO["VolumeMaxTextureLoad"].Set(ezVec3Template<ezInt32>(m_volumeSize-1));
+  m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_volumeSize)));
+  m_VolumeInfoUBO["VolumePosToTexcoord"].Set(ezVec3(1.0f / static_cast<float>(m_volumeSize-1))); // minus one is very important! otherwise the fetching won't match exactly! texture with 256 -> 255 maps to 1
 
   // geometry info buffer
   {
@@ -86,15 +84,6 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
 
   // sampler
   {
-    glGenSamplers(1, &m_VolumeSamplerObject);
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  
-    glSamplerParameteri(m_VolumeSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  }
-  // sampler
-  {
     glGenSamplers(1, &m_TexturingSamplerObjectAnisotropic);
     glSamplerParameteri(m_TexturingSamplerObjectAnisotropic, GL_TEXTURE_WRAP_R, GL_REPEAT);
     glSamplerParameteri(m_TexturingSamplerObjectAnisotropic, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -114,65 +103,44 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   m_pTextureY.Swap(gl::Texture2D::LoadFromFile("grass.png"));
   m_pTextureXZ.Swap(gl::Texture2D::LoadFromFile("rock.png"));
 
-  CreateVolumeTexture();
+ 
+  // Create sparse voxel data
+  VoxelOctreeGenerator dataGen(m_volumeSize);
+  float* volumeData = dataGen.GenerateRawVolumeFromNoise();
+  ezDynamicArray<ezUInt32>& sparseVoxelOctree = dataGen.CreateVoxelOctreeFromRawVolume([volumeData](const ezVec3U32& samplingPos)
+                                           { return volumeData[samplingPos.x + (samplingPos.y + samplingPos.z * m_volumeSize)*m_volumeSize]; });
+
+  glGenBuffers(1, &m_SparseVoxelOctree);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SparseVoxelOctree);
+  glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ezUInt32) * sparseVoxelOctree.GetCount(), static_cast<ezArrayPtr<ezUInt32>>(sparseVoxelOctree).GetPtr(), GL_STATIC_DRAW);
+  glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+  EZ_DEFAULT_DELETE_RAW_BUFFER(volumeData);
 }
 
 VoxelTerrain::~VoxelTerrain(void)
 {
-  EZ_DEFAULT_DELETE(m_pVolumeTexture);
-  
   glDeleteVertexArrays(1, &m_GeometryInfoVA);
   glDeleteBuffers(1, &m_GeometryInfoBuffer);
   glDeleteBuffers(1, &m_VolumeIndirectDrawBuffer);
-  glDeleteSamplers(1, &m_VolumeSamplerObject);
+
+  glDeleteBuffers(1, &m_SparseVoxelOctree);
+
   glDeleteSamplers(1, &m_TexturingSamplerObjectAnisotropic);
   glDeleteSamplers(1, &m_TexturingSamplerObjectTrilinear);
 }
 
-void VoxelTerrain::CreateVolumeTexture()
-{
-  m_pVolumeTexture = EZ_DEFAULT_NEW(gl::Texture3D)(m_uiVolumeWidth, m_uiVolumeHeight, m_uiVolumeDepth, GL_RGBA8, 1); // tried to use GL_RGBA32F without changing anything else: saw nothing then
-  ezColor* volumeData = EZ_DEFAULT_NEW_RAW_BUFFER(ezColor, m_uiVolumeWidth * m_uiVolumeHeight * m_uiVolumeDepth);
-
-  NoiseGenerator noiseGen;
-  ezUInt32 slicePitch = m_uiVolumeWidth * m_uiVolumeHeight;
-  float mulitplier = 1.0f / static_cast<float>(ezMath::Max(m_uiVolumeWidth, m_uiVolumeHeight, m_uiVolumeDepth) - 1);
-
-#pragma omp parallel for // OpenMP parallel for loop.
-  for(ezInt32 z=0; z<m_uiVolumeDepth; ++z) // Needs to be signed for OpenMP.
-  {
-    for(ezUInt32 y=0; y<m_uiVolumeHeight; ++y)
-    {
-      for(ezUInt32 x=0; x<m_uiVolumeWidth; ++x)
-      {
-        // todo: big mystery why the terrain is looking weird without feeding intial gradients - the computenormal shader mixes everything up anyway
-        ezVec3 gradient;
-        ezColor& current = volumeData[x + y * m_uiVolumeWidth + z * slicePitch];
-        current.a = noiseGen.GetValueNoise(ezVec3(mulitplier*x, mulitplier*y, mulitplier*z), 0, 5, 0.8f, false, &gradient);
-        gradient.Normalize();
-        current.SetRGB(gradient);
-        current *= 0.5f;
-        current += ezColor(0.5f,0.5f,0.5f,0.5f);
-      }
-    }
-  }
-
-  m_pVolumeTexture->SetData(0, volumeData);
-
-  EZ_DEFAULT_DELETE_RAW_BUFFER(volumeData);
-}
-
 void VoxelTerrain::ComputeGeometryInfo()
 {
+  /*
   m_VolumeInfoUBO.BindBuffer(3);
 
 
   // recompute normals
-  m_pVolumeTexture->BindImage(0, gl::Texture::ImageAccess::READ_WRITE);
+
   m_ComputeNormalsShader.Activate();
   glDispatchCompute(m_uiVolumeWidth / 8, m_uiVolumeHeight / 8, m_uiVolumeDepth / 8);
   gl::Utils::CheckError("glDispatchCompute");
-
+  
 
 
   // need to clear the indirect draw buffer, otherwise we'll accumulate to much stuff...
@@ -186,7 +154,6 @@ void VoxelTerrain::ComputeGeometryInfo()
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
   // extract geometry info from volume
-  m_pVolumeTexture->BindImage(0, gl::Texture::ImageAccess::READ);
   m_ExtractGeometryInfoShader.Activate();
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_GeometryInfoBuffer);
   glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_VolumeIndirectDrawBuffer);  // bind indirect draw buffer as atomic counter to count how many quads should be rendered
@@ -196,7 +163,7 @@ void VoxelTerrain::ComputeGeometryInfo()
   glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 
-  
+  */
    // read back (debug usage)
  /* glFlush();
   glBindBuffer(GL_ARRAY_BUFFER, m_VolumeIndirectDrawBuffer);
@@ -207,6 +174,7 @@ void VoxelTerrain::ComputeGeometryInfo()
 
 void VoxelTerrain::Draw()
 {
+  /*
   // todo? change only if necessary
   m_VolumeInfoUBO["GradientDescendStepMultiplier"].Set(SceneConfig::g_GradientDescendStepMultiplier);
   m_VolumeInfoUBO["GradientDescendStepCount"].Set(SceneConfig::g_GradientDescendStepCount);
@@ -216,7 +184,6 @@ void VoxelTerrain::Draw()
 
 
   glBindSampler(0, m_VolumeSamplerObject);
-  m_pVolumeTexture->Bind(0);
 
   GLint textureSampler = m_TexturingSamplerObjectAnisotropic;
   if(!SceneConfig::g_UseAnisotropicFilter)
@@ -231,14 +198,19 @@ void VoxelTerrain::Draw()
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_VolumeIndirectDrawBuffer);
   glDrawArraysIndirect(GL_PATCHES, NULL);
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0); // unbind
+
+  */
 }
 
 void VoxelTerrain::DrawReferenceRaycast()
 {
   // "reference renderer" direct volume visualization
+
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_SparseVoxelOctree);
+
   m_DirectVolVisShader.Activate();
-  glBindSampler(0, m_VolumeSamplerObject);
-  m_pVolumeTexture->Bind(0);
   m_DirectVolVisShader.BindUBO(m_VolumeInfoUBO);
   m_pScreenAlignedTriangle->Draw();
+
+   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
 }

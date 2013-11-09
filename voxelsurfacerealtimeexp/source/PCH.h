@@ -21,3 +21,5 @@
 
 
 #include <GL/glew.h>
+
+typedef ezVec3Template<ezUInt32> ezVec3U32;

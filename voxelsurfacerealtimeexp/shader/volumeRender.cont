@@ -81,3 +81,29 @@ void main()
 	gl_out[gl_InvocationID].gl_Position = ViewProjection * vec4(position, 1.0f);
 }
 
+/*
+// fixed to 8 samples
+// interestingly quite a bit slower and had still a bug leading to spikes
+
+	vec4 vol000 = textureLod(VolumeTexture, (position + vec3(-0.5f, -0.5f, -0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+	vec4 vol100 = textureLod(VolumeTexture, (position + vec3( 0.5f, -0.5f, -0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+	vec4 vol010 = textureLod(VolumeTexture, (position + vec3(-0.5f,  0.5f, -0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+	vec4 vol110 = textureLod(VolumeTexture, (position + vec3( 0.5f,  0.5f, -0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+	vec4 vol001 = textureLod(VolumeTexture, (position + vec3(-0.5f, -0.5f,  0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+	vec4 vol101 = textureLod(VolumeTexture, (position + vec3( 0.5f, -0.5f,  0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+	vec4 vol011 = textureLod(VolumeTexture, (position + vec3(-0.5f,  0.5f,  0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+	vec4 vol111 = textureLod(VolumeTexture, (position + vec3( 0.5f,  0.5f,  0.5f)) * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
+
+
+	vec4 volumeData = vec4(1);
+	for(int i=0; i<GradientDescendStepCount && abs(volumeData.w) > 0.001f; ++i)	// additional condition makes it acutally faster (tested with 6 samples, scaling 15)
+	{
+		vec3 interp = fract(position);
+		volumeData = mix(mix(mix(vol000, vol100, interp.x), mix(vol010, vol110, interp.x), interp.y),
+					 	 mix(mix(vol001, vol101, interp.x), mix(vol011, vol111, interp.x), interp.y), interp.z);
+		//volumeData.xyz = normalize(volumeData.xyz);
+
+		position += -interp + clamp(interp - volumeData.xyz * (volumeData.w * GradientDescendStepMultiplier), vec3(0), vec3(1));
+	}
+
+*/

@@ -20,14 +20,14 @@ public:
   void Draw();
   void DrawReferenceRaycast();
 
-  ezVec3 GetWorldSize() { return ezVec3(static_cast<float>(m_uiVolumeWidth), static_cast<float>(m_uiVolumeHeight), static_cast<float>(m_uiVolumeDepth)); }
+  ezVec3 GetWorldSize() { return ezVec3(static_cast<float>(m_volumeSize)); }
 
   const gl::ShaderObject& GetShaderDirectVolVis() { return m_DirectVolVisShader; }
   const gl::ShaderObject& GetShaderVolumeRenderShader() { return m_VolumeRenderShader; }
   const gl::ShaderObject& GetShaderExtractGeometryInfo() { return m_ExtractGeometryInfoShader; }
 
 private:
-  void CreateVolumeTexture();
+  void CreateSparseVoxelOctree();
 
   std::shared_ptr<const gl::ScreenAlignedTriangle> m_pScreenAlignedTriangle;
 
@@ -46,14 +46,13 @@ private:
   GLuint m_TexturingSamplerObjectAnisotropic;
   GLuint m_TexturingSamplerObjectTrilinear;
 
-  static const ezUInt32 m_uiVolumeWidth;
-  static const ezUInt32 m_uiVolumeHeight;
-  static const ezUInt32 m_uiVolumeDepth;
-  gl::Texture* m_pVolumeTexture;
+  GLuint m_SparseVoxelOctree;
+
+  static const ezUInt32 m_volumeSize;
 
   ezUniquePtr<gl::Texture2D> m_pTextureY;
   ezUniquePtr<gl::Texture2D> m_pTextureXZ;
 
-  static const ezUInt32 m_GeometryBufferElementCount = 1048576; // 4mb buffer, hopefully sufficient
+  static const ezUInt32 m_GeometryBufferElementCount = 1048576; // 4mb buffer, hopefully sufficient 
 };
 
