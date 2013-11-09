@@ -10,7 +10,7 @@
 
 #include "VoxelOctreeGenerator.h"
 
-const ezUInt32 VoxelTerrain::m_volumeSize = 512;
+const ezUInt32 VoxelTerrain::m_volumeSize = 128;
 
 namespace SceneConfig
 {

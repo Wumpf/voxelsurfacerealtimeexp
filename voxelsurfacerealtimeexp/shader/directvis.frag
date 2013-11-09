@@ -18,34 +18,33 @@ layout(location = 0, index = 0) out vec4 ps_out_fragColor;
 
 
 const uint NumInitialNodesPerAxis = 8;
-const uint InitialNodeSize = 64;
+const uint InitialNodeSize = 16;
 const uint InitialDepth = 3;
 
-float SampleOctree(uvec3 volumePosition, out uint outLastBoxSize)
+float SampleOctree(uvec3 volumePosition, out uint outCurrentBoxSize)
 {
 	// Read inital node
-	outLastBoxSize = InitialNodeSize;
-	uvec3 initalNodePos = volumePosition / outLastBoxSize;
+	outCurrentBoxSize = InitialNodeSize;
+	uvec3 initalNodePos = volumePosition / outCurrentBoxSize;
 	uint initialNodeIndex = (initalNodePos.x + (initalNodePos.y + initalNodePos.z * NumInitialNodesPerAxis) * NumInitialNodesPerAxis);
 	uint currentNodeAdress = initialNodeIndex * 8;
 
-
 	while(true)
 	{
-		uvec3 parentBoxMin = (volumePosition / outLastBoxSize) * outLastBoxSize;
+		vec3 inBoxCoord = mod(volumePosition, vec3(outCurrentBoxSize));
 
 		// Next box is half the size!
-		outLastBoxSize /= uint(2);
+		outCurrentBoxSize /= uint(2);
 
 		// In which subbox is volumePosition? True means positive, false negative.
-		uvec3 subBoxCord = uvec3(greaterThanEqual(volumePosition - parentBoxMin, uvec3(outLastBoxSize)));
-		// Compute where to which node to jump
+		uvec3 subBoxCord = uvec3(greaterThanEqual(inBoxCoord, uvec3(outCurrentBoxSize)));
+		// Compute to which node to jump
 		currentNodeAdress += subBoxCord.x + subBoxCord.y * 2 + subBoxCord.z * 4;
 
 		// Read current node data and decide what to do next.
 		uint currentData = SparseVoxelOctree.Data[currentNodeAdress];
 		// The end?
-		if(outLastBoxSize == 1)
+		if(outCurrentBoxSize == 1)
 			return uintBitsToFloat(currentData);
 		else
 		{
@@ -88,25 +87,35 @@ void main()
 	float start = max(5, min(t0, t1));
 	float end = max(t0, t1);
 
-    uvec3 lastSamplePosUInt = uvec3(9999999);
     float nextStep;
 	for(float t=start; t<end; t+=nextStep)
 	{
 		nextStep = t * 0.01f; // default step - this is min!
 
 		vec3 samplePos = CameraPosition + rayDirection * t;
+		vec3 interp = fract(samplePos);
 
-		uvec3 samplePosUInt = uvec3(samplePos + vec3(0.5,0.5,0.5));
-		if(all(samplePosUInt == lastSamplePosUInt))
-			continue;
-		lastSamplePosUInt = samplePosUInt;
+
+		uvec3 samplePosUInt = uvec3(samplePos);
 
 		uint lastBoxSize;
-		float density = SampleOctree(samplePosUInt, lastBoxSize);
+		float density000 = SampleOctree(samplePosUInt + uvec3(0, 0, 0), lastBoxSize);
+		float density100 = SampleOctree(samplePosUInt + uvec3(1, 0, 0), lastBoxSize);
+		float density010 = SampleOctree(samplePosUInt + uvec3(0, 1, 0), lastBoxSize);
+		float density110 = SampleOctree(samplePosUInt + uvec3(1, 1, 0), lastBoxSize);
+		float density001 = SampleOctree(samplePosUInt + uvec3(0, 0, 1), lastBoxSize);
+		float density101 = SampleOctree(samplePosUInt + uvec3(1, 0, 1), lastBoxSize);
+		float density011 = SampleOctree(samplePosUInt + uvec3(0, 1, 1), lastBoxSize);
+		float density111 = SampleOctree(samplePosUInt + uvec3(1, 1, 1), lastBoxSize);
+
+		float density = mix(mix(mix(density000, density100, interp.x), mix(density010, density110, interp.x), interp.y),
+						    mix(mix(density001, density101, interp.x), mix(density011, density111, interp.x), interp.y), interp.z);
 
 	//	vec4 vol = textureLod(VolumeTexture, samplePos / VolumeWorldSize, 0);
 		if(density > 0.0f)
 		{
+
+
 /*			vec3 normal = normalize(vol.xyz);
 			normal = normalize(normal);
 			float lighting = clamp(dot(normal, GlobalDirLightDirection), 0, 1);
@@ -124,6 +133,8 @@ void main()
 
 			return;
 		}
+
+
 		/*else if(lastBoxSize > nextStep * 4)
 		{
 			vec3 boxMin = (uvec3(samplePos) / uvec3(lastBoxSize)) + vec3(lastBoxSize);

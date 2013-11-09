@@ -35,7 +35,7 @@ ezUInt32 VoxelOctreeGenerator::ComputeDataEntryRec(const ezVec3U32& vMin, const 
 {
   // Areas are always square, so check only one delta.
   // Data ending?
-  if(vMin.x == vMax.z + 1)
+  if(vMax.x -vMin.x == 1)
   {
     float value = samplingFunc(vMin);
     return *reinterpret_cast<ezUInt32*>(&value);
