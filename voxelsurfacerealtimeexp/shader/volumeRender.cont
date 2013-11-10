@@ -2,8 +2,6 @@
 
 #include "constantbuffers.glsl"
 
-layout(binding = 0) uniform sampler3D VolumeTexture;
-
 // input
 layout(location = 0) in uvec4 vs_in_quaddata[];
 
@@ -69,14 +67,16 @@ void main()
 		gl_TessLevelOuter[3] = 1.0f;
 	}
 
+/*
 	vec4 volumeData = vec4(1);
 	for(int i=0; i<GradientDescendStepCount && abs(volumeData.w) > 0.001f; ++i)	// additional condition makes it acutally faster (tested with 6 samples, scaling 15)
 	{
 		volumeData = textureLod(VolumeTexture, position * VolumePosToTexcoord, 0.0f) * 2.0f - 1.0f;
 		position -= volumeData.xyz * (volumeData.w * GradientDescendStepMultiplier);
 	}
+	*/
 
-	Out[gl_InvocationID].Normal = volumeData.xyz;	// possibly a bit outdated, but nothing bad.. btw. this is not normalized!
+	Out[gl_InvocationID].Normal = -normalize(QuadLookUpTable[uint(vs_in_quaddata[0].w + gl_InvocationID)]);
 	Out[gl_InvocationID].WorldPos = position;
 	gl_out[gl_InvocationID].gl_Position = ViewProjection * vec4(position, 1.0f);
 }

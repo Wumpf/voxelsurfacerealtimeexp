@@ -1,36 +1,34 @@
 ﻿#version 430
 
 #include "constantbuffers.glsl"
-
-layout(binding = 0, rgba8) readonly restrict uniform image3D VolumeTexture;
+#include "sparseVoxelOctree.glsl"
 
 
 // output buffer
 layout(binding = 0, offset = 0) uniform atomic_uint NumQuadsAtomicCounter; // output buffer size, this is part of a draw indirect buffer
-layout(binding = 0) writeonly buffer QuadBuffer
+layout(binding = 1) writeonly buffer QuadBuffer
 {
 	uint Quads[];	// 8bit xyz position, 8bit w quad identifier
 };
 
-shared float textureCache[1000]; 
+shared float volumeCache[1000]; 
 
 // compute shader size
 layout (local_size_x = 10, local_size_y = 10, local_size_z = 10) in;
 void main()
 {
 	ivec3 volumeCoordinate = ivec3(gl_WorkGroupID.xyz) * ivec3(8,8,8) + ivec3(gl_LocalInvocationID.xyz) - ivec3(1,1,1);
-	uint textureCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
+	uint volumeCachePos = gl_LocalInvocationID.x + gl_LocalInvocationID.y*10 + gl_LocalInvocationID.z*100;
 
 	// fill shared memory
-	ivec3 textureSamplingPos = volumeCoordinate;
-	textureSamplingPos = clamp(textureSamplingPos, ivec3(0), VolumeMaxTextureLoad);
-	float ownValue = imageLoad(VolumeTexture, textureSamplingPos).w;
+	uvec3 volumeSamplingPos = uvec3(clamp(volumeCoordinate, ivec3(0), VolumeMaxLoadCoord));
+	float ownValue = SampleOctree(volumeSamplingPos);
 	
-	textureCache[textureCachePos] = ownValue;
+	volumeCache[volumeCachePos] = ownValue ;
 
 	// early outs
 	// own iso to small
-	if(ownValue <= IsoValue)
+	if(ownValue <= 0.0f)
 		return;
 	// border threads (useless now)
 	if(any(equal(gl_LocalInvocationID.xyz, uvec3(0))) || 
@@ -41,12 +39,12 @@ void main()
 	barrier();
 
 	// watch sourrundings
-	bool left     = textureCache[textureCachePos - 1] > IsoValue;
-	bool right    = textureCache[textureCachePos + 1] > IsoValue;
-	bool up       = textureCache[textureCachePos + 10] > IsoValue;
-	bool down     = textureCache[textureCachePos - 10] > IsoValue;
-	bool forward  = textureCache[textureCachePos + 100] > IsoValue;
-	bool backward = textureCache[textureCachePos - 100] > IsoValue;
+	bool left     = volumeCache[volumeCachePos - 1] > 0.0f;
+	bool right    = volumeCache[volumeCachePos + 1] > 0.0f;
+	bool up       = volumeCache[volumeCachePos + 10] > 0.0f;
+	bool down     = volumeCache[volumeCachePos - 10] > 0.0f;
+	bool forward  = volumeCache[volumeCachePos + 100] > 0.0f;
+	bool backward = volumeCache[volumeCachePos - 100] > 0.0f;
 
 	// all of them? so this one is useless
 	if(left && right && up && down && forward && backward)

@@ -21,12 +21,12 @@ layout(binding = 2, shared) uniform GlobalSceneInfo
 
 layout(binding = 3, shared) uniform VolumeDataInfo
 {
-  ivec3 VolumeMaxTextureLoad;
   vec3 VolumeWorldSize;
-  vec3 VolumePosToTexcoord;
+  vec3 VolumeMaxLoadCoord;
 
-  float GradientDescendStepMultiplier;
-  int GradientDescendStepCount;
+  uint NumInitialNodesPerAxis;
+  uint InitialNodeSize;
+
+//  float GradientDescendStepMultiplier;
+//  int GradientDescendStepCount;
 };
-
-const float IsoValue = 0.5;

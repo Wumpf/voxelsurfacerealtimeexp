@@ -54,19 +54,19 @@ Scene::Scene(const RenderWindowGL& renderWindow) :
   m_CameraUBO.Init(cameraUBOusingShader, "Camera");
 
   ezDynamicArray<const gl::ShaderObject*> globalSceneInfoUBOusingShader;
-  globalSceneInfoUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderDirectVolVis());
   globalSceneInfoUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderVolumeRenderShader());
+  globalSceneInfoUBOusingShader.PushBack(&m_pVoxelTerrain->GetShaderDirectVolVis());
   m_GlobalSceneInfo.Init(globalSceneInfoUBOusingShader, "GlobalSceneInfo");
 
 /*    ezDynamicArray<const gl::ShaderObject*> timeUBOusingShader;
   cameraUBOusingShader.PushBack(&m_DirectVolVisShader);
   m_TimeUBO.Init(cameraUBOusingShader, "Time");
 */
-  /*
+  
   m_GlobalSceneInfo["GlobalDirLightDirection"].Set(ezVec3(1,-2.0f,1).GetNormalized());
   m_GlobalSceneInfo["GlobalDirLightColor"].Set(ezVec3(0.98f, 0.98f, 0.8f));
   m_GlobalSceneInfo["GlobalAmbient"].Set(ezVec3(0.3f, 0.3f, 0.3f));
-  */
+  
   ezVec3 vCameraPos = m_pVoxelTerrain->GetWorldSize();
   vCameraPos.x /=2;
   vCameraPos.z /=2;
@@ -114,7 +114,8 @@ ezResult Scene::Render(ezTime lastFrameDuration)
   m_GlobalSceneInfo.BindBuffer(2);
 
   m_ExtractGeometryTimer->Start();
-  m_pVoxelTerrain->ComputeGeometryInfo();
+  if(!SceneConfig::g_UseReferenceVis)
+    m_pVoxelTerrain->ComputeGeometryInfo();
   m_ExtractGeometryTimer->End();
 
   // no depth test needed so far

@@ -10,7 +10,7 @@
 
 #include "VoxelOctreeGenerator.h"
 
-const ezUInt32 VoxelTerrain::m_volumeSize = 128;
+const ezUInt32 VoxelTerrain::m_volumeSize = 256;
 
 namespace SceneConfig
 {
@@ -37,8 +37,8 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   m_ExtractGeometryInfoShader.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "extractgeometry.comp");
   m_ExtractGeometryInfoShader.CreateProgram();
 
-  m_ComputeNormalsShader.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "computenormals.comp");
-  m_ComputeNormalsShader.CreateProgram();
+//  m_ComputeNormalsShader.AddShaderFromFile(gl::ShaderObject::ShaderType::COMPUTE, "computenormals.comp");
+//  m_ComputeNormalsShader.CreateProgram();
 
 
   // ubo init
@@ -48,11 +48,6 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   volumeInfoUBOusingShader.PushBack(&m_ExtractGeometryInfoShader);
   volumeInfoUBOusingShader.PushBack(&m_ComputeNormalsShader);
   m_VolumeInfoUBO.Init(volumeInfoUBOusingShader, "VolumeDataInfo");
-
-  
-  m_VolumeInfoUBO["VolumeMaxTextureLoad"].Set(ezVec3Template<ezInt32>(m_volumeSize-1));
-  m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_volumeSize)));
-  m_VolumeInfoUBO["VolumePosToTexcoord"].Set(ezVec3(1.0f / static_cast<float>(m_volumeSize-1))); // minus one is very important! otherwise the fetching won't match exactly! texture with 256 -> 255 maps to 1
 
   // geometry info buffer
   {
@@ -115,6 +110,13 @@ VoxelTerrain::VoxelTerrain(const std::shared_ptr<const gl::ScreenAlignedTriangle
   glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ezUInt32) * sparseVoxelOctree.GetCount(), static_cast<ezArrayPtr<ezUInt32>>(sparseVoxelOctree).GetPtr(), GL_STATIC_DRAW);
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
   EZ_DEFAULT_DELETE_RAW_BUFFER(volumeData);
+
+
+
+  m_VolumeInfoUBO["VolumeWorldSize"].Set(ezVec3(static_cast<float>(m_volumeSize)));
+  m_VolumeInfoUBO["VolumeMaxLoadCoord"].Set(ezVec3(static_cast<float>(m_volumeSize-1)));
+  m_VolumeInfoUBO["NumInitialNodesPerAxis"].Set(dataGen.GetNumInitialNodesPerAxis());
+  m_VolumeInfoUBO["InitialNodeSize"].Set(dataGen.GetInitialNodesSize());
 }
 
 VoxelTerrain::~VoxelTerrain(void)
@@ -131,17 +133,13 @@ VoxelTerrain::~VoxelTerrain(void)
 
 void VoxelTerrain::ComputeGeometryInfo()
 {
-  /*
-  m_VolumeInfoUBO.BindBuffer(3);
-
 
   // recompute normals
 
-  m_ComputeNormalsShader.Activate();
-  glDispatchCompute(m_uiVolumeWidth / 8, m_uiVolumeHeight / 8, m_uiVolumeDepth / 8);
-  gl::Utils::CheckError("glDispatchCompute");
+ // m_ComputeNormalsShader.Activate();
+ // glDispatchCompute(m_volumeSize / 8, m_volumeSize / 8, m_volumeSize / 8); 
+ // gl::Utils::CheckError("glDispatchCompute");
   
-
 
   // need to clear the indirect draw buffer, otherwise we'll accumulate to much stuff...
   gl::DrawArraysIndirectCommand indirectCommandEmpty;
@@ -155,15 +153,17 @@ void VoxelTerrain::ComputeGeometryInfo()
 
   // extract geometry info from volume
   m_ExtractGeometryInfoShader.Activate();
-  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_GeometryInfoBuffer);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_SparseVoxelOctree);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_GeometryInfoBuffer);
   glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_VolumeIndirectDrawBuffer);  // bind indirect draw buffer as atomic counter to count how many quads should be rendered
-  glDispatchCompute(m_uiVolumeWidth / 8, m_uiVolumeHeight / 8, m_uiVolumeDepth / 8);
+  glDispatchCompute(m_volumeSize / 8, m_volumeSize / 8, m_volumeSize / 8); // todo: optimize drastically
   gl::Utils::CheckError("glDispatchCompute");
   // unbinds
   glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, 0);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
 
-  */
+
    // read back (debug usage)
  /* glFlush();
   glBindBuffer(GL_ARRAY_BUFFER, m_VolumeIndirectDrawBuffer);
@@ -174,16 +174,17 @@ void VoxelTerrain::ComputeGeometryInfo()
 
 void VoxelTerrain::Draw()
 {
-  /*
+  
   // todo? change only if necessary
-  m_VolumeInfoUBO["GradientDescendStepMultiplier"].Set(SceneConfig::g_GradientDescendStepMultiplier);
-  m_VolumeInfoUBO["GradientDescendStepCount"].Set(SceneConfig::g_GradientDescendStepCount);
+  
+  //m_VolumeInfoUBO["GradientDescendStepMultiplier"].Set(SceneConfig::g_GradientDescendStepMultiplier);
+  //m_VolumeInfoUBO["GradientDescendStepCount"].Set(SceneConfig::g_GradientDescendStepCount);
   m_VolumeInfoUBO.BindBuffer(3);
 
   m_VolumeRenderShader.Activate();
 
 
-  glBindSampler(0, m_VolumeSamplerObject);
+ 
 
   GLint textureSampler = m_TexturingSamplerObjectAnisotropic;
   if(!SceneConfig::g_UseAnisotropicFilter)
@@ -199,7 +200,7 @@ void VoxelTerrain::Draw()
   glDrawArraysIndirect(GL_PATCHES, NULL);
   glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0); // unbind
 
-  */
+  
 }
 
 void VoxelTerrain::DrawReferenceRaycast()

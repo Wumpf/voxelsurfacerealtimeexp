@@ -3,8 +3,19 @@
 #include "math/NoiseGenerator.h"
 
 VoxelOctreeGenerator::VoxelOctreeGenerator(ezUInt32 uiVolumeSize) :
-  m_volumeSize(uiVolumeSize)
+  m_volumeSize(uiVolumeSize),
+  // Now the Octree itself will be generated.
+  // To reduce unnecessary traversal steps, there is an initial depth, that determines how many start nodes there are.
+  m_initialDepth(4), // 3 means: 16x16x16 = 4096 start nodes -> 8*4 byte per node = kb "inital table"
+  m_numInitialNodes(ezMath::Pow(8, m_initialDepth)),
+
+  m_numInitialNodesPerAxis(ezMath::Pow(2, m_initialDepth)),
+  m_numInitialNodesPerSlice(m_numInitialNodesPerAxis * m_numInitialNodesPerAxis),
+
+  m_initialNodeSize(m_volumeSize / m_numInitialNodesPerAxis),
+  m_maxDepth(static_cast<ezUInt32>(ezMath::Log2(static_cast<double>(m_volumeSize))))
 {
+    EZ_ASSERT(m_maxDepth > m_initialDepth, "Volume is too small!");
 }
 
 
@@ -35,7 +46,7 @@ ezUInt32 VoxelOctreeGenerator::ComputeDataEntryRec(const ezVec3U32& vMin, const 
 {
   // Areas are always square, so check only one delta.
   // Data ending?
-  if(vMax.x -vMin.x == 1)
+  if(vMax.x - vMin.x == 1)
   {
     float value = samplingFunc(vMin);
     return *reinterpret_cast<ezUInt32*>(&value);
@@ -126,40 +137,27 @@ void VoxelOctreeGenerator::ComputeSubdivionAreas(const ezVec3U32& vMin, const ez
 
 ezDynamicArray<ezUInt32>& VoxelOctreeGenerator::CreateVoxelOctreeFromRawVolume(const std::function<float(ezVec3U32 vSamplingPos)>& samplingFunc)
 {
-  // Now the Octree itself will be generated.
-  // To reduce unnecessary traversal steps, there is an initial depth, that determines how many start nodes there are.
-  const ezUInt32 initialDepth = 3; // 3 means: 8x8x8= 512 start nodes -> 8*4 byte per node = 16kb "inital table"
-  const ezUInt32 numInitialNodes = ezMath::Pow(8, initialDepth);
-
-  const ezUInt32 numInitialNodesPerAxis = ezMath::Pow(2, initialDepth);
-  const ezUInt32 numInitialNodesPerSlice = numInitialNodesPerAxis * numInitialNodesPerAxis;
-
-  const ezUInt32 initialNodeSize = m_volumeSize / numInitialNodesPerAxis;
-  const ezUInt32 maxDepth = static_cast<ezUInt32>(ezMath::Log2(static_cast<double>(m_volumeSize)));
-  EZ_ASSERT(maxDepth > initialDepth, "Volume is too small!");
-
-
   // each node consists of 8 data packages (32bit) in a row
   m_sparseVoxelData.Clear();
   m_sparseVoxelData.Reserve(m_volumeSize * m_volumeSize * 3);
   // reserve data for initial nodes
-  m_sparseVoxelData.SetCount(numInitialNodes * 8);
+  m_sparseVoxelData.SetCount(m_numInitialNodes * 8);
 
 
   // Start node should be indexed with: startNode = (x + (y + z * numInitialNodesPerAxis) * numInitialNodesPerAxis)
   // Keep in mind that every node consists of 8 "data packages" (either address, empty, full or data)
 
-  for(ezUInt32 startNode=0; startNode < numInitialNodes; ++ startNode)
+  for(ezUInt32 startNode=0; startNode < m_numInitialNodes; ++ startNode)
   {
     ezVec3U32 volumeMin;
-    volumeMin.z = startNode / numInitialNodesPerSlice,
-    volumeMin.y = (startNode - volumeMin.z * numInitialNodesPerSlice)  / numInitialNodesPerAxis,
-    volumeMin.x = startNode % numInitialNodesPerAxis;
-    volumeMin *= initialNodeSize;
+    volumeMin.z = startNode / m_numInitialNodesPerSlice,
+    volumeMin.y = (startNode - volumeMin.z * m_numInitialNodesPerSlice)  / m_numInitialNodesPerAxis,
+    volumeMin.x = startNode % m_numInitialNodesPerAxis;
+    volumeMin *= m_initialNodeSize;
 
     ezVec3U32 vBoxMins[8];
     ezVec3U32 vBoxMaxs[8];
-    ComputeSubdivionAreas(volumeMin, volumeMin + ezVec3U32(initialNodeSize), vBoxMins, vBoxMaxs);
+    ComputeSubdivionAreas(volumeMin, volumeMin + ezVec3U32(m_initialNodeSize), vBoxMins, vBoxMaxs);
     for(ezUInt32 i=0; i<8; ++i)
       m_sparseVoxelData[startNode * 8 + i] = ComputeDataEntryRec(vBoxMins[i], vBoxMaxs[i], samplingFunc);
   }
